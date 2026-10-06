@@ -15,6 +15,7 @@ import { strategyValue } from '../domain/pnl.ts';
 import { activeContracts, contractLabel, lastTradingDay, productOf, businessDaysToExpiry, PRODUCTS } from '../domain/contracts.ts';
 import { addDays, cmeHolidays, etDate, isBusinessDay, isMarketOpen, nextEiaRelease, previousSession, sessionEndUtc, sessionTradeDate, toEt } from '../domain/calendar.ts';
 import { consecutiveBuilds, weeklyChanges } from '../domain/inventory.ts';
+import { marginRequirement } from '../domain/risk.ts';
 import { assertNeutral } from '../domain/neutrality.ts';
 import { EIA_SERIES } from './eia.ts';
 import { fxRows } from './fx.ts';
@@ -190,10 +191,12 @@ export function dataQualityNotes(db: Db, nowMs: number, settings: AppSettings, m
   if (!inv.latestWeek) notes.push(`No EIA actual inventory data loaded${envFlags.eia ? '' : ' (EIA_API_KEY not set — enter WPSR figures manually)'}.`);
   else if (inv.nextRelease && inv.latestWeek < addDays(inv.nextRelease.weekEnding, -7)) notes.push(`Latest EIA actual week (${inv.latestWeek}) is older than the most recent published week.`);
   const account = repo.currentAccount(db);
+  const margins = repo.marginMap(db);
   const unknownMargin = repo
     .openPositions(db, account.id)
-    .flatMap((p) => p.legs.map((l) => l.contract))
-    .filter((c) => !repo.marginMap(db).has(c));
+    .map((p) => marginRequirement(p.legs, p.contractsPerLeg, margins, etDate(nowMs), settings.marginMaxAgeDays))
+    .filter((m) => !m.known)
+    .flatMap((m) => [...m.missing, ...m.stale]);
   if (unknownMargin.length) notes.push(`Initial margin not verified for ${[...new Set(unknownMargin)].join(', ')}: reserved margin and buying power are unknown, so new orders are blocked.`);
   notes.push('Contract last-trading days and exchange holidays are computed from CME rules; verify against the official calendar.');
   return notes;
