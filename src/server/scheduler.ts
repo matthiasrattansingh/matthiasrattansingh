@@ -2,7 +2,7 @@
 // cron or push notification. Each scheduled unit of work has a deterministic job key (e.g.
 // "hourly:2026-10-06T14:00:00.000Z") so retries and restarts never duplicate an update, and
 // slots that passed while the app was not running are recorded as "missed" — never backfilled.
-import type { BriefingDto, SchedulerStatusDto, UpdateReportDto } from '../shared/types.ts';
+import type { BriefingDto, ReactionDto, SchedulerStatusDto, UpdateReportDto } from '../shared/types.ts';
 import type { AppContext, SchedulerHandle } from './context.ts';
 import * as repo from './repo.ts';
 import { loadSettings } from './settings.ts';
@@ -200,6 +200,39 @@ export async function runBriefing(app: AppContext, kind: 'scheduled' | 'adhoc'):
   return briefing;
 }
 
+/**
+ * Compute (or recompute) the 0–15 minute EIA reaction from recorded quotes. With Databento
+ * configured, first pull the window's 1-minute bars. A free/usage-based Databento account only
+ * serves data older than 24 hours, so a recompute the next day fills in what the live capture
+ * could not.
+ */
+export async function captureReaction(app: AppContext, releaseDate: string): Promise<{ reaction: ReactionDto; fetchError: string | null }> {
+  const { db, env } = app;
+  const settings = loadSettings(db);
+  const row = releaseRow(db, releaseDate);
+  if (!row) throw new Error(`No EIA release recorded for ${releaseDate}`);
+  let fetchError: string | null = null;
+  if (settings.provider === 'databento' && env.databentoKey) {
+    const relMs = Date.parse(row.release_utc);
+    try {
+      const res = await getProvider('databento').fetchWindow!(
+        reactionContracts(db, releaseDate),
+        new Date(relMs - 30 * 60_000).toISOString(),
+        new Date(relMs + REACTION_WINDOW_MIN * 60_000 + 60_000).toISOString(),
+        { env, settings, fetchImpl: app.fetchImpl, nowMs: app.now() },
+      );
+      ingestProviderQuotes(db, 'databento', res.quotes, app.now());
+    } catch (e) {
+      fetchError = (e as Error).message;
+      app.log(`EIA window fetch failed: ${fetchError}`);
+    }
+  }
+  const reaction = computeReaction(db, releaseDate, app.now());
+  if (fetchError) reaction.notes.push(`Databento window fetch failed: ${fetchError}. Without a live CME license, data becomes available about 24 hours after the release; recompute then.`);
+  storeReaction(db, reaction);
+  return { reaction, fetchError };
+}
+
 export class Scheduler implements SchedulerHandle {
   running = false;
   startedAt: string | null = null;
@@ -342,21 +375,7 @@ export class Scheduler implements SchedulerHandle {
     const reaction = db.get<{ finalized_at: string | null }>('SELECT finalized_at FROM eia_reactions WHERE release_date = ?', rel.releaseDate);
     if (now >= relMs + (REACTION_WINDOW_MIN + delay) * 60_000 && !reaction?.finalized_at && now - this.lastReactionAttempt >= 2 * 60_000) {
       this.lastReactionAttempt = now;
-      if (settings.provider === 'databento' && env.databentoKey) {
-        const provider = getProvider('databento');
-        try {
-          const res = await provider.fetchWindow!(reactionContracts(db, rel.releaseDate), new Date(relMs - 30 * 60_000).toISOString(), new Date(relMs + REACTION_WINDOW_MIN * 60_000 + 60_000).toISOString(), {
-            env,
-            settings,
-            fetchImpl: this.app.fetchImpl,
-            nowMs: this.app.now(),
-          });
-          ingestProviderQuotes(db, 'databento', res.quotes, this.app.now());
-        } catch (e) {
-          this.app.log(`EIA window fetch failed: ${(e as Error).message}`);
-        }
-      }
-      storeReaction(db, computeReaction(db, rel.releaseDate, this.app.now()));
+      await captureReaction(this.app, rel.releaseDate);
     }
   }
 

@@ -12,6 +12,8 @@ import { databentoSymbol } from '../../domain/contracts.ts';
 import type { ProviderQuote } from '../quotes.ts';
 
 const BASE = 'https://hist.databento.com/v0';
+/** Databento treats data older than 24 hours as historical; newer data needs a live license. Small margin added. */
+export const HISTORICAL_ONLY_LAG_MS = 24 * 3600_000 + 5 * 60_000;
 
 function authHeader(key: string): string {
   return `Basic ${Buffer.from(`${key}:`).toString('base64')}`;
@@ -138,10 +140,26 @@ export const databentoProvider: QuoteProvider = {
   },
   async fetchLatest(contracts, ctx) {
     if (!ctx.env.databentoKey) return { quotes: [], errors: ['DATABENTO_API_KEY is not set.'] };
-    const end = await availableEnd(ctx);
+    let end = await availableEnd(ctx);
     const symbols = contracts.map(databentoSymbol);
-    const recent = await bars(ctx, symbols, 'ohlcv-1m', end - 90 * 60_000, end);
+    const notes: string[] = [];
+    let recent: OhlcvBar[];
+    try {
+      recent = await bars(ctx, symbols, 'ohlcv-1m', end - 90 * 60_000, end);
+    } catch (e) {
+      // Usage-based (free-credit) accounts without a live CME license can only read data older
+      // than 24 hours. Fall back to the newest data allowed and say so; those quotes keep their
+      // real exchange timestamps and therefore show as stale during the session.
+      const boundary = ctx.nowMs - HISTORICAL_ONLY_LAG_MS;
+      if (!/HTTP 4\d\d/.test((e as Error).message) || end <= boundary) throw e;
+      notes.push(
+        `Databento refused current-session data (${(e as Error).message}). Without a live CME data license the historical API only serves data older than 24 hours, so these quotes are at least a day old and are marked stale while NYMEX is open.`,
+      );
+      end = boundary;
+      recent = await bars(ctx, symbols, 'ohlcv-1m', end - 90 * 60_000, end);
+    }
     const first = toQuotes(contracts, recent, ctx, 'last');
+    first.errors.unshift(...notes);
     const missing = contracts.filter((c) => !first.quotes.some((q) => q.contract === c));
     if (!missing.length) return { quotes: first.quotes, errors: first.errors.filter((e) => !e.includes('no trades')) };
     // Thin contracts or closed market: find the last traded hour, then its last minute.

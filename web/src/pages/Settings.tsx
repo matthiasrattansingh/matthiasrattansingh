@@ -353,7 +353,7 @@ export function SettingsPage() {
               <span>Dataset</span>
               <input type="text" value={draft.databentoDataset} onChange={(e) => set('databentoDataset', e.target.value)} />
             </label>
-            <Num label="Declared delay (min)" value={draft.databentoDelayMinutes} onChange={(v) => set('databentoDelayMinutes', v ?? 0)} hint="Historical-API availability lag; freshness uses exchange time." />
+            <Num label="Declared delay (min)" value={draft.databentoDelayMinutes} onChange={(v) => set('databentoDelayMinutes', v ?? 0)} hint="Freshness uses exchange time. Free (usage-based) accounts only get data older than 24 hours, which shows as stale; current-session data needs Databento's live CME license." />
           </div>
         ) : null}
         {draft.provider === 'custom-http' ? (

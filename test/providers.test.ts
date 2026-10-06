@@ -6,6 +6,11 @@ import { databentoProvider, parseOhlcvNdjson, parseDbnPrice } from '../src/serve
 import { customHttpProvider } from '../src/server/providers/customHttp.ts';
 import { DEFAULT_SETTINGS, readEnv } from '../src/server/settings.ts';
 import type { AppSettings } from '../src/shared/types.ts';
+import { classifyQuote } from '../src/domain/freshness.ts';
+import { eiaReleaseForWeek } from '../src/domain/calendar.ts';
+import { ensureRelease, ingestInventories, manualInventoryRows } from '../src/server/eia.ts';
+import { captureReaction } from '../src/server/scheduler.ts';
+import { makeApp, updateSettings } from './helpers.ts';
 
 const NOW = Date.parse('2026-10-06T14:00:00Z');
 
@@ -94,5 +99,71 @@ describe('custom HTTP/JSON adapter (local fixture server)', () => {
     assert.ok(res.errors.some((e) => /BZZ2026.*refusing to substitute/.test(e)));
     assert.ok(res.errors.some((e) => /CLX2026.*UTC offset/.test(e)));
     assert.ok(res.errors.every((e) => !e.includes('custom-secret')));
+  });
+});
+
+describe('Databento without a live license (free credits)', () => {
+  it('falls back to data older than 24 hours, says why, and the quotes stay stale', async () => {
+    const calls: string[] = [];
+    const fetchImpl = (async (url: string) => {
+      calls.push(url);
+      if (url.includes('metadata.get_dataset_range')) return new Response(JSON.stringify({ start: '2010-06-06T00:00:00Z', end: '2026-10-06T13:59:00.000000000Z' }));
+      const end = Date.parse(new URL(url).searchParams.get('end')!);
+      if (end > NOW - 24 * 3600_000) return new Response(JSON.stringify({ detail: 'A live data license is required for data within the last 24 hours.' }), { status: 422 });
+      return new Response(
+        [
+          '{"hd":{"ts_event":"2026-10-05T13:50:00.000000000Z"},"close":"3.4810","symbol":"HOX6"}',
+          '{"hd":{"ts_event":"2026-10-05T13:50:00.000000000Z"},"close":"60.05","symbol":"BZZ6"}',
+        ].join('\n'),
+      );
+    }) as unknown as typeof fetch;
+    const res = await databentoProvider.fetchLatest(['HOX2026', 'BZZ2026'], { env: readEnv({ DATABENTO_API_KEY: 'db-free-key' }), settings: DEFAULT_SETTINGS, fetchImpl, nowMs: NOW });
+    assert.deepEqual(
+      res.quotes.map((q) => [q.contract, q.price, q.exchangeTs]),
+      [
+        ['HOX2026', 3.481, '2026-10-05T13:51:00.000Z'],
+        ['BZZ2026', 60.05, '2026-10-05T13:51:00.000Z'],
+      ],
+    );
+    assert.match(res.errors[0], /older than 24 hours/);
+    assert.match(res.errors[0], /live data license is required/);
+    const f = classifyQuote({ ...res.quotes[0], observedAt: new Date(NOW).toISOString() }, NOW, 30);
+    assert.equal(f.status, 'stale');
+  });
+
+  it('still surfaces a bad API key instead of hiding it behind the fallback', async () => {
+    const fetchImpl = (async () => new Response(JSON.stringify({ detail: 'Invalid API key' }), { status: 401 })) as unknown as typeof fetch;
+    await assert.rejects(
+      databentoProvider.fetchLatest(['HOX2026'], { env: readEnv({ DATABENTO_API_KEY: 'db-bad-key' }), settings: DEFAULT_SETTINGS, fetchImpl, nowMs: NOW }),
+      /Invalid API key/,
+    );
+  });
+
+  it('recomputes an EIA reaction from Databento window bars once they are available', async () => {
+    const t = makeApp('2026-10-07T14:00:00.000Z', { DATABENTO_API_KEY: 'db-test-key' });
+    updateSettings(t.db, { provider: 'databento' });
+    ensureRelease(t.db, eiaReleaseForWeek('2026-10-07')!);
+    t.setNow('2026-10-08T15:00:00.000Z'); // next day: the window is now > 24h old
+    ingestInventories(t.db, manualInventoryRows({ weekEnding: '2026-10-02', kind: 'actual', values: [{ series: 'distillate', levelKb: 121_000, changeKb: 900 }] }, t.nowMs).rows, t.nowMs, 'manual');
+    t.app.fetchImpl = (async (url: string) => {
+      if (url.includes('metadata.get_dataset_range')) return new Response(JSON.stringify({ end: '2026-10-07T15:00:00Z' }));
+      return new Response(
+        [
+          '{"hd":{"ts_event":"2026-10-07T14:29:00.000000000Z"},"close":"3.5000","symbol":"HOX6"}',
+          '{"hd":{"ts_event":"2026-10-07T14:29:00.000000000Z"},"close":"60.00","symbol":"BZZ6"}',
+          '{"hd":{"ts_event":"2026-10-07T14:36:00.000000000Z"},"close":"3.5300","symbol":"HOX6"}',
+          '{"hd":{"ts_event":"2026-10-07T14:44:00.000000000Z"},"close":"3.5250","symbol":"HOX6"}',
+          '{"hd":{"ts_event":"2026-10-07T14:44:00.000000000Z"},"close":"60.20","symbol":"BZZ6"}',
+        ].join('\n'),
+      );
+    }) as unknown as typeof fetch;
+    const { reaction, fetchError } = await captureReaction(t.app, '2026-10-07');
+    assert.equal(fetchError, null);
+    const ho = reaction.legs.find((l) => l.contract === 'HOX2026')!;
+    assert.equal(ho.pre!.exchangeTs, '2026-10-07T14:30:00.000Z');
+    assert.equal(ho.post!.exchangeTs, '2026-10-07T14:45:00.000Z');
+    assert.ok(Math.abs(ho.change! - 0.025) < 1e-9);
+    assert.equal(ho.inWindow.high, 3.53);
+    assert.ok(Math.abs(reaction.crack!.change! - (0.025 * 42 - 0.2)) < 1e-9);
   });
 });

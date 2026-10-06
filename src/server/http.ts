@@ -13,9 +13,9 @@ import { previewOrder, recordPass, submitOrder } from './orders.ts';
 import { enterManualQuotes, type ManualQuoteInput } from './quotes.ts';
 import { getProvider } from './providers/index.ts';
 import { buildSnapshot, inventorySummary } from './market.ts';
-import { refreshQuotes, runBriefing, schedulerStatus } from './scheduler.ts';
+import { captureReaction, refreshQuotes, runBriefing, schedulerStatus } from './scheduler.ts';
 import { valuate } from './valuation.ts';
-import { computeReaction, ensureRelease, fetchEiaWeekly, ingestInventories, manualInventoryRows, storeReaction, type ManualInventoryInput } from './eia.ts';
+import { ensureRelease, fetchEiaWeekly, ingestInventories, manualInventoryRows, type ManualInventoryInput } from './eia.ts';
 import { FX_META, fetchFx, fxRows } from './fx.ts';
 import { startNewAccount } from './seed.ts';
 import { activeContracts, contractLabel, isContractCode, lastTradingDay, PRODUCTS, tradingViewSymbol, type ProductCode } from '../domain/contracts.ts';
@@ -293,16 +293,14 @@ export function createHttpApp(app: AppContext): express.Express {
   );
   server.post(
     '/api/eia/reactions/:date/recompute',
-    h((req) => {
+    h(async (req) => {
       const date = String(req.params.date);
       const settings = loadSettings(db);
       const rel = eiaReleaseForWeek(date, settings.eiaOverrides);
       if (!rel) throw new HttpError(404, 'No EIA release that week.');
       ensureRelease(db, rel);
       if (app.now() < Date.parse(rel.releaseUtc) + 15 * 60_000) throw new HttpError(409, 'The 15-minute reaction window has not closed yet.');
-      const r = computeReaction(db, rel.releaseDate, app.now());
-      storeReaction(db, r);
-      return r;
+      return (await captureReaction(app, rel.releaseDate)).reaction;
     }),
   );
 

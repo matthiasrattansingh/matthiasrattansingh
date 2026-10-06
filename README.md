@@ -79,6 +79,12 @@ Quote sources (Settings → Market data):
   moves over 5% need confirmation.
 - **Databento** (`DATABENTO_API_KEY`). Pulls the latest 1-minute bar close per exact contract
   (raw symbols such as `HOX6`, `BZZ6`) from the historical API, timestamped at bar end.
+  New accounts get free usage-based credits, but without a live CME data license Databento only
+  serves data **older than 24 hours**. In that case the app falls back to the newest allowed
+  data, explains why on the Market page, and those quotes show as stale (P/L provisional) while
+  NYMEX is open. They still feed the briefing's trends and 48-hour changes, and pressing
+  **Recompute** on the EIA page the day after a release pulls that release's 0–15 minute window.
+  Current-session marks need Databento's paid live CME license.
 - **Custom HTTP/JSON**. Point it at any quote API you are licensed for: URL template with
   `{symbol}` (and optional `{apiKey}`), a symbol template (`{root}{month}{yy}` → `HOX26`), JSON
   paths for price/timestamp/symbol, and the source's declared delay. The response must echo the
