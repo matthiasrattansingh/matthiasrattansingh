@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  --color-up: #22e584;
+  --color-down: #ff4d5e;
+  --color-amber: #ffb000;
+  --color-ink: #0a0a0a;
+  --color-panel: #111214;
+  --color-line: #24262b;
+  --color-dim: #8b8f98;
+}
+
+html, body, #root { height: 100%; background: #000; color: #e9ebee; }
+body { margin: 0; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+
+/* Numbers always line up. */
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.feed { scrollbar-width: none; }
+.feed::-webkit-scrollbar { display: none; }
+
+@keyframes pop { 0% { transform: scale(.96); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+.pop { animation: pop .18s ease-out; }
