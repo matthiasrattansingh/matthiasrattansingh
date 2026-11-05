@@ -2,16 +2,23 @@ import { useCallback, useRef, useState } from 'react';
 import Feed from './components/Feed.jsx';
 import StoryBar from './components/StoryBar.jsx';
 import Hud from './components/Hud.jsx';
+import Profile from './screens/Profile.jsx';
 import useProgress from './lib/useProgress.js';
+import useLiveQuotes from './lib/useLiveQuotes.js';
 import { createFeed } from './lib/feed.js';
 import { FEED_CARDS, TAPE_CARDS } from './data/index.js';
 import { CARD_COMPONENTS } from './cards/index.js';
 
-const TAPE_EVERY = 9; // one TAPE CHECK card slotted in every 9 cards
+const TAPE_EVERY = 9; // one TAPE CHECK card slotted into the main feed every 9 cards
 const RENDER_WINDOW = 3; // cards further than this from the screen render as empty frames
+const SYMBOLS = TAPE_CARDS.map((c) => c.symbol);
+const LIVE_ITEMS = TAPE_CARDS.map((card) => ({ key: `live-${card.id}`, card }));
 
 export default function App() {
-  const { progress, session, record, view } = useProgress();
+  const { progress, session, record, view, reset } = useProgress();
+  const { quotes, status } = useLiveQuotes(SYMBOLS);
+  const [tab, setTab] = useState('feed');
+
   const progressRef = useRef(progress);
   progressRef.current = progress;
   const feedRef = useRef(null);
@@ -22,6 +29,7 @@ export default function App() {
   if (!firstBatch.current) firstBatch.current = feedRef.current.next(8, progress);
   const [items, setItems] = useState(firstBatch.current);
   const [active, setActive] = useState(0);
+  const [liveActive, setLiveActive] = useState(0);
   const [answers, setAnswers] = useState({}); // feed slot key -> saved answer
 
   const lengthRef = useRef(items.length);
@@ -41,31 +49,35 @@ export default function App() {
     else view(item.card.id);
   };
 
-  const activeItem = items[active];
+  const renderCard = (activeIndex) => (item, i) => {
+    if (Math.abs(i - activeIndex) > RENDER_WINDOW) return <section className="h-[100dvh] snap-start" />;
+    const Card = CARD_COMPONENTS[item.card.type];
+    return (
+      <Card
+        card={item.card}
+        slotKey={item.key}
+        quote={item.card.symbol ? quotes[item.card.symbol] : undefined}
+        answer={answers[item.key]}
+        onAnswer={onAnswer(item)}
+        badge={item.review ? <span className="num text-amber">↻ REVIEW</span> : undefined}
+      />
+    );
+  };
+
+  const barItem = tab === 'feed' ? items[active] : tab === 'live' ? LIVE_ITEMS[liveActive] : null;
 
   return (
     <div className="relative h-[100dvh] bg-black">
-      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md bg-gradient-to-b from-black via-black/90 to-transparent">
-        <StoryBar activeKey={activeItem?.key} done={Boolean(activeItem && answers[activeItem.key])} />
-        <Hud progress={progress} session={session} />
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md bg-gradient-to-b from-black via-black/90 to-transparent pb-2">
+        <StoryBar activeKey={barItem?.key ?? tab} done={!barItem || Boolean(answers[barItem.key])} />
+        <Hud progress={progress} session={session} tab={tab} onTab={setTab} liveStatus={status} />
       </header>
-      <Feed
-        items={items}
-        onActiveChange={onActive}
-        renderItem={(item, i) => {
-          if (Math.abs(i - active) > RENDER_WINDOW) return <section className="h-[100dvh] snap-start" />;
-          const Card = CARD_COMPONENTS[item.card.type];
-          return (
-            <Card
-              card={item.card}
-              slotKey={item.key}
-              answer={answers[item.key]}
-              onAnswer={onAnswer(item)}
-              badge={item.review ? <span className="num text-amber">↻ REVIEW</span> : undefined}
-            />
-          );
-        }}
-      />
+
+      <div className={tab === 'feed' ? '' : 'hidden'}>
+        <Feed items={items} onActiveChange={onActive} renderItem={renderCard(active)} />
+      </div>
+      {tab === 'live' && <Feed items={LIVE_ITEMS} onActiveChange={setLiveActive} renderItem={renderCard(liveActive)} />}
+      {tab === 'me' && <Profile progress={progress} session={session} onReset={reset} />}
     </div>
   );
 }

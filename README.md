@@ -1,5 +1,7 @@
 # Crack Spread Paper Trader
 
+> Also in this repo: **[TAPE](tape/README.md)**, a mobile swipe-card feed for learning oil markets (`cd tape && npm install && npm run dev`).
+
 A live-market **paper-trading game** for Brent and refined products. Each weekday you read a
 timestamped recap, look at a neutral market snapshot, and decide whether to enter a simulated
 trade. Open positions are marked to market from real quotes for the exact contract months,

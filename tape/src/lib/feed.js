@@ -12,13 +12,22 @@ function shuffle(xs, rand = Math.random) {
   return a;
 }
 
-/** Reorder so the same card type rarely appears twice in a row. */
+/** The market moment a card is about, so two cards on the same day don't spoil each other. */
+const eventDate = (c) => c.decision?.date ?? c.spread?.date ?? null;
+
+/**
+ * Reorder so the same card type rarely appears twice in a row, and cards about
+ * the same historical day are at least 4 cards apart.
+ */
 function interleave(cards) {
   const pool = [...cards];
   const out = [];
   while (pool.length) {
     const prev = out[out.length - 1];
-    let i = pool.findIndex((c) => c.type !== prev?.type);
+    const recentDates = out.slice(-4).map(eventDate).filter(Boolean);
+    const fresh = (c) => !recentDates.includes(eventDate(c));
+    let i = pool.findIndex((c) => c.type !== prev?.type && fresh(c));
+    if (i < 0) i = pool.findIndex(fresh);
     if (i < 0) i = 0;
     out.push(pool.splice(i, 1)[0]);
   }
