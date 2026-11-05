@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-// Vertical scroll-snap container. Reports which card is on screen and
-// asks for more cards when you get near the end (endless feed).
-export default function Feed({ items, renderItem, onActiveChange, onNearEnd }) {
+// Vertical scroll-snap container. Reports which card is on screen; the parent
+// appends more cards when you get near the end (endless feed).
+export default function Feed({ items, renderItem, onActiveChange }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -14,7 +14,6 @@ export default function Feed({ items, renderItem, onActiveChange, onNearEnd }) {
           if (e.isIntersecting) {
             const i = Number(e.target.dataset.index);
             onActiveChange?.(i);
-            if (i >= items.length - 3) onNearEnd?.();
           }
         }
       },
@@ -22,7 +21,7 @@ export default function Feed({ items, renderItem, onActiveChange, onNearEnd }) {
     );
     root.querySelectorAll('[data-index]').forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [items, onActiveChange, onNearEnd]);
+  }, [items, onActiveChange]);
 
   return (
     <main ref={ref} className="feed h-[100dvh] snap-y snap-mandatory overflow-y-scroll">

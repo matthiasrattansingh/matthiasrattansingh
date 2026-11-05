@@ -40,7 +40,9 @@ export function scoreSpread(card, call) {
   const from = card.spread.now;
   const to = card.outcome.spread;
   const change = to - from;
-  const actual = Math.abs(to) > Math.abs(from) ? 'WIDEN' : 'NARROW';
+  // The card states the result explicitly (a spread crossing zero is ambiguous);
+  // fall back to "bigger number = wider" for hand-made cards that omit it.
+  const actual = card.outcome.result ?? (to > from ? 'WIDEN' : 'NARROW');
   const correct = call === actual;
   const size = 1 + Math.min(Math.abs(toPerBbl(change, card.unit)), 20) / 10;
   const points = correct ? Math.round(15 * size) : -Math.round(5 * size);
