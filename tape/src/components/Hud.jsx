@@ -2,7 +2,7 @@ import { levelFor } from '../lib/levels.js';
 import { comboMultiplier, fmtMoney, START_BANKROLL } from '../lib/book.js';
 
 const TABS = [
-  { id: 'feed', label: 'FEED' },
+  { id: 'trade', label: 'TRADE' },
   { id: 'bell', label: 'BELL' },
   { id: 'desk', label: 'DESK' },
   { id: 'live', label: 'LIVE' },
@@ -10,7 +10,7 @@ const TABS = [
 ];
 
 // Top bar: tabs, then bankroll, win-streak multiplier and level/XP.
-export default function Hud({ progress, tab, onTab, liveStatus, bellDone }) {
+export default function Hud({ progress, tab, onTab, liveStatus, bellDone, compact }) {
   const lvl = levelFor(progress.xp);
   const up = progress.bankroll - START_BANKROLL;
   const mult = comboMultiplier(progress.combo);
@@ -27,7 +27,7 @@ export default function Hud({ progress, tab, onTab, liveStatus, bellDone }) {
           </button>
         ))}
       </nav>
-      <div className="mt-1 flex items-center gap-2 px-1">
+      {!compact && <div className="mt-1 flex items-center gap-2 px-1">
         <span className={`num text-sm font-bold ${up > 0 ? 'text-up' : up < 0 ? 'text-down' : 'text-white'}`}>
           {fmtMoney(progress.bankroll, { sign: false })}
         </span>
@@ -41,7 +41,7 @@ export default function Hud({ progress, tab, onTab, liveStatus, bellDone }) {
         <div className="h-1 w-14 rounded bg-white/10">
           <div className="h-full rounded bg-amber transition-[width] duration-500" style={{ width: `${lvl.pct * 100}%` }} />
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

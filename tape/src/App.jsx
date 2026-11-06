@@ -6,6 +6,7 @@ import MarginCall from './components/MarginCall.jsx';
 import Profile from './screens/Profile.jsx';
 import Desk from './screens/Desk.jsx';
 import Bell from './screens/Bell.jsx';
+import Trade from './screens/Trade.jsx';
 import useProgress from './lib/useProgress.js';
 import useLiveQuotes from './lib/useLiveQuotes.js';
 import { createFeed } from './lib/feed.js';
@@ -23,7 +24,7 @@ const LIVE_ITEMS = TAPE_CARDS.map((card) => ({ key: `live-${card.id}`, card }));
 export default function App() {
   const { progress, session, record, view, saveBell, clearMarginCall, reset } = useProgress();
   const { quotes, status } = useLiveQuotes(SYMBOLS);
-  const [tab, setTab] = useState('feed');
+  const [tab, setTab] = useState('trade');
   const date = useMemo(() => localDay(), []);
 
   const progressRef = useRef(progress);
@@ -92,13 +93,11 @@ export default function App() {
   return (
     <div className="relative h-[100dvh] bg-black">
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md bg-gradient-to-b from-black via-black/90 to-transparent pb-2">
-        <StoryBar activeKey={barItem?.key ?? tab} done={!barItem || Boolean(answerFor(barItem.key))} />
-        <Hud progress={progress} tab={tab} onTab={setTab} liveStatus={status} bellDone={bellDone} />
+        {tab !== 'trade' && <StoryBar activeKey={barItem?.key ?? tab} done={!barItem || Boolean(answerFor(barItem.key))} />}
+        <Hud progress={progress} tab={tab} onTab={setTab} liveStatus={status} bellDone={bellDone} compact={tab === 'trade'} />
       </header>
 
-      <div className={tab === 'feed' ? '' : 'hidden'}>
-        <Feed items={items} onActiveChange={onFeedActive} renderItem={renderCard(active.feed)} />
-      </div>
+      {tab === 'trade' && <Trade progress={progress} record={record} />}
       {tab === 'bell' && <Bell date={date} progress={progress} renderCard={renderCard} onActive={onBellActive} active={active.bell} />}
       {tab === 'live' && <Feed items={LIVE_ITEMS} onActiveChange={onLiveActive} renderItem={renderCard(active.live)} />}
       {tab === 'desk' && <Desk progress={progress} />}
