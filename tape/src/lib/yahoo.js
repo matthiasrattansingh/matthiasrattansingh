@@ -12,7 +12,7 @@ function urls(symbol) {
   const path = `/v8/finance/chart/${encodeURIComponent(symbol)}?range=1mo&interval=1d`;
   const list = [];
   if (import.meta.env.VITE_YF_BASE) list.push(`${import.meta.env.VITE_YF_BASE}${path}`);
-  list.push(`/yf${path}`);
+  list.push(`./yf${path}`); // Vite proxy in dev; Vercel rewrite to api/chart.js when hosted
   list.push(`https://query1.finance.yahoo.com${path}`);
   return list;
 }
