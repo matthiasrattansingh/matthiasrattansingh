@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { refresh } from './game/afterSession.js';
+import { specialsLog } from './game/calendar.js';
+import { SESSION_CARDS } from './data/index.js';
 import Feed from './components/Feed.jsx';
 import Hud from './components/Hud.jsx';
 import MarginCall from './components/MarginCall.jsx';
@@ -21,7 +23,7 @@ export default function App() {
   const { progress, session, record, apply, view, saveBell, clearMarginCall, reset } = useProgress();
   const { quotes, status } = useLiveQuotes(SYMBOLS);
   const [tab, setTab] = useState('trade');
-  const date = useMemo(() => localDay(), []);
+  const date = useMemo(() => localDay(), [tab]); // recomputed on tab switches, so it rolls over at midnight
   const [liveSeen, setLiveSeen] = useState({});
   const [startWith, setStartWith] = useState(null);
   const openSession = (id) => { setStartWith(id); setTab('trade'); };
@@ -54,7 +56,7 @@ export default function App() {
           />
         )}
         {tab === 'desk' && <Desk progress={progress} />}
-        {tab === 'me' && <Profile progress={progress} session={session} onReset={reset} apply={apply} onOpenSession={openSession} onTrade={() => setTab('trade')} />}
+        {tab === 'me' && <Profile progress={progress} session={session} onReset={reset} apply={apply} onOpenSession={openSession} onTrade={() => setTab('trade')} specials={specialsLog(progress, date, SESSION_CARDS)} />}
       </div>
 
       {progress.marginCall && <MarginCall blowups={progress.blowups} onClose={clearMarginCall} />}

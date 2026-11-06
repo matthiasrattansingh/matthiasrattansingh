@@ -11,6 +11,10 @@ import { afterSession } from '../game/afterSession.js';
 import { EVAL_DD, evalActive } from '../game/evalAccount.js';
 import { CONCEPT_CARDS, SESSION_CARDS } from '../data/index.js';
 import Rings from '../components/Rings.jsx';
+import ChatSheet, { ChatButton } from '../components/ChatSheet.jsx';
+import { acceptChallenge, markRead } from '../game/chat.js';
+import { specialFor } from '../game/calendar.js';
+import { localDay } from '../lib/progress.js';
 
 const conceptById = new Map(CONCEPT_CARDS.map((c) => [c.id, c]));
 const cardById = new Map(SESSION_CARDS.map((c) => [c.id, c]));
@@ -65,16 +69,25 @@ export function bookConcept(progress, record, concept, correct) {
 // session already moving behind a 5s countdown (autoplay); STOP pauses it.
 export default function Trade({ progress, record, apply, startWith, onStarted }) {
   const recent = useRef([]);
+  const today = localDay();
+  const special = specialFor(progress, today, SESSION_CARDS);
+  const specialItem = (sp) => ({ key: `special-${sp.date}-${Date.now()}`, card: cardById.get(sp.cardId), tag: { special: sp }, label: `⭐ ${sp.label}` });
   const choose = (p) => {
+    // Today's event special jumps the queue once; otherwise unplayed -> lowest grade -> review.
+    const sp = specialFor(p, today, SESSION_CARDS);
+    if (sp && !sp.played && !recent.current.includes(`special:${sp.date}`)) return specialItem(sp);
     const card = pickNext(p, SESSION_CARDS, { recent: recent.current, salt: String(Date.now()) });
     return { key: `${card.id}-${Date.now()}`, card };
   };
+  const [chatOpen, setChatOpen] = useState(false);
+  const currentRef = useRef(null);
   // ?session=<id> (or a Library tap) opens a specific session first.
   const [current, setCurrent] = useState(() => {
     const want = startWith ?? new URLSearchParams(location.search).get('session');
     const card = want && cardById.get(want);
     return card ? { key: `pick-${want}-${Date.now()}`, card } : choose(progress);
   });
+  currentRef.current = current;
   const [next, setNext] = useState(null);
   const [result, setResult] = useState(null);
   const [mode, setMode] = useState('play'); // play | idle
@@ -108,9 +121,11 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       return afterSession(p, {
         session: r.session, pnl: r.pnl, curve: r.sim.curve, full: true, stats: r.stats,
         bots: r.bots, marginCall: r.marginCall, guardHit: r.guardHit, trade, now: Date.now(),
+        tag: currentRef.current?.tag ?? null, cards: SESSION_CARDS,
       });
     });
-    recent.current = [r.session.id, ...recent.current].slice(0, 6);
+    const tag = currentRef.current?.tag;
+    recent.current = [r.session.id, ...(tag?.special ? [`special:${tag.special.date}`] : []), ...recent.current].slice(0, 8);
     setRode(false);
     // Let the last candle's P&L flash land before the debrief slides up.
     setTimeout(() => setResult({ ...r, trade, rideLost, events }), 1200);
@@ -140,6 +155,36 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     setRode(true);
   };
 
+  const challenge = progress.chat?.challenge;
+  const accept = (ch) => {
+    apply((p) => ({ progress: acceptChallenge(p) }));
+    setChatOpen(false);
+    go({ key: `challenge-${ch.id}-${Date.now()}`, card: cardById.get(ch.sessionId), tag: { challenge: ch.id } });
+  };
+  const chat = chatOpen && (
+    <ChatSheet progress={progress} onClose={() => setChatOpen(false)} onRead={() => apply((p) => ({ progress: markRead(p) }))} onAccept={accept} />
+  );
+  // Between-session panel extras: rings, chat, today's special, an accepted challenge.
+  const extras = (
+    <>
+      {special && !special.played && next?.tag?.special?.date !== special.date && (
+        <button onClick={() => go(specialItem(special))} className="pop mb-1.5 w-full truncate rounded-md border border-amber/60 bg-amber/15 px-2 py-1.5 text-left text-[11.5px] font-extrabold text-amber">
+          ⭐ {special.label} — today only · PLAY ▶
+        </button>
+      )}
+      {challenge?.status === 'accepted' && challenge.date === today && (
+        <button onClick={() => go({ key: `challenge-${challenge.id}-${Date.now()}`, card: cardById.get(challenge.sessionId), tag: { challenge: challenge.id } })}
+          className="pop mb-1.5 w-full truncate rounded-md border border-amber/60 bg-amber/10 px-2 py-1.5 text-left text-[11.5px] font-bold text-amber">
+          ⚔️ Challenge: beat {fmtMoney(challenge.target, { compact: true })} on {challenge.inst} · PLAY ▶
+        </button>
+      )}
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <Rings progress={progress} small />
+        <ChatButton progress={progress} onOpen={() => setChatOpen(true)} />
+      </div>
+    </>
+  );
+
   const inEval = evalActive(progress);
   // In an eval, sessions trade the eval sub-account: no ride, and the trailing drawdown is the limit.
   const { sizes, maxLots } = sizesFor(inEval ? { ...progress, ride: { active: false } } : progress);
@@ -156,7 +201,8 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           {rideBal > 0 && <p className="num mt-3 text-sm font-bold text-up">RIDE {fmtMoney(rideBal)} riding into your next session</p>}
           <div className="mt-6"><Rings progress={progress} /></div>
         </div>
-        <NextUp card={n.card} hold onGo={() => go(n)} onStop={() => {}} />
+        <NextUp card={n.card} label={n.label} hold onGo={() => go(n)} onStop={() => {}}>{extras}</NextUp>
+        {chat}
       </div>
     );
   }
@@ -192,9 +238,10 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           rode={rode}
           rideLost={result.rideLost}
           banner={(result.events?.find((e) => e.type === 'eval') ?? result.events?.find((e) => e.type === 'league') ?? result.events?.[0])?.text ?? null}
-          extra={<div className="mb-2"><Rings progress={progress} small /></div>}
+          extra={extras}
         />
       )}
+      {chat}
       {toast && <div className="pop num fixed inset-x-0 bottom-24 z-40 mx-auto w-fit rounded-lg bg-white px-3 py-2 text-xs font-bold text-black">{toast}</div>}
     </div>
   );

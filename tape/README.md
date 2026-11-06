@@ -46,6 +46,39 @@ Add a CALL IT card to `callit.json` (format below), then run `python3 scripts/bu
 and add to its `session` block: `"open"` (≤ 44 chars), `"news"`: `[{ "day": "YYYY-MM-DD" or "at": candleIndex,
 "text": "≤ 40 chars", "major": true }]` and `"concept"` (a concept id). Run `npm run validate`.
 
+## Between sessions (the gamification layer)
+
+None of this touches the trading screen except the bot strip and your RIDE balance.
+
+- **Autoplay**: the debrief shows the next session with its first candle already moving behind a
+  5-second ring (it starts once you've answered the concept). NEXT starts now, STOP pauses.
+  Order: today's event special, then unplayed sessions, then your lowest grades, then the review queue.
+- **RIDE**: after a winning session, RIDE moves its profit into a separate ride balance that counts
+  as bonus margin and adds one lot per $10k to your largest size. A losing session pays from the
+  ride first and forfeits the rest. It survives restarts; cash it out any time in ME.
+- **Daily quests + rings**: three quests a day (win a spread session · max drawdown under $5,000 ·
+  beat a named bot · earn $X in one session · no margin warning), $1,000 + 40 XP each. Rings for
+  OPEN BELL / 3 sessions / quests show on DESK and between sessions.
+- **Weekly league** (DESK → LEAGUE): you and 29 bots, XP earned Monday-Sunday. Top 10 promote, bottom
+  5 drop through Bronze → Silver → Gold → Diamond; results land in ME. Bot XP is simulated
+  (seeded daily totals, weekday-heavy, a few binge late Sunday). Joining mid-week starts everyone at zero.
+- **LIBRARY** (ME): all 50 sessions as collectible cards graded S/A/B/C/D against holding the right
+  side at 5 lots all session (S ≥ 90%, A ≥ 70%, B ≥ 45%, C any profit, D a loss). Tap to trade one.
+  Replays draw your best run as a faint ghost line with "vs your best run" at each candle.
+- **EVAL** (ME): a 30-day prop-firm evaluation on a $100k sub-account: +$20k target, 8% trailing
+  drawdown from peak equity (counted intra-session) ends it instantly. TRADE routes to it while
+  active. Pass = FUNDED: 10- and 25-lot sizes for good.
+- **Desk chat**: Mo, Carla, Quinn and Dan post in character about your results, theirs, streaks and
+  league moves. At most once a day one throws down a grudge challenge on a named session; ACCEPT
+  jumps straight into it, and beating their number doubles that session's XP.
+- **Event specials**: `src/data/events.json` holds the calendar: EIA petroleum report Wednesdays,
+  EIA gas storage Thursdays, and OPEC+ meeting dates you add by hand. On an event day one special
+  session (drawn from the matching scenarios) unlocks for that day only (+50 XP). Missed ones show
+  greyed in the Library.
+
+Progress is one localStorage save (`tape.progress.v1` key, `version: 2`); older saves migrate
+automatically. `npm test` runs the session-engine and game-layer tests.
+
 ## The game
 
 - **Play-money account**: you start with $100,000. One lot = 1,000 bbl, like the real contracts, so a

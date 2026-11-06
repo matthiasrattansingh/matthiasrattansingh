@@ -5,6 +5,8 @@ import { localDay, todayDesk } from '../lib/progress.js';
 import Rings from '../components/Rings.jsx';
 import { questText, QUEST_XP } from '../game/quests.js';
 import { DEMOTE, PROMOTE, SEATS, TIER_ICON, myLeagueXp, standings } from '../game/league.js';
+import { specialFor } from '../game/calendar.js';
+import { SESSION_CARDS } from '../data/index.js';
 
 function Board({ title, rows, fmt }) {
   return (
@@ -124,9 +126,18 @@ export default function Desk({ progress }) {
   const [view, setView] = useState('today');
   const date = localDay();
   const quests = progress.quests?.date === date ? progress.quests.list : [];
+  const special = specialFor(progress, date, SESSION_CARDS);
   return (
     <div className="h-[100dvh] overflow-y-auto">
       <div className="mx-auto max-w-md px-4 pt-20 pb-10">
+        {special && (
+          <div className={`mb-3 rounded-xl border px-3 py-2 ${special.played ? 'border-up/40 bg-up/10' : 'border-amber/60 bg-amber/15'}`}>
+            <div className={`num text-[12px] font-extrabold tracking-wide ${special.played ? 'text-up' : 'text-amber'}`}>
+              ⭐ {special.label} — {special.played ? 'played ✓' : 'today only'}
+            </div>
+            <div className="text-[11.5px] text-white/75">{special.blurb}{special.time ? ` (${special.time})` : ''} {special.played ? '' : 'It’s next up in TRADE.'}</div>
+          </div>
+        )}
         <div className="rounded-2xl border border-line bg-panel p-3">
           <Rings progress={progress} />
           <ul className="mt-3 space-y-1">

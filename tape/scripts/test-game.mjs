@@ -197,4 +197,63 @@ ok('eval trades never touch the main account or the ride', () => {
   assert.equal(p.bankroll, 90000); assert.equal(p.ride.active, true); assert.equal(p.blowups, 0);
 });
 
+// ---------- step 4: chat, challenges, event specials ----------
+const C = await import('../src/game/chat.js');
+const EV = await import('../src/game/events.js');
+const { afterSession } = await import('../src/game/afterSession.js');
+const cal = JSON.parse(readFileSync(new URL('../src/data/events.json', import.meta.url)));
+
+ok('chat: posts, unread count, mark read, capped history', () => {
+  let p = emptyProgress();
+  for (let i = 0; i < 70; i++) p = C.post(p, 'dan', 'react', `msg ${i}`);
+  assert.equal(p.chat.msgs.length, 60); assert.equal(C.unread(p), 60);
+  assert.equal(C.unread(C.markRead(p)), 0);
+});
+ok('bots react in character, at most 2 messages per session', () => {
+  const p = C.reactToSession(emptyProgress(), info({ pnl: 20000, bots: [{ id: 'dan', pnl: 90000 }, { id: 'mo', pnl: -1000 }] }), 'x');
+  assert.ok(p.chat.msgs.length >= 1 && p.chat.msgs.length <= 2);
+  assert.ok(p.chat.msgs.every((m) => ['mo', 'carla', 'quinn', 'dan'].includes(m.bot) && m.text.length > 5));
+});
+ok('max one grudge challenge per day; beating it doubles the session XP', () => {
+  let p = C.maybeChallenge(emptyProgress(), '2026-11-06', cards, 'a');
+  const ch = p.chat.challenge;
+  assert.equal(ch.status, 'open'); assert.ok(ch.target > 0);
+  assert.equal(C.maybeChallenge(p, '2026-11-06', cards, 'b').chat.msgs.length, p.chat.msgs.length);
+  p = C.acceptChallenge(p);
+  const s = buildSession(cards.find((c) => c.id === ch.sessionId));
+  const won = C.resolveChallenge(p, { session: s, pnl: ch.target + 1 }, 30, 'z');
+  assert.equal(won.progress.xp, p.xp + 30); assert.equal(won.progress.chat.challenge.status, 'won');
+  const lost = C.resolveChallenge(p, { session: s, pnl: ch.target - 1 }, 30, 'z');
+  assert.equal(lost.progress.xp, p.xp); assert.equal(lost.progress.chat.challenge.status, 'lost');
+  assert.equal(C.expireChallenge(p, '2026-11-07').chat.challenge.status, 'expired');
+});
+ok('calendar: EIA Wednesdays, gas storage Thursdays, OPEC+ dates from JSON', () => {
+  assert.equal(EV.eventOn('2026-11-04', cal).id, 'eia-petroleum'); // Wednesday
+  assert.equal(EV.eventOn('2026-11-05', cal).id, 'eia-natgas'); // Thursday
+  assert.equal(EV.eventOn('2026-11-06', cal), null); // Friday
+  assert.equal(EV.eventOn('2026-11-29', cal).id, 'opec');
+  const sp = EV.specialFor(emptyProgress(), '2026-11-04', cards, cal);
+  assert.ok(cal.recurring[0].pool.includes(sp.cardId)); assert.equal(sp.played, false);
+  assert.deepEqual(sp, EV.specialFor(emptyProgress(), '2026-11-04', cards, cal));
+});
+ok('specials log: played ones scored, past unplayed ones missed, today pending', () => {
+  let p = { ...emptyProgress(), createdAt: '2026-10-26' };
+  const wed = EV.specialFor(p, '2026-10-28', cards, cal);
+  p = EV.recordSpecial(p, wed, 4200).progress;
+  const log = EV.specialsLog(p, '2026-11-05', cards, cal); // Thu 5 Nov is today: still playable
+  assert.ok(log.find((x) => x.date === '2026-10-28').played);
+  assert.equal(log.find((x) => x.date === '2026-10-29').played, false); // missed Thursday
+  assert.ok(!log.find((x) => x.date === '2026-11-05'));
+  assert.equal(log.length, 3); // 28 Oct played, 29 Oct + 4 Nov missed
+});
+ok('afterSession runs the whole pipeline in one step', () => {
+  const p0 = { ...emptyProgress(), day: { date: '2026-11-04', you: 0, bots: {}, trades: 1, sessions: 2 } };
+  const sp = EV.specialFor(p0, '2026-11-04', cards, cal);
+  const s = buildSession(cards.find((c) => c.id === sp.cardId));
+  const out = afterSession(p0, { ...info({ session: s, pnl: 5000 }), curve: Array(s.C).fill(0), full: true, now: new Date(2026, 10, 4, 15).getTime(), tag: { special: sp }, cards });
+  const p = out.progress;
+  assert.ok(p.played[s.id]); assert.ok(p.specials['2026-11-04'].played); assert.ok(p.league); assert.equal(p.quests.date, '2026-11-04');
+  assert.ok(p.chat.msgs.length >= 1); assert.ok(p.chat.challenge); // 2nd+ session of the day -> a challenge
+});
+
 console.log(`game tests: ${n} passed ✓`);
