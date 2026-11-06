@@ -2,6 +2,7 @@
 // Monday 00:00 to Sunday 23:59 local. Top 10 promote, bottom 5 demote.
 import { seeded } from '../lib/format.js';
 import { BOTS } from '../lib/rivals.js';
+import { totalXp } from '../lib/progress.js';
 
 export const TIERS = ['Bronze', 'Silver', 'Gold', 'Diamond'];
 export const TIER_ICON = { Bronze: '🥉', Silver: '🥈', Gold: '🥇', Diamond: '💎' };
@@ -78,7 +79,7 @@ export function botXp(m, league, now) {
   return total;
 }
 
-export const myLeagueXp = (p) => Math.max(0, p.xp - (p.league?.startXp ?? p.xp));
+export const myLeagueXp = (p) => Math.max(0, totalXp(p) - (p.league?.startXp ?? totalXp(p)));
 
 export function standings(p, now = new Date()) {
   const league = p.league;
@@ -92,7 +93,7 @@ export function standings(p, now = new Date()) {
 /** Create the league if missing; close out finished weeks (promote / demote) and start new ones. */
 export function ensureLeague(p, now = new Date()) {
   const events = [];
-  if (!p.league) return { progress: { ...p, league: newLeague('Bronze', now, p.xp, { midWeek: true }) }, events };
+  if (!p.league) return { progress: { ...p, league: newLeague('Bronze', now, totalXp(p), { midWeek: true }) }, events };
   let league = p.league;
   const history = [...(p.leagueHistory ?? [])];
   while (now.getTime() >= fromIso(league.week).getTime() + 7 * DAY_MS) {
@@ -105,7 +106,7 @@ export function ensureLeague(p, now = new Date()) {
     history.unshift({ week: league.week, tier: league.tier, rank: me.rank, xp: me.xp, result, next: tier });
     events.push({ type: 'league', text: `${TIER_ICON[tier]} League week over: #${me.rank} in ${league.tier}, ${result === 'stayed' ? `staying in ${tier}` : `${result} to ${tier}`}` });
     const nextMonday = new Date(fromIso(league.week).getTime() + 7 * DAY_MS + 3_600_000);
-    league = newLeague(tier, nextMonday, p.xp);
+    league = newLeague(tier, nextMonday, totalXp(p));
   }
   return { progress: { ...p, league, leagueHistory: history.slice(0, 26) }, events };
 }

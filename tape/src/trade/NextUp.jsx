@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { TradeChart } from './chart.js';
 import { buildSession } from './engine.js';
 import { decimalsFor, fmtDate } from '../lib/format.js';
+import { PhysChart } from '../physical/PhysChart.js';
+import { cardDate, cardTitle, isPhysical } from '../lib/cards.js';
 
 export const AUTOPLAY_MS = 5000;
 
@@ -9,6 +11,14 @@ export const AUTOPLAY_MS = 5000;
 function Preview({ card }) {
   const ref = useRef(null);
   useEffect(() => {
+    if (isPhysical(card)) {
+      // Physical sessions: the first few days (cargo) or weeks (tank) of the benchmark draw on a loop.
+      const vals = card.type === 'cargo' ? card.days.map((d) => d.flat) : card.weekly.map((w) => w.curve[0]);
+      const pc = new PhysChart(ref.current, { steps: vals.length, labelOf: () => '' });
+      let n = 0;
+      const id = setInterval(() => { n = (n + 1) % 5; pc.set([{ name: '', color: '#ffb000', values: vals }], n); }, 700);
+      return () => { clearInterval(id); pc.destroy(); };
+    }
     const s = buildSession(card);
     const chart = new TradeChart(ref.current, s, { decimals: decimalsFor(s.unit) });
     let t;
@@ -46,8 +56,8 @@ export default function NextUp({ card, label, hold, onGo, onStop, children }) {
 
   const r = 17;
   const len = 2 * Math.PI * r;
-  const s = card.type === 'spread' ? card.title : card.instrument;
-  const date = card.type === 'spread' ? card.spread.date : card.decision.date;
+  const s = cardTitle(card);
+  const date = cardDate(card);
   return (
     <div className="border-t border-line bg-panel/95 px-3 pt-2">
       {children}

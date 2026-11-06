@@ -19,7 +19,7 @@ export const REVIEW_STEPS = [4, 12, 30];
 
 const botZeros = () => Object.fromEntries(BOTS.map((b) => [b.id, 0]));
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export function emptyProgress() {
   return {
@@ -54,6 +54,8 @@ export function emptyProgress() {
     funded: false,
     chat: { msgs: [], read: 0, challenge: null, challengeDate: null, nextId: 1 },
     specials: {}, // date -> { kind, cardId, played, pnl }
+    // v3: physical desk (company book; never touches the personal $100k account)
+    phys: emptyPhys(),
   };
 }
 
@@ -78,11 +80,25 @@ export function hydrate(saved) {
     quests: saved.quests ?? base.quests,
     chat: { ...base.chat, ...saved.chat },
     specials: saved.specials ?? {},
+    phys: { ...emptyPhys(), ...saved.phys, memory: { ...emptyPhys().memory, ...saved.phys?.memory } },
     // v1 saves have no install date: count the migration day as the start.
     createdAt: v1 ? base.createdAt : saved.createdAt ?? base.createdAt,
     marginCall: false,
   };
 }
+
+export function emptyPhys() {
+  return {
+    pnl: 0, sessions: 0, cargoes: 0, tanks: 0, integrated: 0, xp: 0, best: 0,
+    hedgeGrades: [], // 'S'..'D' per integrated session
+    memory: { ports: {}, daysToSell: [], hedgeAtLoad: 0, hedgeChances: 0, demurrage: [] },
+    relationships: {}, // agentId -> { deals, stalled, walkaways }
+    negotiation: { edge: 0, pulled: 0, deals: 0 },
+  };
+}
+
+/** Total XP (paper + physical), used by the league. */
+export const totalXp = (p) => p.xp + (p.phys?.xp ?? 0);
 
 export function localDay(d = new Date()) {
   const y = d.getFullYear();

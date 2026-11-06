@@ -1,14 +1,15 @@
 import { SESSION_CARDS } from '../data/index.js';
 import { fmtMoney } from '../lib/book.js';
 import { collectionStats } from '../game/collection.js';
+import { cardDate, cardKind, cardTitle } from '../lib/cards.js';
 
 const GRADE_STYLE = {
   S: 'bg-amber text-black', A: 'bg-up text-black', B: 'bg-sky-400 text-black', C: 'bg-white/70 text-black', D: 'bg-down text-white',
 };
 
-const yearOf = (c) => (c.type === 'spread' ? c.spread.date : c.decision.date).slice(0, 4);
-const nameOf = (c) => (c.type === 'spread' ? c.title : c.instrument);
-const shortDate = (c) => new Date(`${c.type === 'spread' ? c.spread.date : c.decision.date}T12:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const yearOf = (c) => cardDate(c).slice(0, 4);
+const nameOf = (c) => cardTitle(c);
+const shortDate = (c) => new Date(`${cardDate(c)}T12:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 /** One collectible: played = name, date, best P&L, grade; unplayed = a silhouette. */
 function Tile({ card, row, onOpen, missed }) {
@@ -26,7 +27,7 @@ function Tile({ card, row, onOpen, missed }) {
   if (!row) {
     return (
       <button onClick={() => onOpen(card.id)} className="flex aspect-[3/4] flex-col items-center justify-center rounded-xl border border-line bg-[repeating-linear-gradient(45deg,#111,#111_6px,#151515_6px,#151515_12px)] p-2 text-center active:scale-95">
-        <span className="text-2xl opacity-30">🛢️</span>
+        <span className="text-2xl opacity-30">{card.type === 'cargo' ? '🚢' : card.type === 'tank' ? '🛢️' : '📈'}</span>
         <span className="num mt-1 text-[11px] font-bold text-white/40">??? — {yearOf(card)}</span>
       </button>
     );
@@ -34,7 +35,7 @@ function Tile({ card, row, onOpen, missed }) {
   return (
     <button onClick={() => onOpen(card.id)} className="relative flex aspect-[3/4] flex-col justify-between rounded-xl border border-white/15 bg-panel p-2 text-left active:scale-95">
       <span className={`num absolute top-1.5 right-1.5 rounded px-1.5 text-[11px] font-extrabold ${GRADE_STYLE[row.grade]}`}>{row.grade}</span>
-      <span className="num text-[9px] uppercase tracking-wider text-dim">{card.type === 'spread' ? 'spread' : card.category}</span>
+      <span className={`num text-[9px] uppercase tracking-wider ${card.type === 'cargo' || card.type === 'tank' ? 'text-amber' : 'text-dim'}`}>{cardKind(card)}</span>
       <div>
         <div className="truncate text-[12px] font-extrabold">{nameOf(card)}</div>
         <div className="num text-[9px] text-dim">{shortDate(card)}</div>

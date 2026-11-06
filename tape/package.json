@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "validate": "node scripts/validate-data.mjs",
-    "test": "node scripts/test-sessions.mjs && node scripts/test-game.mjs"
+    "test": "node scripts/test-sessions.mjs && node scripts/test-game.mjs && node scripts/test-physical.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",

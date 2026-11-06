@@ -21,9 +21,8 @@ export function gradeFor(pnl, best) {
 }
 
 /** Record a finished session (full-length runs only; OPEN BELL's 5-candle version isn't graded). */
-export function recordPlay(progress, s, pnl, curve) {
+export function recordPlay(progress, s, pnl, curve, best = bestAchievable(s)) {
   const prev = progress.played[s.id];
-  const best = bestAchievable(s);
   const isBest = !prev || pnl > prev.best;
   const entry = {
     plays: (prev?.plays ?? 0) + 1,

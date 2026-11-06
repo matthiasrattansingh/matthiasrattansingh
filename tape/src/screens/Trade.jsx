@@ -9,7 +9,10 @@ import { pickNext } from '../game/order.js';
 import { sizesFor } from '../game/ride.js';
 import { afterSession } from '../game/afterSession.js';
 import { EVAL_DD, evalActive } from '../game/evalAccount.js';
-import { CONCEPT_CARDS, SESSION_CARDS } from '../data/index.js';
+import { CONCEPT_CARDS, ECON, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
+import CargoSession from '../physical/CargoSession.jsx';
+import PhysDebrief from '../physical/PhysDebrief.jsx';
+import { bookPhysical } from '../physical/ledger.js';
 import Rings from '../components/Rings.jsx';
 import ChatSheet, { ChatButton } from '../components/ChatSheet.jsx';
 import { acceptChallenge, markRead } from '../game/chat.js';
@@ -121,7 +124,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       return afterSession(p, {
         session: r.session, pnl: r.pnl, curve: r.sim.curve, full: true, stats: r.stats,
         bots: r.bots, marginCall: r.marginCall, guardHit: r.guardHit, trade, now: Date.now(),
-        tag: currentRef.current?.tag ?? null, cards: SESSION_CARDS,
+        tag: currentRef.current?.tag ?? null, cards: PAPER_SESSION_CARDS,
       });
     });
     const tag = currentRef.current?.tag;
@@ -202,6 +205,51 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           <div className="mt-6"><Rings progress={progress} /></div>
         </div>
         <NextUp card={n.card} label={n.label} hold onGo={() => go(n)} onStop={() => {}}>{extras}</NextUp>
+        {chat}
+      </div>
+    );
+  }
+
+  // Physical sessions: book to the physical desk ledger, then the physical debrief.
+  const onPhysFinish = (kind) => (r) => {
+    const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? 0, ...(r.book ?? {}) }));
+    recent.current = [current.card.id, ...recent.current].slice(0, 8);
+    setTimeout(() => setResult({ phys: kind, ...r, events }), 1200);
+  };
+  const physDebrief = result?.phys === 'cargo' && next && (() => {
+    const { c, st, best } = result;
+    const s = st.sold.split;
+    const portName = (id) => c.ports.find((p) => p.id === id)?.name;
+    return (
+      <PhysDebrief
+        title={`${current.card.title}`}
+        pnl={st.sold.pnl}
+        best={best.pnl}
+        bestText={`${portName(best.port)}${best.wait ? `, drift ${best.wait}d` : ''}, sell day ${best.sellDay + 1}`}
+        lines={[
+          { label: 'Flat price', value: s.flat, note: `${current.card.bench.name} ${c.flat[0].toFixed(2)} → ${c.flat[st.sold.day].toFixed(2)} $/bbl on ${(c.bbl / 1000).toFixed(0)}k bbl` },
+          { label: 'Basis (location)', value: s.basis, note: `load ${c.load.basis.toFixed(2)} → ${portName(st.sold.port)} ${(st.sold.price - c.flat[st.sold.day]).toFixed(2)} vs ${current.card.bench.name}` },
+          { label: 'Freight + demurrage + port', value: s.costs, note: `charter ${fmtMoney(st.cost.charter, { compact: true, sign: false })} · demurrage ${fmtMoney(st.cost.demurrage, { compact: true, sign: false })} · port ${fmtMoney(st.cost.port, { compact: true, sign: false })}${st.sold.freightToBuyer ? ` · afloat discount ${fmtMoney(st.sold.freightToBuyer, { compact: true, sign: false })}` : ''}` },
+          { label: 'Events', value: s.events },
+        ]}
+        log={st.log}
+        why={current.card.why}
+        source={current.card.source}
+        concept={conceptById.get(current.card.concept)}
+        onConcept={(cc, ok) => bookConcept(progress, record, cc, ok)}
+        next={next}
+        onNext={() => go()}
+        onStop={() => setMode('idle')}
+        extras={extras}
+      />
+    );
+  })();
+
+  if (current.card.type === 'cargo') {
+    return (
+      <div className="relative">
+        <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} />
+        {physDebrief}
         {chat}
       </div>
     );

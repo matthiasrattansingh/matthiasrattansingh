@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { validateCard } from '../src/lib/validate.js';
 
-const files = { 'callit.json': 'cards', 'concepts.json': 'cards', 'spreads.json': 'cards', 'tapecheck.json': 'instruments' };
+const files = { 'callit.json': 'cards', 'concepts.json': 'cards', 'spreads.json': 'cards', 'tapecheck.json': 'instruments', 'cargo.json': 'cards' };
 const load = (file) => JSON.parse(readFileSync(new URL(`../src/data/${file}`, import.meta.url)))[files[file]];
 let bad = 0;
 const ids = new Set();
@@ -19,6 +19,7 @@ for (const file of Object.keys(files)) {
     counts[c.type] = (counts[c.type] ?? 0) + 1;
     // TRADE mode: every CALL IT is a session; spreads may be.
     if (c.type === 'callit' && !c.session) errors.push('missing "session" (run scripts/build-sessions.py)');
+    if (c.concept && !conceptIds.has(c.concept)) errors.push(`concept "${c.concept}" is not a concept id`);
     if (c.session) {
       counts.sessions = (counts.sessions ?? 0) + 1;
       if (c.type === 'spread') spreadSessions++;
