@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "validate": "node scripts/validate-data.mjs"
+    "validate": "node scripts/validate-data.mjs",
+    "test": "node scripts/test-sessions.mjs && node scripts/test-game.mjs"
   },
   "dependencies": {
     "react": "^19.3.1",

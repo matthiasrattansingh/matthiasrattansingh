@@ -17,7 +17,7 @@ const SYMBOLS = TAPE_CARDS.map((c) => c.symbol);
 const LIVE_ITEMS = TAPE_CARDS.map((card) => ({ key: `live-${card.id}`, card }));
 
 export default function App() {
-  const { progress, session, record, view, saveBell, clearMarginCall, reset } = useProgress();
+  const { progress, session, record, apply, view, saveBell, clearMarginCall, reset } = useProgress();
   const { quotes, status } = useLiveQuotes(SYMBOLS);
   const [tab, setTab] = useState('trade');
   const date = useMemo(() => localDay(), []);
@@ -31,7 +31,7 @@ export default function App() {
       </header>
 
       <div className="mx-auto h-[100dvh] max-w-md">
-        {tab === 'trade' && <Trade progress={progress} record={record} />}
+        {tab === 'trade' && <Trade progress={progress} record={record} apply={apply} />}
         {tab === 'bell' && <Bell date={date} progress={progress} record={record} saveBell={saveBell} />}
         {tab === 'live' && (
           <Feed
@@ -48,7 +48,7 @@ export default function App() {
           />
         )}
         {tab === 'desk' && <Desk progress={progress} />}
-        {tab === 'me' && <Profile progress={progress} session={session} onReset={reset} />}
+        {tab === 'me' && <Profile progress={progress} session={session} onReset={reset} apply={apply} />}
       </div>
 
       {progress.marginCall && <MarginCall blowups={progress.blowups} onClose={clearMarginCall} />}

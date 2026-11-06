@@ -3,6 +3,7 @@ import { benchmarks, decisionValues, gradeGrid } from './engine.js';
 import { fmtMoney } from '../lib/book.js';
 import { BOTS, botById } from '../lib/rivals.js';
 import { fmtDate, seeded } from '../lib/format.js';
+import NextUp from './NextUp.jsx';
 
 const ACTION = { OPEN: 'Open', ADD: 'Add 1', CUT: 'Cut ½', CLOSE: 'Close', FLIP: 'Flip', HOLD: 'Hold' };
 
@@ -34,7 +35,11 @@ function EquityCurve({ curve, best, worst }) {
 }
 
 // Session end: what happened, how you traded it, the lesson, and one concept question.
-export default function Debrief({ result, concept, onConcept, onNext, onShare }) {
+// The bottom panel is autoplay: the next session is already moving behind a countdown.
+// RIDE carries a winning session's profit into the next session as bonus margin.
+export default function Debrief({
+  result, concept, onConcept, onNext, onShare, next, onStop, onRide, ride = 0, canRide = false, rode = false, rideLost = 0, banner = null,
+}) {
   const { session: s, sim, trade, decisions, marginCall } = result;
   const values = useMemo(() => decisionValues(s, decisions), [s, decisions]);
   const best = values.length ? values.reduce((a, b) => (b.value > a.value ? b : a)) : null;
@@ -145,9 +150,21 @@ export default function Debrief({ result, concept, onConcept, onNext, onShare })
         <p className="num mt-3 text-[9.5px] leading-snug text-white/35">{s.label}. {s.card.source}</p>
       </div>
 
-      <div className="grid grid-cols-[1fr_2fr] gap-2 border-t border-line px-4 pt-2 pb-[max(12px,env(safe-area-inset-bottom))]">
-        <button onClick={() => onShare(grid)} className="num h-14 rounded-xl border border-white/25 bg-panel text-xs font-bold tracking-widest">SHARE</button>
-        <button onClick={onNext} className="num h-14 rounded-xl border border-amber/60 bg-amber/15 text-sm font-extrabold tracking-widest text-amber">NEXT SESSION ▶</button>
+      <div className="pb-[env(safe-area-inset-bottom)]">
+        <NextUp card={next.card} label={next.label} hold={Boolean(concept) && pick === null} onGo={onNext} onStop={onStop}>
+          {banner && <div className="pop mb-1.5 truncate rounded-md bg-white/10 px-2 py-1 text-[11.5px] font-semibold">{banner}</div>}
+          <div className="mb-2 flex gap-2">
+            <button onClick={() => onShare(grid)} className="num h-10 flex-1 rounded-lg border border-white/25 bg-black text-[11px] font-bold tracking-widest">SHARE</button>
+            {canRide && (
+              <button onClick={onRide} disabled={rode}
+                className={`num h-10 flex-[2] rounded-lg border text-[11px] font-extrabold tracking-wider ${rode ? 'border-up/30 text-up/60' : 'border-up/70 bg-up/15 text-up'}`}>
+                {rode ? `RIDING ${fmtMoney(ride)}` : `RIDE ${fmtMoney(trade.pnl)} ▶`}
+              </button>
+            )}
+            {!canRide && ride > 0 && <span className="num flex flex-[2] items-center justify-center text-[11px] font-bold text-up">RIDE {fmtMoney(ride)}</span>}
+            {rideLost > 0 && <span className="num flex flex-[2] items-center justify-center text-[11px] font-bold text-down">RIDE LOST −{fmtMoney(rideLost, { sign: false })}</span>}
+          </div>
+        </NextUp>
       </div>
     </div>
   );

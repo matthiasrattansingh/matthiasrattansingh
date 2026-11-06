@@ -57,6 +57,16 @@ export class TradeChart {
     this.entry = entry;
   }
 
+  /** Ghost: your best run's equity per candle, drawn faint on its own scale. */
+  setGhost(curve) {
+    this.ghost = curve;
+    this.live = [];
+  }
+
+  setLive(i, eq) {
+    if (this.live) this.live[i] = eq;
+  }
+
   play(i, ms = 2000) {
     const c = this.s.candles[i];
     this.anim = { i, start: performance.now(), ms, path: microPath(c, `${this.s.id}|${i}`), hi: c.o, lo: c.o, cur: c.o };
@@ -164,6 +174,31 @@ export class TradeChart {
     };
     done.forEach((c, i) => drawCandle(i, c.o, c.h, c.l, c.c));
     if (a) drawCandle(a.i, s.candles[a.i].o, a.hi, a.lo, a.cur);
+
+    // Ghost: best run's equity (faint dashed) vs this run so far, on their own scale.
+    if (this.ghost) {
+      const vals = [0, ...this.ghost, ...this.live.filter((v) => v !== undefined)];
+      const gLo = Math.min(...vals);
+      const gHi = Math.max(...vals);
+      const gy = (v) => 14 + (1 - (v - gLo) / (gHi - gLo || 1)) * (h - 28);
+      const gx = (i) => histW + slotW * i;
+      const line = (pts, style) => {
+        ctx.save();
+        Object.assign(ctx, style);
+        ctx.beginPath();
+        ctx.moveTo(gx(0), gy(0));
+        pts.forEach((v, i) => v !== undefined && ctx.lineTo(gx(i + 1), gy(v)));
+        ctx.stroke();
+        ctx.restore();
+      };
+      ctx.setLineDash([3, 4]);
+      line(this.ghost, { strokeStyle: 'rgba(255,255,255,0.28)', lineWidth: 1.5 });
+      ctx.setLineDash([]);
+      ctx.font = `9px ${MONO}`;
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('BEST RUN', Math.min(gx(this.ghost.length), plotW - 50), gy(this.ghost[this.ghost.length - 1]) - 2);
+    }
 
     // Best/worst markers (debrief).
     for (const m of this.markers) {

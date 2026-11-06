@@ -23,13 +23,20 @@ function buzz(pattern) {
  * One trading session: the chart animates candle by candle and you manage a
  * live position between candles. Fixed full-screen layout, nothing scrolls.
  * After each candle an 8s timer runs; if it expires you HOLD and the market moves on.
- * Props: card, bankroll, salt (seeds the bots), onFinish({ session, decisions, sim, bots, marginCall, pnl }).
+ * Props: card, bankroll (equity at the start: account + any ride), salt (seeds the bots),
+ * onFinish({ session, decisions, sim, bots, marginCall, pnl, stats }), and optionally:
+ * sizes / maxLots (unlocks), ride (ride balance shown next to equity), ghost (best-run
+ * equity curve), guard ({ peak, limit } trailing drawdown that ends the session: eval).
  */
-export default function TradeSession({ card, bankroll, salt = '', onFinish, maxCandles }) {
+export default function TradeSession({
+  card, bankroll, salt = '', onFinish, maxCandles, sizes = SIZES, maxLots, ride = 0, ghost = null, guard = null, account = null,
+}) {
   const [s] = useState(() => {
     const full = buildSession(card);
-    return maxCandles ? regroup(full, maxCandles) : full;
+    const out = maxCandles ? regroup(full, maxCandles) : full;
+    return maxLots ? { ...out, maxLots } : out;
   });
+  const stats = useRef({ peak: 0, maxDD: 0, warned: false, traded: false, guardPeak: guard?.peak ?? 0 });
   const d = decimalsFor(s.unit);
   const bots = useMemo(
     () => BOTS.map((b) => ({ ...b, sim: simulate(s, botDecisions(b.id, s, salt)) })),
@@ -52,6 +59,7 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
   const [phase, setPhase] = useState('decide'); // decide | candle | over
   const [i, setI] = useState(0); // next candle to play
   const [lots, setLots] = useState(2);
+  const sizeRow = sizes.length > 4;
   const [news, setNews] = useState(null);
   const [flash, setFlash] = useState(null);
   const [mine, setMine] = useState(0); // session P&L at the last candle close
@@ -63,11 +71,21 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
       pnlEl.current.className = `num text-[32px] font-extrabold leading-none ${pnl > 0 ? 'text-up' : pnl < 0 ? 'text-down' : 'text-white'}`;
     }
     if (eqEl.current) eqEl.current.textContent = fmtMoney(Math.round(bankroll + pnl), { sign: false });
+    // Session stats for quests and the debrief.
+    const st = stats.current;
+    st.peak = Math.max(st.peak, pnl);
+    st.maxDD = Math.max(st.maxDD, st.peak - pnl);
+    st.guardPeak = Math.max(st.guardPeak, bankroll + pnl);
+    // Margin bar: how close you are to a margin call (or, in an eval, to the drawdown limit).
+    const f = guard
+      ? Math.min(1, Math.max(0, st.guardPeak - (bankroll + pnl)) / (st.guardPeak * guard.limit))
+      : Math.min(1, Math.max(0, -pnl) / bankroll);
+    if (f > 0.4) st.warned = true;
     if (marginEl.current) {
-      const f = Math.min(1, Math.max(0, -pnl) / bankroll);
       marginEl.current.style.width = `${Math.max(f * 100, 2)}%`;
       marginEl.current.className = `h-full rounded ${f > 0.7 ? 'bg-down margin-pulse' : f > 0.4 ? 'bg-amber' : 'bg-white/40'}`;
     }
+    return f;
   };
 
   function finish(extra = {}) {
@@ -76,20 +94,31 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
     const sim = simulate(s, decisions.current);
     setPhase('over');
     chartRef.current.setEntry(null);
-    const pnl = extra.marginCall ? extra.pnl : sim.final;
+    const pnl = extra.marginCall || extra.guardHit ? extra.pnl : sim.final;
     paint(pnl);
-    finishRef.current?.({ session: s, decisions: decisions.current, sim, bots: bots.map((b) => ({ id: b.id, pnl: Math.round(b.sim.final) })), pnl, ...extra });
+    const { maxDD, warned, traded } = stats.current;
+    finishRef.current?.({
+      session: s, decisions: decisions.current, sim, pnl,
+      bots: bots.map((b) => ({ id: b.id, pnl: Math.round(b.sim.final) })),
+      stats: { maxDD, warned, traded, guardPeak: stats.current.guardPeak },
+      ...extra,
+    });
   }
 
   useEffect(() => {
     const chart = new TradeChart(canvasRef.current, s, { decimals: d });
     chartRef.current = chart;
+    if (ghost && ghost.length === s.C) chart.setGhost(ghost);
     chart.onTick = (price, t) => {
       const pnl = equityOf(bookRef.current, price, t, s);
-      paint(pnl);
-      if (bankroll + pnl <= 0 && !overRef.current) {
+      const f = paint(pnl);
+      if (overRef.current) return;
+      if (bankroll + pnl <= 0) {
         chart.anim = null; // the market stops for you: margin call
         finish({ marginCall: true, pnl });
+      } else if (guard && f >= 1) {
+        chart.anim = null; // eval: trailing drawdown limit hit
+        finish({ guardHit: true, pnl });
       }
     };
     chart.onDone = (ci) => {
@@ -98,8 +127,10 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
       const eq = equityOf(bookRef.current, close, ci + 1, s);
       const delta = eq - startEq.current;
       setMine(eq);
+      chart.setLive(ci, eq);
       if (bookRef.current.pos || Math.abs(delta) >= 1) {
-        setFlash({ v: Math.round(delta), k: ci });
+        const vsBest = ghost && ghost.length === s.C ? Math.round(eq - ghost[ci]) : null;
+        setFlash({ v: Math.round(delta), k: ci, vsBest });
         if (delta < -2000) thud(); else tick();
       }
       const next = ci + 1;
@@ -144,6 +175,7 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
     const nb = act(bookRef.current, action, price, i, s);
     bookRef.current = nb;
     decisions.current[i] = action;
+    if (nb.pos) stats.current.traded = true;
     setBook(nb);
     chartRef.current.setEntry(nb.pos ? { price: nb.pos.entry, label: posLabel(s, nb.pos, d) } : null);
     const eq = equityOf(nb, price, i, s);
@@ -188,6 +220,9 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
         {flash && (
           <div key={flash.k} className={`flash-pnl num pointer-events-none absolute inset-x-0 top-[38%] text-center text-5xl font-extrabold ${flash.v > 0 ? 'text-up' : flash.v < 0 ? 'text-down' : 'text-white'}`}>
             {fmtMoney(flash.v)}
+            {flash.vsBest !== null && flash.vsBest !== undefined && (
+              <div className={`mt-1 text-[12px] font-bold ${flash.vsBest >= 0 ? 'text-up' : 'text-down'}`}>{fmtMoney(flash.vsBest)} vs your best run</div>
+            )}
           </div>
         )}
         {deciding && <TimerRing key={`t${i}`} />}
@@ -203,7 +238,11 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
             <div ref={pnlEl} className="num text-[32px] font-extrabold leading-none">$0</div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-wider text-dim">Equity</div>
+            <div className="text-[10px] uppercase tracking-wider text-dim">
+              {account === 'eval' && <span className="mr-1 rounded bg-amber/25 px-1 font-bold text-amber">EVAL</span>}
+              {ride > 0 && <span className="mr-1 rounded bg-up/20 px-1 font-bold text-up">RIDE {fmtMoney(ride)}</span>}
+              Equity
+            </div>
             <div ref={eqEl} className="num text-lg font-bold leading-tight" />
           </div>
         </div>
@@ -220,9 +259,9 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
           <>
             <div className="mb-1.5 flex items-center justify-center gap-1.5">
               <span className="text-[10px] uppercase tracking-wider text-dim">size</span>
-              {SIZES.map((n) => (
+              {sizes.map((n) => (
                 <button key={n} onClick={() => setLots(n)}
-                  className={`num rounded-md px-2.5 py-0.5 text-xs font-bold ${lots === n ? 'bg-amber text-black' : 'bg-white/10 text-white/70'}`}>
+                  className={`num rounded-md ${sizeRow ? "px-1.5" : "px-2.5"} py-0.5 text-xs font-bold ${lots === n ? 'bg-amber text-black' : 'bg-white/10 text-white/70'}`}>
                   {n}
                 </button>
               ))}

@@ -19,9 +19,11 @@ export const REVIEW_STEPS = [4, 12, 30];
 
 const botZeros = () => Object.fromEntries(BOTS.map((b) => [b.id, 0]));
 
+export const SAVE_VERSION = 2;
+
 export function emptyProgress() {
   return {
-    version: 1,
+    version: SAVE_VERSION,
     xp: 0,
     answered: 0,
     bestSession: 0,
@@ -37,18 +39,33 @@ export function emptyProgress() {
     bestCombo: 0,
     bigWin: 0,
     bots: Object.fromEntries(BOTS.map((b) => [b.id, START_BANKROLL])),
-    day: { date: null, you: 0, bots: botZeros(), trades: 0 },
+    day: { date: null, you: 0, bots: botZeros(), trades: 0, sessions: 0 },
     bell: {},
+    // v2: gamification layer
+    createdAt: localDay(),
+    ride: { balance: 0, active: false, best: 0 },
+    played: {}, // sessionId -> { plays, best, grade, curve, C }
+    quests: { date: null, list: [] },
+    questsDone: 0,
+    league: null, // created on first load of the week
+    leagueHistory: [],
+    eval: null,
+    evalHistory: [],
+    funded: false,
+    chat: { msgs: [], read: 0, challenge: null, challengeDate: null, nextId: 1 },
+    specials: {}, // date -> { kind, cardId, played, pnl }
   };
 }
 
 /** Merge whatever was saved with the current shape so old saves keep working. */
 export function hydrate(saved) {
   const base = emptyProgress();
-  if (!saved || saved.version !== 1) return base;
+  if (!saved || !(saved.version >= 1 && saved.version <= SAVE_VERSION)) return base;
+  const v1 = saved.version === 1;
   return {
     ...base,
     ...saved,
+    version: SAVE_VERSION,
     streak: { ...base.streak, ...saved.streak },
     stats: { ...base.stats, ...saved.stats },
     seen: saved.seen ?? {},
@@ -56,6 +73,13 @@ export function hydrate(saved) {
     bots: { ...base.bots, ...saved.bots },
     day: { ...base.day, ...saved.day, bots: { ...base.day.bots, ...saved.day?.bots } },
     bell: saved.bell ?? {},
+    ride: { ...base.ride, ...saved.ride },
+    played: saved.played ?? {},
+    quests: saved.quests ?? base.quests,
+    chat: { ...base.chat, ...saved.chat },
+    specials: saved.specials ?? {},
+    // v1 saves have no install date: count the migration day as the start.
+    createdAt: v1 ? base.createdAt : saved.createdAt ?? base.createdAt,
     marginCall: false,
   };
 }
@@ -87,7 +111,7 @@ export function liveStreak(streak, today = localDay()) {
 
 /** Today's desk standings (resets at local midnight). */
 export function todayDesk(day, date = localDay()) {
-  return day.date === date ? day : { date, you: 0, bots: botZeros(), trades: 0 };
+  return day.date === date ? day : { date, you: 0, bots: botZeros(), trades: 0, sessions: 0 };
 }
 
 function scheduleMiss(misses, id, correct, answered) {
@@ -105,13 +129,25 @@ function scheduleMiss(misses, id, correct, answered) {
 
 /** Apply a settled trade to the bankroll, desk standings and win streak. */
 function applyTrade(p, trade, date) {
-  let bankroll = p.bankroll + trade.pnl;
+  let bankroll = p.bankroll;
+  let ride = p.ride ?? { balance: 0, active: false, best: 0 };
   let blowups = p.blowups;
   let marginCall = false;
-  if (bankroll <= 0) {
-    marginCall = true;
-    blowups += 1;
-    bankroll = START_BANKROLL;
+  if (trade.account !== 'eval') {
+    // RIDE: a losing session while riding is paid from the ride first, then the ride is forfeited.
+    if (trade.session && ride.active && trade.pnl < 0) {
+      const fromRide = Math.min(ride.balance, -trade.pnl);
+      bankroll += trade.pnl + fromRide;
+      ride = { ...ride, balance: 0, active: false, lost: ride.balance };
+    } else {
+      bankroll += trade.pnl;
+    }
+    if (bankroll <= 0) {
+      marginCall = true;
+      blowups += 1;
+      bankroll = START_BANKROLL;
+      if (ride.active) ride = { ...ride, balance: 0, active: false, lost: ride.balance };
+    }
   }
   const d = todayDesk(p.day, date);
   const bots = { ...p.bots };
@@ -125,6 +161,7 @@ function applyTrade(p, trade, date) {
   return {
     ...p,
     bankroll,
+    ride,
     peak: Math.max(p.peak, bankroll),
     blowups,
     marginCall,
@@ -132,8 +169,27 @@ function applyTrade(p, trade, date) {
     bestCombo: Math.max(p.bestCombo, combo),
     bigWin: Math.max(p.bigWin, trade.pnl),
     bots,
-    day: { date, you: d.you + trade.pnl, bots: dayBots, trades: d.trades + 1 },
+    day: {
+      date,
+      you: d.you + (trade.account === 'eval' ? 0 : trade.pnl),
+      bots: dayBots,
+      trades: d.trades + 1,
+      sessions: (d.sessions ?? 0) + (trade.session ? 1 : 0),
+    },
   };
+}
+
+/** RIDE: move a winning session's profit from the account into the ride balance. */
+export function startRide(p, amount) {
+  if (!(amount > 0) || amount > p.bankroll) return p;
+  const balance = (p.ride?.active ? p.ride.balance : 0) + amount;
+  return { ...p, bankroll: p.bankroll - amount, ride: { balance, active: true, best: Math.max(p.ride?.best ?? 0, balance), lost: 0 } };
+}
+
+/** Cash the ride balance back into the account (ME tab). */
+export function cashOutRide(p) {
+  if (!p.ride?.active) return p;
+  return { ...p, bankroll: p.bankroll + p.ride.balance, ride: { ...p.ride, balance: 0, active: false, lost: 0 } };
 }
 
 /**

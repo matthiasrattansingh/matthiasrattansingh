@@ -1,12 +1,17 @@
 import { useCallback, useRef, useState } from 'react';
 import TradeSession from '../trade/TradeSession.jsx';
 import Debrief from '../trade/Debrief.jsx';
-import { createFeed } from '../lib/feed.js';
+import NextUp from '../trade/NextUp.jsx';
 import { comboMultiplier, fmtMoney, settle } from '../lib/book.js';
+import { startRide } from '../lib/progress.js';
 import { fmtDate } from '../lib/format.js';
+import { pickNext } from '../game/order.js';
+import { sizesFor } from '../game/ride.js';
+import { afterSession } from '../game/afterSession.js';
 import { CONCEPT_CARDS, SESSION_CARDS } from '../data/index.js';
 
 const conceptById = new Map(CONCEPT_CARDS.map((c) => [c.id, c]));
+const cardById = new Map(SESSION_CARDS.map((c) => [c.id, c]));
 
 /** Share text for a finished session, in the OPEN BELL format. */
 export function sessionShareText(s, grid, pnl, beat) {
@@ -23,19 +28,27 @@ export async function shareOrCopy(text) {
   }
 }
 
-/** Book a finished session (or a margin call) and return the trade record. */
-export function bookSession(progress, record, { session, bots, pnl: raw }) {
+/** The settled trade for a finished session (multiplier applies to wins). */
+export function sessionTrade(progress, { bots, pnl: raw }, account = 'main') {
   const win = raw > 0;
   const mult = win ? comboMultiplier(progress.combo) : 1;
-  const pnl = Math.round(raw * mult);
-  const trade = { pnl, base: Math.round(raw), mult, win, bots };
-  record({
+  return { pnl: Math.round(raw * mult), base: Math.round(raw), mult, win, bots, session: true, account };
+}
+
+export function sessionResult(session, trade) {
+  return {
     cardId: session.id,
     category: session.card.category,
-    correct: win,
-    points: Math.max(-20, Math.min(60, Math.round(pnl / 2000))),
+    correct: trade.win,
+    points: Math.max(-20, Math.min(60, Math.round(trade.pnl / 2000))),
     trade,
-  });
+  };
+}
+
+/** Book a finished session (or a margin call) through `record`; returns the trade. */
+export function bookSession(progress, record, r) {
+  const trade = sessionTrade(progress, r);
+  record(sessionResult(r.session, trade));
   return trade;
 }
 
@@ -45,31 +58,69 @@ export function bookConcept(progress, record, concept, correct) {
   record({ cardId: concept.id, category: 'concepts', correct, points: correct ? 10 : 0, trade });
 }
 
-// TRADE: an endless run of sessions. Sessions you lose come back via the
-// miss queue (about 1 in 5), same as cards did.
-export default function Trade({ progress, record }) {
-  const progressRef = useRef(progress);
-  progressRef.current = progress;
-  const feedRef = useRef(null);
-  if (!feedRef.current) feedRef.current = createFeed(SESSION_CARDS);
-  // ?session=<id> opens a specific session first (e.g. ?session=ci-abqaiq-2019).
+// TRADE: sessions back to back. After each one the debrief shows the next
+// session already moving behind a 5s countdown (autoplay); STOP pauses it.
+export default function Trade({ progress, record, apply, startWith, onStarted }) {
+  const recent = useRef([]);
+  const choose = (p) => {
+    const card = pickNext(p, SESSION_CARDS, { recent: recent.current, salt: String(Date.now()) });
+    return { key: `${card.id}-${Date.now()}`, card };
+  };
+  // ?session=<id> (or a Library tap) opens a specific session first.
   const [current, setCurrent] = useState(() => {
-    const want = new URLSearchParams(location.search).get('session');
-    const card = want && SESSION_CARDS.find((c) => c.id === want);
-    return card ? { key: `pick-${want}`, card } : feedRef.current.next(1, progress)[0];
+    const want = startWith ?? new URLSearchParams(location.search).get('session');
+    const card = want && cardById.get(want);
+    return card ? { key: `pick-${want}-${Date.now()}`, card } : choose(progress);
   });
+  const [next, setNext] = useState(null);
   const [result, setResult] = useState(null);
+  const [mode, setMode] = useState('play'); // play | idle
+  const [rode, setRode] = useState(false);
   const [toast, setToast] = useState('');
 
-  const onFinish = useCallback((r) => {
-    const trade = bookSession(progressRef.current, record, r);
-    // Let the last candle's P&L flash land before the debrief slides up.
-    setTimeout(() => setResult({ ...r, trade }), 1200);
-  }, [record]);
+  // A Library tap while TRADE is open.
+  const lastStart = useRef(startWith);
+  if (startWith && startWith !== lastStart.current && cardById.get(startWith)) {
+    lastStart.current = startWith;
+    const card = cardById.get(startWith);
+    setTimeout(() => { setResult(null); setMode('play'); setCurrent({ key: `pick-${startWith}-${Date.now()}`, card }); onStarted?.(); }, 0);
+  }
 
-  const next = () => {
+  const onFinish = useCallback((r) => {
+    // 1) read the latest state, 2) book the trade, 3) run the post-session pipeline.
+    let trade;
+    let rideBefore = 0;
+    apply((p) => {
+      trade = sessionTrade(p, r);
+      rideBefore = p.ride?.active ? p.ride.balance : 0;
+      return { progress: p };
+    });
+    record(sessionResult(r.session, trade));
+    let rideLost = 0;
+    const events = apply((p) => {
+      if (rideBefore > 0 && !p.ride.active) rideLost = rideBefore;
+      return afterSession(p, {
+        session: r.session, pnl: r.pnl, curve: r.sim.curve, full: true, stats: r.stats,
+        bots: r.bots, marginCall: r.marginCall, trade, now: Date.now(),
+      });
+    });
+    recent.current = [r.session.id, ...recent.current].slice(0, 6);
+    setRode(false);
+    // Let the last candle's P&L flash land before the debrief slides up.
+    setTimeout(() => setResult({ ...r, trade, rideLost, events }), 1200);
+  }, [apply, record]);
+
+  // Choose the next session once the debrief is up (progress now includes this result).
+  if (result && !next) {
+    setTimeout(() => setNext((n) => n ?? choose(progress)), 0);
+  }
+
+  const go = (n = next) => {
+    if (!n) return;
     setResult(null);
-    setCurrent(feedRef.current.next(1, progressRef.current)[0]);
+    setNext(null);
+    setMode('play');
+    setCurrent(n);
   };
 
   const share = async (grid) => {
@@ -78,16 +129,58 @@ export default function Trade({ progress, record }) {
     if (how === 'copied') { setToast('Copied. Paste it to a friend.'); setTimeout(() => setToast(''), 2500); }
   };
 
+  const ride = () => {
+    apply((p) => ({ progress: startRide(p, result.trade.pnl) }));
+    setRode(true);
+  };
+
+  const { sizes, maxLots } = sizesFor(progress);
+  const rideBal = progress.ride?.active ? progress.ride.balance : 0;
+
+  if (mode === 'idle') {
+    const n = next ?? choose(progress);
+    return (
+      <div className="flex h-[100dvh] flex-col pt-[44px]">
+        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+          <div className="text-5xl">⏸</div>
+          <p className="mt-3 text-lg font-bold">Autoplay paused</p>
+          <p className="mt-1 text-sm text-dim">The market's still moving. Tap NEXT when you're ready.</p>
+          {rideBal > 0 && <p className="num mt-3 text-sm font-bold text-up">RIDE {fmtMoney(rideBal)} riding into your next session</p>}
+        </div>
+        <NextUp card={n.card} hold onGo={() => go(n)} onStop={() => {}} />
+      </div>
+    );
+  }
+
+  const ghostRow = progress.played[current.card.id];
   return (
     <div className="relative">
-      <TradeSession key={current.key} card={current.card} bankroll={progress.bankroll} salt={current.key} onFinish={onFinish} />
-      {result && (
+      <TradeSession
+        key={current.key}
+        card={current.card}
+        bankroll={progress.bankroll + rideBal}
+        ride={rideBal}
+        sizes={sizes}
+        maxLots={maxLots}
+        ghost={ghostRow?.curve ?? null}
+        salt={current.key}
+        onFinish={onFinish}
+      />
+      {result && next && (
         <Debrief
           result={result}
           concept={conceptById.get(result.session.card.session.concept)}
-          onConcept={(c, ok) => bookConcept(progressRef.current, record, c, ok)}
-          onNext={next}
+          onConcept={(c, ok) => bookConcept(progress, record, c, ok)}
+          onNext={() => go()}
+          onStop={() => setMode('idle')}
           onShare={share}
+          next={next}
+          ride={rideBal}
+          onRide={ride}
+          canRide={result.trade.pnl > 0 && !result.marginCall && !rode}
+          rode={rode}
+          rideLost={result.rideLost}
+          banner={result.events?.[0]?.text ?? null}
         />
       )}
       {toast && <div className="pop num fixed inset-x-0 bottom-24 z-40 mx-auto w-fit rounded-lg bg-white px-3 py-2 text-xs font-bold text-black">{toast}</div>}

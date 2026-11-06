@@ -4,6 +4,7 @@ import { CATEGORIES, liveStreak } from '../lib/progress.js';
 import { ALL_CARDS } from '../data/index.js';
 import { fmtMoney } from '../lib/book.js';
 import { soundOn, setSoundOn } from '../lib/sound.js';
+import { cashOutRide } from '../lib/progress.js';
 
 const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const titleOf = (c) => c?.title ?? c?.headline ?? c?.name ?? c?.id;
@@ -18,7 +19,7 @@ function Stat({ label, value, tone = 'text-white' }) {
 }
 
 // Profile: level ladder, streak, scores, accuracy by category, miss queue.
-export default function Profile({ progress, session, onReset }) {
+export default function Profile({ progress, session, onReset, apply }) {
   const [confirm, setConfirm] = useState(false);
   const [sound, setSound] = useState(soundOn);
   const lvl = levelFor(progress.xp);
@@ -48,6 +49,18 @@ export default function Profile({ progress, session, onReset }) {
             ))}
           </div>
         </div>
+
+        {progress.ride?.active && (
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-up/40 bg-up/10 px-3 py-2.5">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-up">Ride balance</div>
+              <div className="num text-xl font-extrabold text-up">{fmtMoney(progress.ride.balance)}</div>
+              <div className="text-[11px] text-dim">Lost in full on your next losing session.</div>
+            </div>
+            <button onClick={() => apply((p) => ({ progress: cashOutRide(p) }))}
+              className="num rounded-lg border border-up/60 px-3 py-2 text-xs font-extrabold tracking-wider text-up">CASH OUT</button>
+          </div>
+        )}
 
         <div className="mt-3 grid grid-cols-3 gap-2">
           <Stat label="Day streak" value={`📅${liveStreak(progress.streak)}`} tone="text-amber" />

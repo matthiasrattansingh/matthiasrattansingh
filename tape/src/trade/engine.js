@@ -63,7 +63,7 @@ export function act(book, action, price, t, s) {
       if (pos) return book;
       return { ...book, pos: { side: action.side, lots: action.lots, entry: price, t0: t } };
     case 'ADD': {
-      if (!pos || pos.lots >= MAX_LOTS) return book;
+      if (!pos || pos.lots >= (s.maxLots ?? MAX_LOTS)) return book;
       if (pos.side === 'VOL') {
         // Re-strike: bank what the vol position made so far, sell one more lot at today's price.
         return { realized: book.realized + pnlOf(pos, price, t, s), pos: { side: 'VOL', lots: pos.lots + 1, entry: price, t0: t } };
