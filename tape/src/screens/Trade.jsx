@@ -18,6 +18,8 @@ import { bookPhysical, integratedUnlocked } from '../physical/ledger.js';
 import PhysStrip from '../physical/PhysStrip.jsx';
 import DeskTable from '../physical/DeskTable.jsx';
 import { rememberCargo, rememberHedge, rivalAdjust } from '../physical/memory.js';
+import NegotiationPanel from '../physical/NegotiationPanel.jsx';
+import { bestSale, desperationAt, fairDiff, indexFor, sellNegotiated } from '../physical/cargo.js';
 import { runAgentCargo, runAgentTank } from '../physical/agents.js';
 import { buildTank as buildTankFor } from '../physical/tank.js';
 import { botById } from '../lib/rivals.js';
@@ -231,6 +233,25 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     );
   }
 
+  // SELL in a cargo session opens a negotiation with the buyers at your port.
+  const renderSell = ({ c, st, getSt, advance, onDone, onCancel }) => {
+    const sale = bestSale(c, st);
+    const port = sale.port;
+    const portName = c.ports.find((p) => p.id === port).name;
+    const atBerth = st.at === port && !sale.afloat;
+    const halfDayCost = (atBerth && st.waited >= (c.ports.find((p) => p.id === port).laytime ?? 1.5) ? c.demurrage : c.charter) / 2;
+    const ctx = {
+      side: 'sell', fair: fairDiff(c, port, st.day), desperation: desperationAt(c, port, st.day),
+      roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.key}|${st.day}|${port}`,
+      distressDays: 0, index: (term) => indexFor(c, getSt().day, term).price, costPerHalfDay: halfDayCost,
+      onHalfDay: (h) => (h % 2 === 0 ? advance() : true), place: `${portName}${sale.afloat ? ' (afloat)' : ''}`, bbl: c.bbl, name: '',
+    };
+    return (
+      <NegotiationPanel ctx={ctx} onClose={() => onCancel()}
+        onDeal={(deal) => onDone(sellNegotiated(c, getSt(), { port, diff: deal.diff, term: deal.term, afloat: sale.afloat, nego: deal }))} />
+    );
+  };
+
   // Physical sessions: book to the physical desk ledger, then the physical debrief.
   const onPhysFinish = (kind) => (r) => {
     const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? r.t?.W ?? 0, ...(r.book ?? {}) }));
@@ -263,6 +284,19 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           { label: 'Events', value: s.events },
         ]}
         log={st.log}
+        extraTop={st.sold.nego && (
+          <div className="mt-3 rounded-xl border border-amber/40 bg-amber/10 p-3">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-amber">The deal</div>
+            <div className="num mt-1 text-[13px]">
+              Sold to <b>{st.sold.nego.name}</b> at <b>{st.sold.diff >= 0 ? '+' : ''}{st.sold.diff.toFixed(2)}</b> vs {st.sold.term === 'AVG5' ? 'AVG5' : 'the index'} · first bid {st.sold.nego.first >= 0 ? '+' : ''}{st.sold.nego.first.toFixed(2)} · {st.sold.nego.halfDays / 2}d of haggling
+            </div>
+            {st.sold.term === 'AVG5' && (
+              <div className="num mt-1 text-[11.5px] text-white/80">
+                AVG5 resolved over {st.sold.index.days.map((d) => `${c.dates[d].slice(5)} $${c.flat[d].toFixed(2)}`).join(' · ')} = ${st.sold.index.price.toFixed(2)} (index on the day ${c.flat[st.sold.day].toFixed(2)}: {fmtMoney((st.sold.index.price - c.flat[st.sold.day]) * c.bbl, { compact: true })} from the term)
+              </div>
+            )}
+          </div>
+        )}
         extraBottom={agentRuns && (
           <DeskTable kind="cargo" runs={agentRuns}
             me={{ kind: 'cargo', pnl: st.sold.pnl, split: s, summary: `You: ${st.sold.afloat ? 'sold afloat toward' : 'discharged'} ${portName(st.sold.port)} day ${st.sold.day + 1}, ${st.cost.demurrage ? fmtMoney(st.cost.demurrage, { compact: true, sign: false }) + ' demurrage' : '$0 demurrage'}${result.c.faded ? ` · rivals faded ${portName(result.c.faded)}` : ''}` }}
@@ -411,7 +445,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   if (current.card.type === 'cargo') {
     return (
       <div className="relative">
-        <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} rivals={physStrip} adjust={adjust} />
+        <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} rivals={physStrip} adjust={adjust} renderSell={renderSell} />
         {physDebrief}
         {chat}
       </div>

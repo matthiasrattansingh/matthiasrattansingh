@@ -24,6 +24,8 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
     return adjust ? adjust(base) : base;
   }, [card, econ, adjust]);
   const [st, setSt] = useState(newCargoState);
+  const stRef = useRef(st);
+  stRef.current = st;
   const [portPanel, setPortPanel] = useState(true); // day 0: pick a port first
   const [banner, setBanner] = useState(null);
   const [selling, setSelling] = useState(false);
@@ -117,7 +119,7 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
           </div>
         )}
         {!st.sold && !selling && <Ring key={`${st.day}-${st.dest}`} />}
-        <span className="num pointer-events-none absolute bottom-0 left-2 text-[9px] text-white/30">flat price real · port basis modeled</span>
+        <span className="num pointer-events-none absolute top-1 right-12 text-[9px] text-white/30">flat real · basis modeled</span>
       </div>
 
       <div className="num grid grid-cols-3 gap-1 border-t border-line px-2 py-1 text-[10.5px]">
@@ -184,7 +186,21 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
             })}
           </div>
         )}
-        {selling && renderSell?.({ c, st, onDone: (next) => { setSelling(false); if (next) setSt(next); }, onCancel: () => setSelling(false) })}
+        {selling && renderSell?.({
+          c, st,
+          getSt: () => stRef.current,
+          // Haggling burns the voyage clock: a full day passes every second round.
+          advance: () => {
+            const cur = stRef.current;
+            if (cur.day >= c.D - 1) return false;
+            const next = step(c, cur, { type: cur.at ? 'WAIT' : 'SAIL' });
+            stRef.current = next;
+            setSt(next);
+            return true;
+          },
+          onDone: (next) => { setSelling(false); if (next) setSt(next); },
+          onCancel: () => setSelling(false),
+        })}
       </div>
     </div>
   );

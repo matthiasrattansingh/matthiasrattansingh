@@ -202,3 +202,53 @@ export function bestCargo(c) {
   }
   return best;
 }
+
+// ---------------- negotiated sales (add-on B) ----------------
+
+/** The index for a pricing term: NOW = today's settle, AVG5 = average of the 5 days around discharge. */
+export function indexFor(c, day, term) {
+  if (term !== 'AVG5') return { price: c.flat[day], days: [day] };
+  const days = [];
+  for (let d = day - 2; d <= day + 2; d++) days.push(Math.min(c.D - 1, Math.max(0, d)));
+  return { price: days.reduce((a, d) => a + c.flat[d], 0) / days.length, days };
+}
+
+/** What buyers at a port think the cargo is worth vs the index (basis incl. events, less any off-spec penalty). */
+export const fairDiff = (c, portId, d) => basisAt(c, portId, d) - penaltyAt(c, portId, d);
+
+/** Buyer desperation from the events deck at that port so far (refinery outage +, restart -, ...). */
+export function desperationAt(c, portId, d) {
+  let x = 0.3;
+  for (const ev of c.events) {
+    if (ev.day > d) continue;
+    if (ev.desperate === portId || (ev.type === 'demand_spike' && ev.port === portId)) x += 0.5;
+    if (ev.type === 'refinery_outage' && ev.port === portId) x += 0.3;
+    if ((ev.type === 'refinery_restart' || ev.type === 'demand_fade') && ev.port === portId) x -= 0.3;
+    if (ev.type === 'distressed_seller' && ev.port === portId) x -= 0.25;
+  }
+  return Math.max(0, Math.min(1, x));
+}
+
+/** Execute a negotiated sale at an agreed differential and pricing term. */
+export function sellNegotiated(c, st, { port, diff, term, afloat, nego }) {
+  const d = st.day;
+  const p = c.ports.find((x) => x.id === port);
+  const idx = indexFor(c, d, term);
+  const shift = shiftAt(c, port, d);
+  const pen = penaltyAt(c, port, d);
+  const remDays = afloat ? (st.dest === port ? Math.max(0, st.eta - d) : Math.max(1, p.voyage - d + st.delays)) : 0;
+  const freightToBuyer = remDays * c.charter;
+  const bbl = c.bbl;
+  const split = {
+    flat: Math.round((idx.price - c.flat[0]) * bbl),
+    basis: Math.round((diff - shift + pen - c.load.basis) * bbl),
+    costs: -Math.round(st.cost.charter + st.cost.demurrage + st.cost.port + freightToBuyer),
+    events: Math.round((shift - pen) * bbl),
+  };
+  const pnl = split.flat + split.basis + split.costs + split.events;
+  return {
+    ...st,
+    sold: { day: d, port, afloat, price: idx.price + diff, split, pnl, freightToBuyer, term, index: idx, diff, nego },
+    log: [...st.log, { day: d, text: `Sold to ${nego?.name ?? 'buyer'} at ${diff >= 0 ? '+' : ''}${diff.toFixed(2)} vs ${term === 'AVG5' ? 'AVG5' : 'index'}${afloat ? ' (afloat)' : ''} at ${p.name}`, type: 'sell' }],
+  };
+}

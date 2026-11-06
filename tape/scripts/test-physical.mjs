@@ -236,4 +236,29 @@ ok('memory: after 5 cargoes Quinn scouts you and rivals fade your favorite port'
   assert.equal(MEM.rivalAdjust(emptyProgress()), null);
 });
 
+// ---------- negotiation (add-on B) ----------
+const N = await import('../src/physical/negotiation.js');
+const negoBase = { side: 'sell', fair: 1.0, roster: agents, econ, seed: 'nego-test', desperation: 0.4 };
+ok('negotiation: 1-3 counterparties with hidden reservation, patience, desperation, bluff', () => {
+  const n0 = N.openNegotiation(negoBase);
+  assert.ok(n0.parties.length >= 1 && n0.parties.length <= 3);
+  for (const p of n0.parties) {
+    assert.ok(p.bid < p.reservation, 'buyers open below their reservation (bluff)');
+    assert.ok(p.patience >= 2 && p.patience <= 6);
+    assert.ok(p.desperation >= 0 && p.desperation <= 1);
+  }
+  assert.deepEqual(N.openNegotiation(negoBase), n0); // seeded
+});
+ok('negotiated sale: AVG5 averages the 5 days around discharge; split still sums', () => {
+  const c = C.buildCargo(diesel, econ);
+  let st = C.step(c, C.newCargoState(), { type: 'PORT', port: 'nyh' });
+  for (let i = 0; i < 6; i++) st = C.step(c, st, { type: 'SAIL' });
+  const idx = C.indexFor(c, st.day, 'AVG5');
+  assert.deepEqual(idx.days, [st.day - 2, st.day - 1, st.day, st.day + 1, st.day + 2]);
+  const sold = C.sellNegotiated(c, st, { port: 'nyh', diff: 10.5, term: 'AVG5', afloat: false }).sold;
+  const sp = sold.split;
+  assert.equal(sp.flat + sp.basis + sp.costs + sp.events, sold.pnl);
+  assert.ok(Math.abs(sold.price - (idx.price + 10.5)) < 1e-9);
+});
+
 console.log(`physical tests: ${n} passed ✓`);
