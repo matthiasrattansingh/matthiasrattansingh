@@ -79,6 +79,10 @@ export function validateCargo(c) {
     else if (ev.date && days[ev.day].date !== ev.date) errors.push(`event "${ev.text}" dated ${ev.date} but day ${ev.day} is ${days[ev.day].date}`);
     if (ev.port && !ids.has(ev.port)) errors.push(`event "${ev.text}" names unknown port ${ev.port}`);
     if (!ev.text || ev.text.length > NEWS_MAX) errors.push(`event text must be 1-${NEWS_MAX} characters: "${ev.text}"`);
+    // Negotiation set-pieces: how many buyers come to the table and what they open with.
+    if (ev.buyers != null && !(ev.port && [1, 2, 3].includes(ev.buyers))) errors.push(`event "${ev.text}" set-piece needs a port and 1-3 buyers`);
+    if (ev.line != null && !(ev.line.length > 0 && ev.line.length <= NEWS_MAX)) errors.push(`event "${ev.text}" line must be 1-${NEWS_MAX} characters`);
+    if (ev.until_day != null && !(ev.until_day > ev.day)) errors.push(`event "${ev.text}" until_day must be after its day`);
   }
   return errors;
 }

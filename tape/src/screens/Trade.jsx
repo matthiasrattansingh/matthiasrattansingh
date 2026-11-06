@@ -12,14 +12,14 @@ import { EVAL_DD, evalActive } from '../game/evalAccount.js';
 import { AGENTS, CONCEPT_CARDS, ECON, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
 import CargoSession from '../physical/CargoSession.jsx';
 import TankSession from '../physical/TankSession.jsx';
-import { tankSplit } from '../physical/tank.js';
+import { spot as tankSpot, spotMarket, tankSplit } from '../physical/tank.js';
 import PhysDebrief from '../physical/PhysDebrief.jsx';
 import { bookPhysical, integratedUnlocked } from '../physical/ledger.js';
 import PhysStrip from '../physical/PhysStrip.jsx';
 import DeskTable from '../physical/DeskTable.jsx';
 import { rememberCargo, rememberHedge, rivalAdjust } from '../physical/memory.js';
 import NegotiationPanel from '../physical/NegotiationPanel.jsx';
-import { bestSale, desperationAt, fairDiff, indexFor, sellNegotiated } from '../physical/cargo.js';
+import { bestSale, desperationAt, distressDaysAt, fairDiff, indexFor, sellNegotiated, setPieceAt } from '../physical/cargo.js';
 import { recordNegotiation } from '../physical/relationships.js';
 import { runAgentCargo, runAgentTank } from '../physical/agents.js';
 import { buildTank as buildTankFor } from '../physical/tank.js';
@@ -241,13 +241,15 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     const portName = c.ports.find((p) => p.id === port).name;
     const atBerth = st.at === port && !sale.afloat;
     // Distress: buyers shade bids for every day your demurrage meter has been red.
-    const lay = c.ports.find((p) => p.id === port).laytime ?? 1.5;
-    const distressDays = st.at ? Math.max(0, Math.floor(st.waited - lay)) : 0;
+    const distressDays = st.at === port ? distressDaysAt(c, st) : 0;
+    // Set-pieces from the events deck (a desperate buyer, a distressed rival seller).
+    const piece = setPieceAt(c, port, st.day);
     const halfDayCost = (atBerth && st.waited >= (c.ports.find((p) => p.id === port).laytime ?? 1.5) ? c.demurrage : c.charter) / 2;
     const ctx = {
       side: 'sell', fair: fairDiff(c, port, st.day), desperation: desperationAt(c, port, st.day),
       roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.key}|${st.day}|${port}`,
-      distressDays, index: (term) => indexFor(c, getSt().day, term).price, costPerHalfDay: halfDayCost,
+      distressDays, count: piece?.count, line: piece?.line ?? undefined,
+      index: (term) => indexFor(c, getSt().day, term).price, costPerHalfDay: halfDayCost,
       onHalfDay: (h) => (h % 2 === 0 ? advance() : true), place: `${portName}${sale.afloat ? ' (afloat)' : ''}`, bbl: c.bbl, name: progress.playerName ?? '',
     };
     return (
@@ -256,6 +258,29 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
         onDeal={(deal) => {
           apply((p) => ({ progress: recordNegotiation(p, { parties: deal.parties, deal, edge: deal.edge }) }));
           onDone(sellNegotiated(c, getSt(), { port, diff: deal.diff, term: deal.term, afloat: sale.afloat, nego: deal }));
+        }} />
+    );
+  };
+
+  // CARRY in a tank session buys spot barrels: same panel, reversed. Sellers have floors,
+  // patience and (when Cushing is filling) a clock of their own.
+  const renderBuy = ({ t, st, action, onDone, onCancel }) => {
+    const m = spotMarket(t, st.week, ECON);
+    const bbl = Math.min(action.bbl ?? t.capacity, t.capacity);
+    const ctx = {
+      side: 'buy', fair: m.fair, desperation: m.desperation, theirClock: m.theirClock,
+      roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.key}|${st.week}|buy`,
+      distressDays: 0, index: () => tankSpot(t, st.week),
+      // The tank sits empty while you haggle: half a day of rent per round.
+      costPerHalfDay: (bbl * t.rent) / 61, onHalfDay: () => true,
+      place: `${current.card.location ?? 'Cushing'} spot`, bbl, name: progress.playerName ?? '',
+    };
+    return (
+      <NegotiationPanel ctx={ctx}
+        onClose={(nn) => { apply((p) => ({ progress: recordNegotiation(p, { parties: nn.parties }) })); onCancel(); }}
+        onDeal={(deal) => {
+          apply((p) => ({ progress: recordNegotiation(p, { parties: deal.parties, deal, edge: deal.edge }) }));
+          onDone({ diff: deal.diff, nego: deal });
         }} />
     );
   };
@@ -344,7 +369,16 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           { label: 'Tank rent paid', value: sp.rent, note: `$${t.rent.toFixed(2)}/bbl/month` },
           { label: 'Financing paid', value: sp.financing, note: `${(t.finance * 100).toFixed(1)}%/yr on the barrels' value` },
         ]}
-        extraTop={held.length > 0 && (
+        extraTop={held.length > 0 && (<>
+          {st.buyNego && (
+            <div className="mt-3 rounded-xl border border-amber/40 bg-amber/10 p-3">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-amber">The buy</div>
+              <div className="num mt-1 flex items-baseline justify-between">
+                <span className="text-[12.5px]">Bought from <b>{st.buyNego.name}</b> at <b>{st.buyNego.diff >= 0 ? '+' : ''}{st.buyNego.diff.toFixed(2)}</b> vs spot · first offer {st.buyNego.first >= 0 ? '+' : ''}{st.buyNego.first.toFixed(2)} · edge <b className={st.buyNego.edge >= 0 ? 'text-up' : 'text-down'}>{fmtMoney(st.buyNego.edge, { compact: true })}</b></span>
+                <span className="rounded bg-amber px-1.5 text-sm font-extrabold text-black">{st.buyNego.grade.grade}</span>
+              </div>
+            </div>
+          )}
           <div className="mt-3 rounded-xl border border-line bg-panel p-3">
             <div className="text-[10px] uppercase tracking-[0.2em] text-amber">Carry earned vs rent paid, week by week</div>
             <table className="num mt-1 w-full text-[11px]">
@@ -365,7 +399,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
             </table>
             <p className="mt-1 text-[11px] text-white/70">The spread has to pay more than the tank.</p>
           </div>
-        )}
+        </>)}
         log={st.log.map((l) => ({ day: l.week, text: l.text }))}
         extraBottom={agentRuns && (
           <DeskTable runs={agentRuns}
@@ -448,7 +482,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   if (current.card.type === 'tank') {
     return (
       <div className="relative">
-        <TankSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('tank')} rivals={physStrip} />
+        <TankSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('tank')} rivals={physStrip} renderBuy={renderBuy} />
         {tankDebrief}
         {chat}
       </div>

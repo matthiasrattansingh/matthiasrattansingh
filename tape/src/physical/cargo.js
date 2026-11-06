@@ -43,7 +43,7 @@ export function shiftAt(c, portId, d) {
   let s = 0;
   for (const ev of c.events) {
     if (ev.day > d) continue;
-    if (['pipeline_outage', 'refinery_outage', 'refinery_restart', 'demand_spike', 'demand_fade'].includes(ev.type)) {
+    if (['pipeline_outage', 'refinery_outage', 'refinery_restart', 'demand_spike', 'demand_fade', 'distressed_seller'].includes(ev.type)) {
       if (ev.port === portId) s += ev.usd ?? 0;
       else if (ev.widen && (!ev.widen_ports || ev.widen_ports.includes(portId))) s += ev.widen;
     }
@@ -227,6 +227,31 @@ export function desperationAt(c, portId, d) {
     if (ev.type === 'distressed_seller' && ev.port === portId) x -= 0.25;
   }
   return Math.max(0, Math.min(1, x));
+}
+
+/**
+ * Days your demurrage meter has been red at the berth: each day waited beyond laytime
+ * (the days demurrage is actually charged). Buyers shade their opening bids by this.
+ */
+export function distressDaysAt(c, st) {
+  if (!st.at) return 0;
+  const lay = c.ports.find((p) => p.id === st.at)?.laytime ?? 1.5;
+  return Math.max(0, st.waited - Math.floor(lay));
+}
+
+/**
+ * Negotiation set-piece from the events deck: an event at this port carrying `buyers`
+ * (how many come to the table) and `line` (what they open with), live from its day
+ * until `until_day`.
+ */
+export function setPieceAt(c, portId, d) {
+  let out = null;
+  for (const ev of c.events) {
+    if (ev.day > d || ev.port !== portId || !ev.buyers) continue;
+    if (ev.until_day != null && d >= ev.until_day) continue;
+    out = { count: ev.buyers, line: ev.line ?? null, type: ev.type };
+  }
+  return out;
 }
 
 /** Execute a negotiated sale at an agreed differential and pricing term. */

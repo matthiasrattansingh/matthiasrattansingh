@@ -261,4 +261,155 @@ ok('negotiated sale: AVG5 averages the 5 days around discharge; split still sums
   assert.ok(Math.abs(sold.price - (idx.price + 10.5)) < 1e-9);
 });
 
+// ---------- negotiation steps 2-3: pressure, relationships, buy side, set-pieces ----------
+const REL = await import('../src/physical/relationships.js');
+const shadeCfg = econ.negotiation.distress_shading_usd_bbl_day.value;
+const cargoCtx = (c, st, port, extra = {}) => ({
+  side: 'sell', fair: C.fairDiff(c, port, st.day), desperation: C.desperationAt(c, port, st.day),
+  roster: agents, econ, seed: `test|${st.day}|${port}`, ...extra,
+});
+
+ok('accepting bid 1 yields exactly the baseline edge $0', () => {
+  const c = C.buildCargo(diesel, econ);
+  let st = C.step(c, C.newCargoState(), { type: 'PORT', port: 'nyh' });
+  for (let i = 0; i < 6; i++) st = C.step(c, st, { type: 'SAIL' });
+  const n0 = N.openNegotiation(cargoCtx(c, st, 'nyh'));
+  for (const p of n0.parties) {
+    const out = N.respond(n0, { type: 'ACCEPT', party: p.id }, 'seed');
+    assert.equal(out.outcome, 'deal');
+    const d = out.n.deal;
+    assert.equal(d.diff, p.first);
+    const idx = C.indexFor(c, st.day, d.term).price;
+    const edge = N.edgeOf({ side: 'sell', bbl: c.bbl, indexAtOpen: idx, indexAtDeal: idx, diff: d.diff, first: d.first });
+    assert.equal(edge === 0 ? 0 : edge, 0);
+    // Booked sale at the accepted bid equals the first-bid baseline.
+    const a = C.sellNegotiated(c, st, { port: 'nyh', diff: d.diff, term: d.term, afloat: false }).sold.pnl;
+    const b = C.sellNegotiated(c, st, { port: 'nyh', diff: p.first, term: p.term, afloat: false }).sold.pnl;
+    assert.equal(a, b);
+  }
+});
+
+ok("a scripted counter sequence against Quinn's buyer converges within his patience", () => {
+  for (let s = 0; s < 12; s++) {
+    const seed = `quinn-${s}`;
+    let nn = N.openNegotiation({ ...negoBase, roster: [agent('quinn')], count: 1, seed });
+    const patience0 = nn.parties[0].patience;
+    let rounds = 0;
+    let ask = nn.parties[0].bid + 0.5; // open high, then shade toward each move
+    while (!nn.deal && rounds < 10) {
+      const q = nn.parties[0];
+      assert.equal(q.status, 'live', `seed ${s}: Quinn pulled after ${rounds} rounds`);
+      if (q.final) { nn = N.respond(nn, { type: 'ACCEPT', party: q.id }, seed).n; break; }
+      nn = N.respond(nn, { type: 'COUNTER', party: q.id, ask: Math.round(ask * 20) / 20 }, seed).n;
+      rounds++;
+      ask = nn.parties[0].bid + 0.15;
+    }
+    assert.ok(nn.deal, `seed ${s}: no deal`);
+    assert.ok(rounds <= patience0, `seed ${s}: ${rounds} rounds vs patience ${patience0}`);
+    assert.ok(nn.deal.diff >= nn.parties[0].first, 'countering never ends below his first bid');
+  }
+});
+
+ok('stalling 6 rounds against an impatient buyer gets the bid pulled', () => {
+  let nn = N.openNegotiation({ ...negoBase, desperation: 0.95, roster: [agent('mo')], count: 1, seed: 'impatient' });
+  assert.ok(nn.parties[0].desperation > 0.6 && nn.parties[0].patience <= 5, 'desperate buyers are impatient');
+  let pulledAt = null;
+  for (let i = 1; i <= 6; i++) {
+    const out = N.respond(nn, { type: 'STALL' }, 'impatient');
+    nn = out.n;
+    if (out.outcome === 'pulled' && pulledAt == null) pulledAt = i;
+  }
+  assert.equal(nn.parties[0].status, 'pulled');
+  assert.ok(pulledAt != null && pulledAt <= 6);
+  assert.equal(N.liveParties(nn).length, 0);
+  assert.equal(N.respond(nn, { type: 'ACCEPT', party: 'mo' }).outcome, 'none', 'a pulled bid cannot be accepted');
+});
+
+ok('distress shading changes opening bids by the configured amount on the configured day', () => {
+  const c = C.buildCargo(byId('cg-texas-freeze-2021'), econ);
+  const lay = c.ports.find((p) => p.id === 'sj').laytime;
+  let st = C.step(c, C.newCargoState(), { type: 'PORT', port: 'sj' });
+  while (!st.at) st = C.step(c, st, { type: 'SAIL' });
+  assert.equal(C.distressDaysAt(c, st), 0, 'arrival: meter not red yet');
+  const seen = [];
+  while (st.day < c.D - 2) {
+    st = C.step(c, st, { type: 'WAIT' });
+    const dd = C.distressDaysAt(c, st);
+    // Distress days are exactly the demurrage days charged (the meter in the red).
+    assert.equal(dd, Math.round(st.cost.demurrage / c.demurrage));
+    assert.equal(dd > 0, st.waited > lay);
+    const base = N.openNegotiation(cargoCtx(c, st, 'sj', { distressDays: 0 }));
+    const shaded = N.openNegotiation(cargoCtx(c, st, 'sj', { distressDays: dd }));
+    base.parties.forEach((p, i) => {
+      assert.ok(Math.abs(p.first - shaded.parties[i].first - shadeCfg * dd) < 1e-9, `day ${st.day}: ${p.first} vs ${shaded.parties[i].first}`);
+      assert.equal(p.reservation, shaded.parties[i].reservation, 'shading moves the opening, not their limit');
+    });
+    seen.push(dd);
+  }
+  assert.equal(seen[0], 0, 'first day at the berth is inside laytime');
+  assert.ok(seen.some((d) => d >= 2), 'shading grows day by day');
+});
+
+ok('relationships persist per agent and move opening bids by $0.03-0.08', () => {
+  let p = emptyProgress();
+  const parties = [{ id: 'carla', rounds: 2, stalled: 3, status: 'walked' }, { id: 'quinn', rounds: 1, stalled: 3, status: 'live' }];
+  p = REL.recordNegotiation(p, { parties, deal: { party: 'quinn' }, edge: 12345 });
+  assert.deepEqual(p.phys.relationships.carla, { deals_closed: 0, rounds_stalled_on_them: 3, walk_aways_after_3plus_rounds: 1 });
+  assert.equal(p.phys.relationships.quinn.deals_closed, 1);
+  assert.deepEqual(p.phys.negotiation, { edge: 12345, pulled: 0, deals: 1 });
+  const [lo, hi] = econ.negotiation.relationship_adjust_usd_bbl.value;
+  const cold = N.relationAdjust(p.phys.relationships.carla, econ);
+  assert.ok(cold <= -lo && cold >= -hi);
+  const opts = { ...negoBase, roster: [agent('carla')], count: 1, seed: 'rel' };
+  const a = N.openNegotiation(opts).parties[0];
+  const b = N.openNegotiation({ ...opts, relationships: p.phys.relationships }).parties[0];
+  assert.ok(Math.abs(b.first - a.first - cold) < 0.051, 'opening moves by the relationship adjustment');
+  assert.match(N.tell(b, 'sell', p.phys.relationships.carla, 'Matthias'), /Matthias/);
+});
+
+ok('buy side: sellers ask above their floor; Cushing level drives their clock', () => {
+  const m20 = T.spotMarket(sc, 8, econ); // 29 Apr 2020: Cushing ~83% full
+  const m21 = T.spotMarket(tk('tk-backwardation-2021'), 4, econ);
+  assert.ok(m20.theirClock && m20.desperation > 0.6 && m20.fair < 0);
+  assert.equal(m21.theirClock, null);
+  assert.ok(m21.fair > 0, 'tight Cushing: sellers hold the cards');
+  let nn = N.openNegotiation({ side: 'buy', fair: m20.fair, desperation: m20.desperation, theirClock: m20.theirClock, roster: agents, econ, seed: 'buy', count: 3 });
+  for (const p of nn.parties) assert.ok(p.bid > p.reservation, 'sellers open above their floor');
+  const desperate = nn.parties.filter((p) => p.desperation > 0.6).map((p) => p.id);
+  assert.ok(desperate.length > 0);
+  const before = Object.fromEntries(nn.parties.map((p) => [p.id, p.bid]));
+  nn = N.respond(N.respond(nn, { type: 'STALL' }).n, { type: 'STALL' }).n; // one full day
+  assert.equal(nn.theirClock.days, m20.theirClock.days - 1);
+  for (const p of nn.parties.filter((x) => desperate.includes(x.id) && x.status === 'live')) {
+    assert.ok(p.bid <= before[p.id] - shadeCfg + 1e-9, 'a seller with no home shades down every day');
+  }
+});
+
+ok('negotiated CARRY: the agreed differential lands in the locked carry and the P&L', () => {
+  const plain = T.runTank(sc, [{ type: 'WAIT' }, { type: 'CARRY', k: 2, bbl: 500000 }]);
+  const haggled = T.runTank(sc, [{ type: 'WAIT' }, { type: 'CARRY', k: 2, bbl: 500000, diff: -0.25 }]);
+  assert.ok(Math.abs(haggled.locked - plain.locked - 0.25 * 500000) < 1e-6);
+  assert.ok(Math.abs(T.tankPnl(sc, haggled) - T.tankPnl(sc, plain) - 0.25 * 500000) < 1e-6);
+  const sp = T.tankSplit(sc, haggled);
+  assert.ok(Math.abs(sp.locked + sp.unwind + sp.rent + sp.financing - sp.total) < 1e-6);
+});
+
+ok('set-pieces: a desperate NYH diesel buyer and a distressed seller at Houston', () => {
+  const dz = C.buildCargo(diesel, econ);
+  assert.equal(C.setPieceAt(dz, 'nyh', 4), null);
+  const spike = C.setPieceAt(dz, 'nyh', 6);
+  assert.equal(spike.count, 3);
+  assert.ok(C.desperationAt(dz, 'nyh', 6) > 0.6);
+  assert.equal(C.setPieceAt(dz, 'nyh', 9), null, 'the squeeze ends when May ULSD expires');
+  const fsc = C.buildCargo(byId('cg-floating-storage-2020'), econ);
+  const dump = C.setPieceAt(fsc, 'hou', 3);
+  assert.equal(dump.type, 'distressed_seller');
+  assert.equal(dump.count, 1);
+  assert.ok(C.desperationAt(fsc, 'hou', 3) < C.desperationAt(fsc, 'hou', 1));
+  const nn = N.openNegotiation({ ...cargoCtx(dz, { day: 6 }, 'nyh'), count: spike.count, line: spike.line });
+  assert.equal(nn.parties.length, 3);
+  assert.ok(N.leverage(nn), '3 live bids is leverage');
+  assert.equal(N.tell(nn.parties[0], 'sell'), spike.line);
+});
+
 console.log(`physical tests: ${n} passed ✓`);

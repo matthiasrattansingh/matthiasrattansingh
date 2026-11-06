@@ -16,7 +16,9 @@ const r05 = (v) => Math.round(v * 20) / 20;
  * Open a negotiation.
  * opts: { side: 'sell'|'buy', fair (fair differential to the index, $/bbl), roster (agents),
  *         seed, desperation (0-1 from events), count (1-3), relationships, econ,
- *         distressDays (days your demurrage meter has been red), theirClock (seller distress) }
+ *         distressDays (days your demurrage meter has been red),
+ *         theirClock ({ days, text }: buy side, a seller with a cargo landing and no tank),
+ *         line (a scenario set-piece chat line every party opens with) }
  */
 export function openNegotiation(opts) {
   const { side = 'sell', fair, roster, seed = '', desperation = 0.3, relationships = {}, econ, distressDays = 0 } = opts;
@@ -25,8 +27,10 @@ export function openNegotiation(opts) {
   const pool = [...roster];
   for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
   const shading = (econ?.negotiation?.distress_shading_usd_bbl_day?.value ?? 0.05) * distressDays;
-  const parties = pool.slice(0, Math.max(1, Math.min(3, count))).map((a) => {
-    const desp = Math.max(0, Math.min(1, desperation + (rand() - 0.5) * 0.3));
+  const parties = pool.slice(0, Math.max(1, Math.min(3, count))).map((a, i) => {
+    let desp = Math.max(0, Math.min(1, desperation + (rand() - 0.5) * 0.3));
+    // Their clock belongs to someone: the first seller is the one with barrels landing and no tank.
+    if (side === 'buy' && opts.theirClock && i === 0) desp = Math.max(desp, 0.75);
     // Sell side: they're buyers, reservation is the most they'll pay. Buy side: sellers, the least they'll take.
     const dir = side === 'sell' ? 1 : -1;
     const reservation = r05(fair + dir * (desp * 1.2 - 0.2 + (rand() - 0.5) * 0.4));
@@ -39,10 +43,11 @@ export function openNegotiation(opts) {
       reservation, bid: opening, first: opening, bluff, desperation: desp,
       patience: 2 + Math.floor(rand() * 4) + (desp > 0.6 ? 0 : 1), // 2-6 rounds; desperate ones are shorter
       term: rand() < 0.5 ? 'NOW' : 'AVG5', prefers: rand() < 0.5 ? 'NOW' : 'AVG5',
-      status: 'live', rounds: 0, stalled: 0, final: false, rel,
+      status: 'live', rounds: 0, stalled: 0, final: false, rel, line: i === 0 ? opts.line ?? null : null,
     };
   });
-  return { side, parties, round: 0, halfDays: 0, log: [], deal: null, opening: opts.indexNow ?? 0, theirClock: opts.theirClock ?? null };
+  const shadeDay = econ?.negotiation?.distress_shading_usd_bbl_day?.value ?? 0.05;
+  return { side, parties, round: 0, halfDays: 0, log: [], deal: null, opening: opts.indexNow ?? 0, theirClock: opts.theirClock ?? null, shadeDay };
 }
 
 /** Relationship history moves opening bids by $0.03-0.08 either way. */
@@ -71,7 +76,16 @@ function tick(n, who, kind) {
     if (patience <= 0 && !p.final) return { ...q, status: 'pulled' };
     return q;
   });
-  return { ...n, parties, round: n.round + 1, halfDays: n.halfDays + 1 };
+  const halfDays = n.halfDays + 1;
+  // Their clock: a seller with a cargo landing and no tank shades down every day that passes.
+  if (n.side === 'buy' && n.theirClock) {
+    const theirClock = { ...n.theirClock, days: Math.max(0, n.theirClock.days - 0.5) };
+    const newDay = halfDays % 2 === 0;
+    const shaded = parties.map((p) => (newDay && p.status === 'live' && p.desperation > 0.6
+      ? { ...p, bid: r05(p.bid - n.shadeDay), reservation: r05(p.reservation - n.shadeDay) } : p));
+    return { ...n, parties: shaded, round: n.round + 1, halfDays, theirClock };
+  }
+  return { ...n, parties, round: n.round + 1, halfDays };
 }
 
 /**
@@ -136,6 +150,7 @@ export function tell(p, side = 'sell', history = null, name = '') {
   if (history?.walk_aways_after_3plus_rounds >= 1) return `You walked on me after 3 rounds${who}. Serious?`;
   if (history?.deals_closed >= 2) return `Good to trade with you again${who}.`;
   if (p.final) return 'That’s my final number.';
+  if (p.line && p.rounds + p.stalled < 2) return p.line;
   if (p.patience <= 1) return 'I need an answer now.';
   if (p.desperation > 0.65) return side === 'sell' ? 'We need barrels this week. Can you do it?' : 'I have a cargo arriving and no tank. Help me out.';
   if (p.desperation < 0.3) return side === 'sell' ? 'No rush on our side.' : 'I can sit on these.';
@@ -152,11 +167,11 @@ export function edgeOf({ side = 'sell', bbl, indexAtOpen, indexAtDeal, diff, fir
 }
 
 /** NEGOTIATION grade: edge captured vs the theoretical max (their reservation), less days burned. */
-export function negotiationGrade({ side = 'sell', diff, first, reservation, halfDays, pulled = 0 }) {
+export function negotiationGrade({ side = 'sell', diff, first, reservation, halfDays }) {
   const dir = side === 'sell' ? 1 : -1;
   const room = Math.max(0.05, dir * (reservation - first));
   const captured = (dir * (diff - first)) / room;
-  const burned = halfDays * 0.04 + pulled * 0.1;
+  const burned = halfDays * 0.04; // each half day of haggling costs 4 points of capture
   const score = captured - burned;
   return { grade: score >= 0.8 ? 'S' : score >= 0.55 ? 'A' : score >= 0.3 ? 'B' : score > 0 ? 'C' : 'D', captured, score };
 }

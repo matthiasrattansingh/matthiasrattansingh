@@ -105,9 +105,9 @@ export default function NegotiationPanel({ ctx, onDeal, onClose }) {
       </div>
       <div className="num mt-0.5 flex items-center justify-between text-[10px] text-dim">
         <span>index ${ctx.index('NOW').toFixed(2)} · fair {sd(ctx.fair)} · {(ctx.bbl / 1000).toFixed(0)}k bbl</span>
-        {lev && <span className="rounded bg-up/20 px-1.5 font-bold text-up">{live.length} live bids</span>}
+        {lev && <span className="rounded bg-up/20 px-1.5 font-bold text-up">{live.length} live {ctx.side === 'sell' ? 'bids' : 'offers'}</span>}
       </div>
-      {ctx.theirClock && <div className="num mt-0.5 text-[10px] font-bold text-sky-300">⏱ their clock: {ctx.theirClock}</div>}
+      {n.theirClock && <div className="num mt-0.5 text-[10px] font-bold text-sky-300">⏱ their clock: {n.theirClock.text} · {n.theirClock.days.toFixed(1)}d</div>}
 
       <div className="mt-1.5 space-y-1">
         {n.parties.map((p) => (
@@ -133,7 +133,7 @@ export default function NegotiationPanel({ ctx, onDeal, onClose }) {
             <div className="text-center">
               <div className="text-[10px] text-dim">your {ctx.side === 'sell' ? 'ask' : 'bid'} vs index</div>
               <div className="text-xl font-extrabold text-amber">{sd(ask)}</div>
-              <div className="text-[10px] text-dim">{fmtMoney((ask - party.bid) * dir * ctx.bbl, { compact: true })} vs their bid</div>
+              <div className="text-[10px] text-dim">{fmtMoney((ask - party.bid) * dir * ctx.bbl, { compact: true })} vs their {ctx.side === 'sell' ? 'bid' : 'offer'}</div>
             </div>
             <button onClick={() => setAsk((a) => Math.round((a + 0.05) * 20) / 20)} className="h-11 w-11 rounded-lg border border-white/30 text-lg font-bold">+</button>
           </div>
@@ -153,7 +153,7 @@ export default function NegotiationPanel({ ctx, onDeal, onClose }) {
           <Btn tone="down" off={party.status !== 'live' || checking} onClick={() => act({ type: 'WALK' })}>WALK</Btn>
         </div>
       )}
-      <button onClick={() => onClose?.(n)} className="num mt-1.5 w-full text-center text-[10px] text-dim">back to the voyage ✕</button>
+      <button onClick={() => onClose?.(n)} className="num mt-1.5 w-full text-center text-[10px] text-dim">{ctx.side === 'sell' ? 'back to the voyage' : 'back to the tank'} ✕</button>
     </div>
   );
 }
