@@ -23,6 +23,7 @@ export function validateCard(c) {
   }
   if (c?.session) errors.push(...validateSession(c));
   if (c?.type === 'cargo') errors.push(...validateCargo(c));
+  if (c?.type === 'tank') errors.push(...validateTank(c));
   return errors;
 }
 
@@ -79,5 +80,19 @@ export function validateCargo(c) {
     if (ev.port && !ids.has(ev.port)) errors.push(`event "${ev.text}" names unknown port ${ev.port}`);
     if (!ev.text || ev.text.length > NEWS_MAX) errors.push(`event text must be 1-${NEWS_MAX} characters: "${ev.text}"`);
   }
+  return errors;
+}
+
+/** TANK checks: 8-12 weekly steps, each with a 4-month curve, delivery months and an EIA print. */
+export function validateTank(c) {
+  const errors = [];
+  const weeks = c.weekly ?? [];
+  if (weeks.length < 8 || weeks.length > 12) errors.push(`tank needs 8-12 weekly steps, has ${weeks.length} (run scripts/build-physical.py)`);
+  if (c.open && c.open.length > OPEN_MAX) errors.push(`open is over ${OPEN_MAX} characters`);
+  weeks.forEach((w, i) => {
+    if (!(w.curve?.length === 4) || w.curve.some((v) => !Number.isFinite(v))) errors.push(`week ${i}: curve needs 4 prices`);
+    if (!(w.months?.length === 4)) errors.push(`week ${i}: months needs 4 delivery months`);
+    if (!w.eia || !Number.isFinite(w.eia.cushing_mmbbl)) errors.push(`week ${i}: missing the EIA print`);
+  });
   return errors;
 }

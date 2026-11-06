@@ -84,4 +84,46 @@ ok('pipeline outage collapses basis at the port and widens it elsewhere', () => 
   assert.equal(C.shiftAt(fz, 'rtm', 5), 0); // widen_ports limits who benefits
 });
 
+// ---------- tank ----------
+const T = await import('../src/physical/tank.js');
+const tankCards = json('tank.json').cards;
+const tk = (id) => T.buildTank(tankCards.find((c) => c.id === id), econ);
+const sc = tk('tk-super-contango-2020');
+ok('tank: 8-12 weekly steps with a real 4-month curve and EIA prints', () => {
+  for (const c of tankCards) {
+    const t = T.buildTank(c, econ);
+    assert.ok(t.W >= 8 && t.W <= 12);
+    assert.ok(t.weeks.every((w) => w.curve.length === 4 && w.months.length === 4 && Number.isFinite(w.eia.cushing_mmbbl)));
+  }
+});
+ok('holding a carry to delivery realizes exactly the locked spread minus rent and financing', () => {
+  const st = T.runTank(sc, [{ type: 'CARRY', k: 1, bbl: 500000 }]);
+  const sp = T.tankSplit(sc, st);
+  assert.ok(Math.abs(sp.unwind) < 1, `unwind ${sp.unwind}`);
+  assert.ok(Math.abs(sp.total - (sp.locked + sp.rent + sp.financing)) < 1);
+  assert.match(st.log.map((l) => l.text).join(' '), /Delivered into futures at expiry/);
+});
+ok('the spread has to pay more than the tank: week-1 2020 carry loses, late-April carry pays', () => {
+  const early = T.tankSplit(sc, T.runTank(sc, [{ type: 'CARRY', k: 1, bbl: 500000 }]));
+  assert.ok(T.carryOffer(sc, 0, 1).perMonth < T.carryCost(sc, 0)); assert.ok(early.total < 0);
+  const late = T.tankSplit(sc, T.runTank(sc, [...Array(7).fill({ type: 'WAIT' }), { type: 'CARRY', k: 3, bbl: 500000 }]));
+  assert.ok(T.carryOffer(sc, 7, 1).perMonth > T.carryCost(sc, 7)); assert.ok(late.total > 2_000_000);
+  assert.ok(T.bestTank(sc).pnl >= late.total);
+});
+ok('backwardation: a cash-and-carry locks in a loss', () => {
+  const bw = tk('tk-backwardation-2021');
+  const sp = T.tankSplit(bw, T.runTank(bw, [{ type: 'CARRY', k: 1, bbl: 500000 }]));
+  assert.ok(sp.locked < 0); assert.ok(sp.total < 0);
+});
+ok('roll moves the hedge one month out and books the old leg', () => {
+  let st = T.stepTank(sc, T.newTankState(), { type: 'CARRY', k: 1, bbl: 500000 });
+  const m = st.hedge.month;
+  st = T.stepTank(sc, st, { type: 'ROLL' });
+  assert.notEqual(st.hedge.month, m); assert.equal(st.rolls, 1);
+});
+ok('rent is in the realistic $0.40-0.60/bbl/month band by default', () => {
+  const t = T.buildTank({ ...tankCards[1], rent_usd_bbl_month: undefined }, econ);
+  assert.ok(t.rent >= 0.4 && t.rent <= 0.6);
+});
+
 console.log(`physical tests: ${n} passed ✓`);

@@ -11,6 +11,8 @@ import { afterSession } from '../game/afterSession.js';
 import { EVAL_DD, evalActive } from '../game/evalAccount.js';
 import { CONCEPT_CARDS, ECON, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
 import CargoSession from '../physical/CargoSession.jsx';
+import TankSession from '../physical/TankSession.jsx';
+import { tankSplit } from '../physical/tank.js';
 import PhysDebrief from '../physical/PhysDebrief.jsx';
 import { bookPhysical } from '../physical/ledger.js';
 import Rings from '../components/Rings.jsx';
@@ -212,7 +214,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
 
   // Physical sessions: book to the physical desk ledger, then the physical debrief.
   const onPhysFinish = (kind) => (r) => {
-    const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? 0, ...(r.book ?? {}) }));
+    const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? r.t?.W ?? 0, ...(r.book ?? {}) }));
     recent.current = [current.card.id, ...recent.current].slice(0, 8);
     setTimeout(() => setResult({ phys: kind, ...r, events }), 1200);
   };
@@ -244,6 +246,68 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       />
     );
   })();
+
+  const tankDebrief = result?.phys === 'tank' && next && (() => {
+    const { t, st, best } = result;
+    const sp = tankSplit(t, st);
+    const held = st.rows.filter((r) => r.inv > 0);
+    const carryPerWeek = held.length ? sp.locked / held.length : 0;
+    return (
+      <PhysDebrief
+        title={current.card.title}
+        pnl={sp.total}
+        best={best.pnl}
+        bestText={best.plan}
+        lines={[
+          { label: 'Carry locked (spread × barrels)', value: sp.locked, note: st.rolls ? `${st.rolls} roll${st.rolls > 1 ? 's' : ''} included` : 'cash-and-carry spreads you sold' },
+          { label: 'Unwind / spread moves', value: sp.unwind, note: 'what selling early or at session end added or cost vs the locked spread' },
+          { label: 'Tank rent paid', value: sp.rent, note: `$${t.rent.toFixed(2)}/bbl/month` },
+          { label: 'Financing paid', value: sp.financing, note: `${(t.finance * 100).toFixed(1)}%/yr on the barrels' value` },
+        ]}
+        extraTop={held.length > 0 && (
+          <div className="mt-3 rounded-xl border border-line bg-panel p-3">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-amber">Carry earned vs rent paid, week by week</div>
+            <table className="num mt-1 w-full text-[11px]">
+              <thead><tr className="text-dim"><th className="text-left font-normal">week</th><th className="text-right font-normal">carry</th><th className="text-right font-normal">rent + fin</th><th className="text-right font-normal">net</th></tr></thead>
+              <tbody>
+                {held.map((r) => {
+                  const cost = r.rent + r.financing;
+                  return (
+                    <tr key={r.week}>
+                      <td>{new Date(`${r.date}T12:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+                      <td className="text-right text-up">{fmtMoney(carryPerWeek, { compact: true })}</td>
+                      <td className="text-right text-down">{fmtMoney(-cost, { compact: true })}</td>
+                      <td className={`text-right font-bold ${carryPerWeek - cost >= 0 ? 'text-up' : 'text-down'}`}>{fmtMoney(carryPerWeek - cost, { compact: true })}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <p className="mt-1 text-[11px] text-white/70">The spread has to pay more than the tank.</p>
+          </div>
+        )}
+        log={st.log.map((l) => ({ day: l.week, text: l.text }))}
+        why={current.card.why}
+        source={current.card.source}
+        concept={conceptById.get(current.card.concept)}
+        onConcept={(cc, ok) => bookConcept(progress, record, cc, ok)}
+        next={next}
+        onNext={() => go()}
+        onStop={() => setMode('idle')}
+        extras={extras}
+      />
+    );
+  })();
+
+  if (current.card.type === 'tank') {
+    return (
+      <div className="relative">
+        <TankSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('tank')} />
+        {tankDebrief}
+        {chat}
+      </div>
+    );
+  }
 
   if (current.card.type === 'cargo') {
     return (

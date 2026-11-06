@@ -70,9 +70,11 @@ export function settle(card, answer, combo, salt) {
 
 export function fmtMoney(v, { sign = true, compact = false } = {}) {
   const abs = Math.abs(v);
-  const body = compact && abs >= 10_000
-    ? `${(abs / 1000).toFixed(abs >= 100_000 ? 0 : 1)}k`
-    : abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  const body = compact && abs >= 1_000_000
+    ? `${(abs / 1_000_000).toFixed(abs >= 10_000_000 ? 1 : 2)}M`
+    : compact && abs >= 10_000
+      ? `${(abs / 1000).toFixed(abs >= 100_000 ? 0 : 1)}k`
+      : abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
   const s = v > 0 ? (sign ? '+' : '') : v < 0 ? '−' : '';
   return `${s}$${body}`;
 }
