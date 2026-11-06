@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { levelFor, LEVELS } from '../lib/levels.js';
 import { CATEGORIES, liveStreak } from '../lib/progress.js';
 import { ALL_CARDS } from '../data/index.js';
@@ -9,6 +9,8 @@ import { hedgeAverage, physLevel, PHYS_LEVELS, integratedUnlocked, INTEGRATED_UN
 import { TIER_ICON } from '../game/league.js';
 import Library from './Library.jsx';
 import EvalPanel from './EvalPanel.jsx';
+// Forecast scores read ~5 years of EIA weeks: code-split.
+const ForecastStats = lazy(() => import('../forecast/ForecastStats.jsx'));
 
 const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const titleOf = (c) => c?.title ?? c?.headline ?? c?.name ?? c?.id;
@@ -130,6 +132,8 @@ function ProfileBody({ progress, session, onReset, apply }) {
         )}
 
         <PhysicalTrack progress={progress} apply={apply} />
+
+        <Suspense fallback={null}><ForecastStats progress={progress} /></Suspense>
 
         <div className="mt-3 grid grid-cols-3 gap-2">
           <Stat label="Day streak" value={`📅${liveStreak(progress.streak)}`} tone="text-amber" />

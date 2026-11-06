@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
 import { refresh } from './game/afterSession.js';
 import { specialsLog } from './game/calendar.js';
 import { SESSION_CARDS } from './data/index.js';
@@ -9,6 +9,8 @@ import Profile from './screens/Profile.jsx';
 import Desk from './screens/Desk.jsx';
 import Bell from './screens/Bell.jsx';
 import Trade from './screens/Trade.jsx';
+// The EIA tab carries ~5 years of weekly prints: load it only when opened.
+const ForecastScreen = lazy(() => import('./forecast/ForecastScreen.jsx'));
 import useProgress from './lib/useProgress.js';
 import useLiveQuotes from './lib/useLiveQuotes.js';
 import { localDay } from './lib/progress.js';
@@ -35,7 +37,7 @@ export default function App() {
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-black">
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md bg-gradient-to-b from-black via-black/90 to-transparent pb-1">
-        <Hud progress={progress} tab={tab} onTab={setTab} liveStatus={status} bellDone={bellDone(progress, date)} compact={tab === 'trade' || tab === 'bell'} />
+        <Hud progress={progress} tab={tab} onTab={setTab} liveStatus={status} bellDone={bellDone(progress, date)} compact={tab === 'trade' || tab === 'bell' || tab === 'eia'} />
       </header>
 
       <div className="mx-auto h-[100dvh] max-w-md">
@@ -55,6 +57,7 @@ export default function App() {
             )}
           />
         )}
+        {tab === 'eia' && <Suspense fallback={<div className="num pt-24 text-center text-sm text-dim">Loading EIA history…</div>}><ForecastScreen progress={progress} apply={apply} /></Suspense>}
         {tab === 'desk' && <Desk progress={progress} />}
         {tab === 'me' && <Profile progress={progress} session={session} onReset={reset} apply={apply} onOpenSession={openSession} onTrade={() => setTab('trade')} specials={specialsLog(progress, date, SESSION_CARDS)} />}
       </div>

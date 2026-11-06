@@ -214,6 +214,39 @@ a preferred pricing term (NOW or AVG5).
   party's first bid, summed over deals, plus a count of bids pulled on you. Each deal gets an
   S-D grade: the edge captured vs their reservation, minus the days burned.
 
+## EIA tab: forecast cards on real weeks
+
+A feed of real EIA weekly reports with the date hidden: 252 weeks of the Weekly Petroleum
+Status Report and 252 weeks of the gas storage report (Jan 2022 to Oct 2026), built by
+`python3 scripts/build-forecast.py` into `src/data/forecast.json`. Every record has a `source`.
+API and consensus figures are not EIA data and have no open history, so they are stored only
+for weeks with a cited published figure (`scripts/forecast-api-consensus.json`). Everywhere
+else they are `null`.
+
+- **Size classes** on the crude change: FLAT under 1 MMbbl, NORMAL 1-3, BIG 3-7, HUGE over 7.
+  Gas uses 20 / 60 / 100 Bcf. The deck mirrors the real class mix in every block of 20 cards.
+  The real crude mix is FLAT 12%, NORMAL 31%, BIG 40%, HUGE 17%: the typical week is a
+  3-4 MMbbl move, not a flat one.
+- **PRINT card**: shows utilization, imports and exports vs their 8-week averages, the
+  production trend, API where stored, and a locked regime chip (hurricane, freeze, holiday,
+  SPR release). You lock a number. The reveal shows:
+  - the print and its class
+  - the driver that dominated, from the stored flows ("the draw was exports, not demand")
+  - the desk's forecasts
+  - your running calibration: your average size vs the market's, and your error by class
+- **REACTION card**: asked separately. Given the print and the 5-session run into it, did WTI
+  (or Henry Hub) finish release day UP or DOWN? The reveal gives release-day and next-day moves
+  and the reason from stored context: API telegraphed it, priced in by the run-up, a macro
+  risk-off day, or other news. The naive "draw = up" rule is right on only ~49% of real
+  release days.
+- **ME → Forecasts** scores the two skills separately:
+  - PRINT: mean absolute error vs repeat-last-week and vs consensus (on the weeks consensus
+    is stored)
+  - REACTION: your hit rate vs the naive rule
+  - the desk's long-run record on the whole dataset. Quinn runs a ridge model on the prior two
+    years of driver fields, Mo repeats last week, Carla fades the API, and Dan calls a tail
+    every week. Dan's errors show what ignoring the base rate costs.
+
 ## Where the seed numbers come from
 
 CALL IT and SPREAD SNAP prices, outcomes and sparklines come from exchange settlement history for
@@ -229,6 +262,7 @@ card's `source` field names the specific dates and events.
 ```
 src/
   trade/       engine.js (positions, P&L, sell-vol, replay, bots), chart.js (canvas), TradeSession, Debrief
+  forecast/    engine.js (classes, drivers, reactions, agents, deck, scoring), ForecastScreen, ForecastCards, ForecastStats
   physical/    cargo.js, tank.js, twobook.js (pure engines), agents.js (no-look-ahead desk agents),
                memory.js, ledger.js (desk P&L + tracks), negotiation.js + relationships.js,
                CargoSession, TankSession, NegotiationPanel, PhysDebrief, DeskTable

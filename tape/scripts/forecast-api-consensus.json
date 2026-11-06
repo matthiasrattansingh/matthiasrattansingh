@@ -1,0 +1,23 @@
+{
+  "_readme": "API (American Petroleum Institute weekly survey, released Tuesday) and analyst consensus for the EIA crude change, in MMbbl. Neither is EIA data and neither has an open historical series (API's bulletin is subscription-only), so only weeks with a checked published figure are listed, each with its citation. All other weeks store null. Keyed by EIA week ending.",
+  "2022-11-25": {
+    "api": -7.85,
+    "consensus": -2.487,
+    "source": "API -7.85M (week ending 25 Nov 2022) and analysts' expected -2.487M: FXEmpire, 'Oil Price Fundamental Daily Forecast', 30 Nov 2022."
+  },
+  "2023-01-06": {
+    "api": 14.865,
+    "consensus": -2.2,
+    "source": "API +14.865M: Investing.com, 'U.S. crude inventories up by 14.9 million barrels last week - API', 10 Jan 2023. Reuters poll expected a 2.2M draw: Reuters via Dawn, 11 Jan 2023."
+  },
+  "2023-02-10": {
+    "api": 10.507,
+    "consensus": null,
+    "source": "API +10.507M: Investing.com / FXEmpire, 14-15 Feb 2023. No published consensus for the EIA print was found for this week."
+  },
+  "2023-07-28": {
+    "api": -15.4,
+    "consensus": -1.4,
+    "source": "API -15.4M: Investing.com, 'U.S. crude stocks likely plunged by over 15M barrels last week - API', 1 Aug 2023. Reuters poll expected a 1.4M draw: Reuters via EnergyNow, 'U.S. crude stockpiles in week fall by largest amount on record', 2 Aug 2023."
+  }
+}

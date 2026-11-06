@@ -57,6 +57,8 @@ export function emptyProgress() {
     // v3: physical desk (company book; never touches the personal $100k account)
     phys: emptyPhys(),
     playerName: '',
+    // FORECAST cards: your locked numbers and price calls on real EIA weeks, by kind.
+    forecast: emptyForecast(),
   };
 }
 
@@ -83,11 +85,17 @@ export function hydrate(saved) {
     specials: saved.specials ?? {},
     phys: { ...emptyPhys(), ...saved.phys, memory: { ...emptyPhys().memory, ...saved.phys?.memory }, negotiation: { ...emptyPhys().negotiation, ...saved.phys?.negotiation } },
     playerName: saved.playerName ?? '',
+    forecast: {
+      prints: { ...emptyForecast().prints, ...saved.forecast?.prints },
+      reactions: { ...emptyForecast().reactions, ...saved.forecast?.reactions },
+    },
     // v1 saves have no install date: count the migration day as the start.
     createdAt: v1 ? base.createdAt : saved.createdAt ?? base.createdAt,
     marginCall: false,
   };
 }
+
+export const emptyForecast = () => ({ prints: { petroleum: {}, gas: {} }, reactions: { petroleum: {}, gas: {} } });
 
 export function emptyPhys() {
   return {
