@@ -120,9 +120,15 @@ export default function TradeSession({ card, bankroll, salt = '', onFinish, maxC
     setNews(item);
     if (item.major) buzz([60, 40, 60]);
     ping();
+    return undefined;
+  }, [phase, i, s.news]);
+
+  // Each banner stays 4s, whatever you tap in the meantime.
+  useEffect(() => {
+    if (!news) return undefined;
     const id = setTimeout(() => setNews(null), 4000);
     return () => clearTimeout(id);
-  }, [phase, i, s.news]);
+  }, [news]);
 
   // The market never waits: 8s, then HOLD.
   useEffect(() => {

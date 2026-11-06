@@ -11,7 +11,12 @@ export default function Trade({ progress, record }) {
   progressRef.current = progress;
   const feedRef = useRef(null);
   if (!feedRef.current) feedRef.current = createFeed(SESSION_CARDS);
-  const [current, setCurrent] = useState(() => feedRef.current.next(1, progress)[0]);
+  // ?session=<id> opens a specific session first (e.g. ?session=ci-abqaiq-2019).
+  const [current, setCurrent] = useState(() => {
+    const want = new URLSearchParams(location.search).get('session');
+    const card = want && SESSION_CARDS.find((c) => c.id === want);
+    return card ? { key: `pick-${want}`, card } : feedRef.current.next(1, progress)[0];
+  });
   const [result, setResult] = useState(null);
 
   const onFinish = useCallback(({ session, sim, bots, pnl: raw, marginCall }) => {

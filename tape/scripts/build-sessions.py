@@ -96,11 +96,30 @@ def merge(rows):
     return [rows[0][0], max(r[1] for r in rows), min(r[2] for r in rows), rows[-1][3]]
 
 
-def chunks(n, target_lo=12, target_hi=16):
-    for size in range(1, n + 1):
-        if math.ceil(n / size) <= target_hi:
-            return size
-    return n
+def groups(items, k):
+    """Split items into k consecutive, nearly equal groups."""
+    k = min(k, len(items))
+    out, start = [], 0
+    for g in range(k):
+        end = round((g + 1) * len(items) / k)
+        out.append(items[start:end])
+        start = end
+    return out
+
+
+def resolve_news(news, days):
+    """News can be pinned to a calendar day ("day") instead of a candle index ("at")."""
+    out = []
+    for n in news:
+        n = dict(n)
+        if "day" in n:
+            n["at"] = next((i for i, d in enumerate(days) if d >= n["day"]), len(days) - 1)
+        out.append(n)
+    return out
+
+
+def keep(old, key, default):
+    return (old or {}).get(key, default)
 
 
 def callit_session(card, old):
@@ -109,51 +128,83 @@ def callit_session(card, old):
     dates = sorted(d for d in data if card["decision"]["date"] < d <= card["outcome"]["date"])
     n = len(dates)
     rng = random.Random(card["id"])
-    out, kind = [], ""
+    out, days = [], []
     if n <= 7:
         k = PER_DAY[n]
         for d in dates:
             for j, cdl in enumerate(synth_day(*data[d], k, rng)):
                 out.append(cdl + [f"{label(d)} · {j + 1}/{k}"])
-        kind = "intraday"
+                days.append(d)
+        kind, text = "intraday", "Intraday · path simulated, OHLC real"
+    elif n < 12:
+        # Too few days for 12-16 candles: split the busiest days (largest real range) in two.
+        busiest = set(sorted(dates, key=lambda d: data[d][1] - data[d][2], reverse=True)[:14 - n])
+        for d in dates:
+            if d in busiest:
+                for j, cdl in enumerate(synth_day(*data[d], 2, rng)):
+                    out.append(cdl + [f"{label(d)} · {j + 1}/2"])
+                    days.append(d)
+            else:
+                out.append(data[d] + [label(d)])
+                days.append(d)
+        kind, text = "intraday", "Daily, busiest days split · path simulated, OHLC real"
     elif n <= 16:
         out = [data[d] + [label(d)] for d in dates]
-        kind = "daily"
+        days = list(dates)
+        kind, text = "daily", "Daily candles · real OHLC"
     else:
-        size = chunks(n)
-        for i in range(0, n, size):
-            part = dates[i:i + size]
+        for part in groups(dates, 14):
             out.append(merge([data[d] for d in part]) + [f"{label(part[0])}–{label(part[-1])}"])
-        kind = "multi-day"
+            days.append(part[0])
+        kind, text = "multi-day", f"{min(len(g) for g in groups(dates, 14))}-{max(len(g) for g in groups(dates, 14))} day candles · real OHLC"
     r = nd(card["unit"])
     candles = [[round(v, r) for v in cdl[:4]] + [cdl[4]] for cdl in out]
     # The last close must equal the scenario's outcome price (same settlement series).
     candles[-1][3] = card["outcome"]["price"]
     candles[-1][1] = max(candles[-1][1], candles[-1][3]); candles[-1][2] = min(candles[-1][2], candles[-1][3])
-    return {
-        "bars": kind,
-        "simulated": kind == "intraday",
-        "label": {"intraday": "Intraday · path simulated, OHLC real", "daily": "Daily candles · real OHLC",
-                  "multi-day": f"{size if kind == 'multi-day' else 1}-day candles · real OHLC"}[kind],
-        "candles": candles,
-        "open": (old or {}).get("open", ""),
-        "news": (old or {}).get("news", []),
-    }
+    return {"bars": kind, "simulated": kind == "intraday", "label": text, "candles": candles, "days": days,
+            "open": keep(old, "open", ""), "news": resolve_news(keep(old, "news", []), days), "concept": keep(old, "concept", None)}
+
+
+# Spread definitions in $/bbl from the four futures (products × 42).
+SPREADS = {
+    "brent-wti": lambda q: q["BZ"] - q["CL"],
+    "diesel-crack": lambda q: q["HO"] * 42 - q["BZ"],
+    "gas-crack": lambda q: q["RB"] * 42 - q["BZ"],
+    "321": lambda q: (2 * q["RB"] * 42 + q["HO"] * 42 - 3 * q["CL"]) / 3,
+    "diesel-vs-gas": lambda q: (q["HO"] - q["RB"]) * 42,
+}
+
+
+def spread_kind(card_id):
+    for k in SPREADS:
+        if card_id.startswith(f"ss-{k}"):
+            return k
+    raise KeyError(card_id)
 
 
 def spread_session(card, old, n_out=8):
-    # Spread closes across the horizon, from the card's own series (built from real settlements).
-    series = [card["spread"]["now"]] + card["outcome"]["full"]
-    n = len(series) - 1
-    size = max(1, math.ceil(n / n_out))
-    candles = []
-    for i in range(1, n + 1, size):
-        part = series[i:i + size]
-        o = series[i - 1]
-        candles.append([round(o, 2), round(max([o] + part), 2), round(min([o] + part), 2), round(part[-1], 2), f"session {len(candles) + 1}"])
+    f = SPREADS[spread_kind(card["id"])]
+    data = {s: ohlc(s) for s in ("CL", "BZ", "HO", "RB")}
+    common = sorted(set.intersection(*(set(v) for v in data.values())))
+    d0, d1 = card["spread"]["date"], card["outcome"]["date"]
+    dates = [d for d in common if d0 < d <= d1]
+    if len(dates) < n_out:
+        return None  # too short for an 8-candle session from real daily closes
+    close = lambda d: f({s: data[s][d][3] for s in data})
+    prev = close(d0)
+    candles, days = [], []
+    for part in groups(dates, n_out):
+        vals = [close(d) for d in part]
+        candles.append([round(prev, 2), round(max([prev] + vals), 2), round(min([prev] + vals), 2), round(vals[-1], 2),
+                        f"{label(part[0])}–{label(part[-1])}" if len(part) > 1 else label(part[0])])
+        days.append(part[0])
+        prev = vals[-1]
     candles[-1][3] = card["outcome"]["spread"]
-    return {"bars": "multi-day", "simulated": False, "label": f"{size}-day candles · from real daily closes",
-            "candles": candles, "open": (old or {}).get("open", ""), "news": (old or {}).get("news", [])}
+    sizes = [len(g) for g in groups(dates, n_out)]
+    return {"bars": "multi-day", "simulated": False, "label": f"{min(sizes)}-{max(sizes)} day candles · from real daily settlements",
+            "candles": candles, "days": days, "open": keep(old, "open", ""),
+            "news": resolve_news(keep(old, "news", []), days), "concept": keep(old, "concept", None)}
 
 
 def main(only):
@@ -171,12 +222,13 @@ def main(only):
     for card in sdoc["cards"]:
         if only and card["id"] not in only:
             continue
-        if not card["outcome"].get("full") or len(card["outcome"]["full"]) < 8:
-            continue  # too short for an 8-candle session
-        card["session"] = spread_session(card, card.get("session"))
-        print(f"{card['id']:32s} spread    {len(card['session']['candles'])} candles")
+        sess = spread_session(card, card.get("session"))
+        if sess:
+            card["session"] = sess
+            print(f"{card['id']:32s} spread    {len(sess['candles'])} candles")
     json.dump(sdoc, open(spath, "w"), indent=1, ensure_ascii=False)
 
 
 if __name__ == "__main__":
     main(set(sys.argv[1:]))
+
