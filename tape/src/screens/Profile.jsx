@@ -6,6 +6,8 @@ import { fmtMoney } from '../lib/book.js';
 import { soundOn, setSoundOn } from '../lib/sound.js';
 import { cashOutRide } from '../lib/progress.js';
 import { TIER_ICON } from '../game/league.js';
+import Library from './Library.jsx';
+import EvalPanel from './EvalPanel.jsx';
 
 const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const titleOf = (c) => c?.title ?? c?.headline ?? c?.name ?? c?.id;
@@ -19,8 +21,31 @@ function Stat({ label, value, tone = 'text-white' }) {
   );
 }
 
+const VIEWS = [['profile', 'PROFILE'], ['library', 'LIBRARY'], ['eval', 'EVAL']];
+
+// ME: profile, the LIBRARY collection and the prop-firm EVAL.
+export default function Profile({ progress, session, onReset, apply, onOpenSession, onTrade, specials, view: initial = 'profile' }) {
+  const [view, setView] = useState(initial);
+  return (
+    <div className="h-[100dvh] overflow-y-auto">
+      <div className="mx-auto max-w-md px-4 pt-20 pb-10">
+        <div className="mb-4 grid grid-cols-3 gap-1 rounded-lg bg-white/5 p-1">
+          {VIEWS.map(([v, label]) => (
+            <button key={v} onClick={() => setView(v)} className={`num rounded-md py-1.5 text-[11px] font-bold tracking-widest ${view === v ? 'bg-white/15 text-white' : 'text-dim'}`}>
+              {label}{v === 'eval' && progress.eval?.status === 'active' ? ' ●' : ''}
+            </button>
+          ))}
+        </div>
+        {view === 'profile' && <ProfileBody progress={progress} session={session} onReset={onReset} apply={apply} />}
+        {view === 'library' && <Library progress={progress} onOpen={onOpenSession} specials={specials} />}
+        {view === 'eval' && <EvalPanel progress={progress} apply={apply} onTrade={onTrade} />}
+      </div>
+    </div>
+  );
+}
+
 // Profile: level ladder, streak, scores, accuracy by category, miss queue.
-export default function Profile({ progress, session, onReset, apply }) {
+function ProfileBody({ progress, session, onReset, apply }) {
   const [confirm, setConfirm] = useState(false);
   const [sound, setSound] = useState(soundOn);
   const lvl = levelFor(progress.xp);
@@ -28,8 +53,8 @@ export default function Profile({ progress, session, onReset, apply }) {
   const total = Object.values(progress.stats).reduce((a, s) => ({ right: a.right + s.right, total: a.total + s.total }), { right: 0, total: 0 });
 
   return (
-    <div className="h-[100dvh] overflow-y-auto">
-      <div className="mx-auto max-w-md px-4 pt-20 pb-10">
+    <>
+        {progress.funded && <div className="num mb-2 rounded-lg border border-amber/60 bg-amber/15 py-1.5 text-center text-xs font-extrabold tracking-[0.3em] text-amber">🏆 FUNDED TRADER</div>}
         <div className="rounded-2xl border border-amber/40 bg-amber/10 p-4">
           <div className="text-[10px] uppercase tracking-[0.2em] text-amber">Level {lvl.index + 1} of {LEVELS.length}</div>
           <div className="text-2xl font-extrabold">{lvl.name}</div>
@@ -146,7 +171,6 @@ export default function Profile({ progress, session, onReset, apply }) {
             <button onClick={() => setConfirm(true)} className="num text-[11px] uppercase tracking-wider text-dim">Reset progress</button>
           )}
         </div>
-      </div>
-    </div>
+    </>
   );
 }

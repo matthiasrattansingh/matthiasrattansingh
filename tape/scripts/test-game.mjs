@@ -162,4 +162,39 @@ ok('standings rank you and pass checks announce changes', () => {
   assert.match(out.events[0].text, /You passed/);
 });
 
+// ---------- step 3: eval ----------
+const E = await import('../src/game/evalAccount.js');
+const T0 = Date.UTC(2026, 10, 6, 12);
+ok('eval passes at +$20k and makes you FUNDED (10/25 lots)', () => {
+  let p = E.startEval(emptyProgress(), T0);
+  p = E.bookEval(p, { pnl: 12000, intraPeak: 112000 }, T0 + 3600e3).progress;
+  assert.equal(p.eval.status, 'active'); assert.equal(p.eval.equity, 112000);
+  const out = E.bookEval(p, { pnl: 8500, intraPeak: 120500 }, T0 + 86400e3 * 3);
+  assert.equal(out.progress.eval.status, 'passed'); assert.equal(out.progress.funded, true);
+  assert.equal(out.progress.eval.dayReached, 4);
+  assert.deepEqual(sizesFor(out.progress).sizes, [1, 2, 5, 10, 25]);
+});
+ok('trailing drawdown counts from intra-session peaks', () => {
+  let p = E.startEval(emptyProgress(), T0);
+  // Up to $115k mid-session, closes at $106k: 106k < 115k * 0.92 = 105.8k? no -> survives
+  p = E.bookEval(p, { pnl: 6000, intraPeak: 115000 }, T0).progress;
+  assert.equal(p.eval.status, 'active'); assert.equal(p.eval.peak, 115000); assert.equal(E.evalFloor(p.eval), 105800);
+  const out = E.bookEval(p, { pnl: -500, intraPeak: 106000, guardHit: true }, T0 + 1);
+  assert.equal(out.progress.eval.status, 'failed'); assert.equal(out.progress.eval.reason, 'drawdown');
+  assert.equal(out.progress.evalHistory[0].peak, 115000); assert.equal(out.progress.funded, false);
+});
+ok('30 days run out even without trading; restart is free and resets the clock', () => {
+  const p = E.startEval(emptyProgress(), T0);
+  assert.equal(E.refreshEval(p, T0 + 29 * 86400e3).progress.eval.status, 'active');
+  const done = E.refreshEval(p, T0 + 30 * 86400e3 + 1).progress;
+  assert.equal(done.eval.status, 'failed'); assert.equal(done.eval.reason, 'time'); assert.equal(done.eval.dayReached, 30);
+  const again = E.startEval(done, T0 + 31 * 86400e3);
+  assert.equal(again.eval.status, 'active'); assert.equal(again.eval.equity, 100000); assert.equal(again.eval.end, T0 + 61 * 86400e3);
+});
+ok('eval trades never touch the main account or the ride', () => {
+  let p = startRide(emptyProgress(), 10000);
+  p = recordResult(p, { cardId: 'x', category: 'crude', correct: false, points: 0, trade: { pnl: -50000, win: false, bots: [], session: true, account: 'eval' } });
+  assert.equal(p.bankroll, 90000); assert.equal(p.ride.active, true); assert.equal(p.blowups, 0);
+});
+
 console.log(`game tests: ${n} passed ✓`);

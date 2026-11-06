@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import TradeSession from '../trade/TradeSession.jsx';
 import Debrief from '../trade/Debrief.jsx';
 import NextUp from '../trade/NextUp.jsx';
@@ -8,6 +8,7 @@ import { fmtDate } from '../lib/format.js';
 import { pickNext } from '../game/order.js';
 import { sizesFor } from '../game/ride.js';
 import { afterSession } from '../game/afterSession.js';
+import { EVAL_DD, evalActive } from '../game/evalAccount.js';
 import { CONCEPT_CARDS, SESSION_CARDS } from '../data/index.js';
 import Rings from '../components/Rings.jsx';
 
@@ -32,7 +33,8 @@ export async function shareOrCopy(text) {
 /** The settled trade for a finished session (multiplier applies to wins). */
 export function sessionTrade(progress, { bots, pnl: raw }, account = 'main') {
   const win = raw > 0;
-  const mult = win ? comboMultiplier(progress.combo) : 1;
+  // Eval accounts trade plain P&L: no streak multipliers on a prop-firm evaluation.
+  const mult = win && account !== 'eval' ? comboMultiplier(progress.combo) : 1;
   return { pnl: Math.round(raw * mult), base: Math.round(raw), mult, win, bots, session: true, account };
 }
 
@@ -79,6 +81,9 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   const [rode, setRode] = useState(false);
   const [toast, setToast] = useState('');
 
+  // Opened from the Library: clear the request once this session has started.
+  useEffect(() => { if (startWith) onStarted?.(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // A Library tap while TRADE is open.
   const lastStart = useRef(startWith);
   if (startWith && startWith !== lastStart.current && cardById.get(startWith)) {
@@ -92,7 +97,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     let trade;
     let rideBefore = 0;
     apply((p) => {
-      trade = sessionTrade(p, r);
+      trade = sessionTrade(p, r, evalActive(p) ? 'eval' : 'main');
       rideBefore = p.ride?.active ? p.ride.balance : 0;
       return { progress: p };
     });
@@ -102,7 +107,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       if (rideBefore > 0 && !p.ride.active) rideLost = rideBefore;
       return afterSession(p, {
         session: r.session, pnl: r.pnl, curve: r.sim.curve, full: true, stats: r.stats,
-        bots: r.bots, marginCall: r.marginCall, trade, now: Date.now(),
+        bots: r.bots, marginCall: r.marginCall, guardHit: r.guardHit, trade, now: Date.now(),
       });
     });
     recent.current = [r.session.id, ...recent.current].slice(0, 6);
@@ -135,8 +140,10 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     setRode(true);
   };
 
-  const { sizes, maxLots } = sizesFor(progress);
-  const rideBal = progress.ride?.active ? progress.ride.balance : 0;
+  const inEval = evalActive(progress);
+  // In an eval, sessions trade the eval sub-account: no ride, and the trailing drawdown is the limit.
+  const { sizes, maxLots } = sizesFor(inEval ? { ...progress, ride: { active: false } } : progress);
+  const rideBal = !inEval && progress.ride?.active ? progress.ride.balance : 0;
 
   if (mode === 'idle') {
     const n = next ?? choose(progress);
@@ -160,8 +167,10 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       <TradeSession
         key={current.key}
         card={current.card}
-        bankroll={progress.bankroll + rideBal}
+        bankroll={inEval ? progress.eval.equity : progress.bankroll + rideBal}
         ride={rideBal}
+        account={inEval ? 'eval' : null}
+        guard={inEval ? { peak: progress.eval.peak, limit: EVAL_DD } : null}
         sizes={sizes}
         maxLots={maxLots}
         ghost={ghostRow?.curve ?? null}
@@ -179,10 +188,10 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           next={next}
           ride={rideBal}
           onRide={ride}
-          canRide={result.trade.pnl > 0 && !result.marginCall && !rode}
+          canRide={result.trade.pnl > 0 && !result.marginCall && !rode && result.trade.account !== 'eval'}
           rode={rode}
           rideLost={result.rideLost}
-          banner={(result.events?.find((e) => e.type === 'league') ?? result.events?.[0])?.text ?? null}
+          banner={(result.events?.find((e) => e.type === 'eval') ?? result.events?.find((e) => e.type === 'league') ?? result.events?.[0])?.text ?? null}
           extra={<div className="mb-2"><Rings progress={progress} small /></div>}
         />
       )}
