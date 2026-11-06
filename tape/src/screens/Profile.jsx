@@ -5,6 +5,7 @@ import { ALL_CARDS } from '../data/index.js';
 import { fmtMoney } from '../lib/book.js';
 import { soundOn, setSoundOn } from '../lib/sound.js';
 import { cashOutRide } from '../lib/progress.js';
+import { hedgeAverage, physLevel, PHYS_LEVELS, integratedUnlocked, INTEGRATED_UNLOCK_CARGOES } from '../physical/ledger.js';
 import { TIER_ICON } from '../game/league.js';
 import Library from './Library.jsx';
 import EvalPanel from './EvalPanel.jsx';
@@ -22,6 +23,33 @@ function Stat({ label, value, tone = 'text-white' }) {
 }
 
 const VIEWS = [['profile', 'PROFILE'], ['library', 'LIBRARY'], ['eval', 'EVAL']];
+
+/** The PHYSICAL career track: desk P&L, cargoes, lifetime hedge grade. */
+function PhysicalTrack({ progress }) {
+  const ph = progress.phys;
+  const lvl = physLevel(ph.xp);
+  const hedge = hedgeAverage(progress);
+  return (
+    <div className="mt-3 rounded-2xl border border-sky-400/40 bg-sky-500/10 p-4">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-sky-300">Physical track · level {lvl.index + 1} of {PHYS_LEVELS.length}</div>
+      <div className="text-2xl font-extrabold">{lvl.name}</div>
+      <p className="mt-0.5 text-[13px] text-white/75">{lvl.blurb}</p>
+      <div className="mt-3 h-2 rounded bg-white/10"><div className="h-full rounded bg-sky-400" style={{ width: `${lvl.pct * 100}%` }} /></div>
+      <div className="num mt-1 flex justify-between text-[11px] text-dim">
+        <span>{ph.xp} physical XP</span>
+        <span>{lvl.next ? `${lvl.next.minXp - ph.xp} to ${lvl.next.name}` : 'Top of the chain'}</span>
+      </div>
+      <div className="num mt-3 grid grid-cols-3 gap-2 text-center">
+        <div className="rounded-lg bg-black/40 p-2"><div className="text-[9px] uppercase text-dim">Desk P&L</div><div className={`text-sm font-bold ${ph.pnl >= 0 ? 'text-up' : 'text-down'}`}>{fmtMoney(ph.pnl, { compact: true })}</div></div>
+        <div className="rounded-lg bg-black/40 p-2"><div className="text-[9px] uppercase text-dim">Cargo · tank</div><div className="text-sm font-bold">{ph.cargoes} · {ph.tanks}</div></div>
+        <div className="rounded-lg bg-black/40 p-2"><div className="text-[9px] uppercase text-dim">Hedge grade</div><div className="text-sm font-bold text-sky-200">{hedge ? `${hedge.letter} (${hedge.avg.toFixed(1)})` : '—'}</div></div>
+      </div>
+      <p className="mt-2 text-[11px] text-dim">
+        {integratedUnlocked(progress) ? `Two-book sessions unlocked · ${ph.integrated} played${hedge ? ` · lifetime hedge average over ${hedge.n}` : ''}` : `Two-book sessions unlock after ${INTEGRATED_UNLOCK_CARGOES} cargoes (${ph.cargoes}/${INTEGRATED_UNLOCK_CARGOES}).`}
+      </p>
+    </div>
+  );
+}
 
 // ME: profile, the LIBRARY collection and the prop-firm EVAL.
 export default function Profile({ progress, session, onReset, apply, onOpenSession, onTrade, specials, view: initial = 'profile' }) {
@@ -87,6 +115,8 @@ function ProfileBody({ progress, session, onReset, apply }) {
               className="num rounded-lg border border-up/60 px-3 py-2 text-xs font-extrabold tracking-wider text-up">CASH OUT</button>
           </div>
         )}
+
+        <PhysicalTrack progress={progress} />
 
         <div className="mt-3 grid grid-cols-3 gap-2">
           <Stat label="Day streak" value={`📅${liveStreak(progress.streak)}`} tone="text-amber" />

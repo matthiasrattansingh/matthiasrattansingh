@@ -2,6 +2,7 @@
 // money, millions per cargo), never to the personal $100k play account.
 import { recordPlay } from '../game/collection.js';
 import { localDay, todayDesk, touchStreak } from '../lib/progress.js';
+import { xpFor } from '../lib/scoring.js';
 
 export const PHYS_LEVELS = [
   { name: 'Scheduler', minXp: 0, blurb: 'You book the ships and chase the paperwork.' },
@@ -41,9 +42,13 @@ export function bookPhysical(p, r, now = new Date()) {
   if (r.kind === 'integrated') phys.integrated += 1;
   if (r.hedgeGrade) phys.hedgeGrades = [...phys.hedgeGrades, r.hedgeGrade].slice(-200);
   let next = { ...p, phys, streak: touchStreak(p.streak, date) };
+  // Two-book sessions pay both tracks: physical XP above, paper XP here.
+  if (r.kind === 'integrated') next.xp = p.xp + xpFor(Math.max(-20, Math.min(60, Math.round(r.pnl / 50_000))));
   const d = todayDesk(p.day, date);
   next.day = { ...d, date, sessions: (d.sessions ?? 0) + 1 };
   next = recordPlay(next, { id: r.card.id, C: r.C ?? 0 }, r.pnl, r.curve ?? [], Math.max(1, r.best));
+  // Two-book cards are graded on the hedge, not the P&L.
+  if (r.hedgeGrade) next = { ...next, played: { ...next.played, [r.card.id]: { ...next.played[r.card.id], grade: r.hedgeGrade, curve: [] } } };
   const events = [{ type: 'phys', text: `🛢️ Physical book ${r.pnl >= 0 ? '+' : '−'}$${Math.abs(Math.round(r.pnl)).toLocaleString()} · +${xp} physical XP` }];
   if (r.kind === 'cargo' && phys.cargoes === INTEGRATED_UNLOCK_CARGOES) {
     events.push({ type: 'unlock', text: '🔓 5 cargoes done: two-book INTEGRATED sessions unlocked' });

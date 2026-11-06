@@ -13,10 +13,10 @@ const tone = (v) => (v > 0 ? 'text-up' : v < 0 ? 'text-down' : 'text-white');
  * agents add-on) the desk table. The bottom is the autoplay panel.
  */
 export default function PhysDebrief({
-  title, pnl, best, bestText, lines, log = [], why = [], source, concept, onConcept, extraTop = null, extraBottom = null,
+  title, pnl, best, bestText, lines, log = [], why = [], source, concept, onConcept, extraTop = null, extraBottom = null, gradeOverride = null,
   next, onNext, onStop, extras,
 }) {
-  const grade = gradeFor(pnl, Math.max(1, best));
+  const grade = gradeOverride ?? gradeFor(pnl, Math.max(1, best));
   const [pick, setPick] = useState(null);
   const order = useMemo(() => {
     if (!concept) return [];
@@ -35,7 +35,7 @@ export default function PhysDebrief({
           <span className={`num text-4xl font-extrabold ${tone(pnl)}`}>{fmtMoney(Math.round(pnl))}</span>
           <span className={`num rounded px-2 py-0.5 text-lg font-extrabold ${GRADE_STYLE[grade]}`}>{grade}</span>
         </div>
-        <div className="num text-[11px] text-dim">best achievable {fmtMoney(Math.round(best))} · {bestText}</div>
+        <div className="num text-[11px] text-dim">{gradeOverride ? bestText : `best achievable ${fmtMoney(Math.round(best))} · ${bestText}`}</div>
 
         <div className="mt-3 space-y-1.5 rounded-xl border border-line bg-panel p-3">
           {lines.map((l) => (

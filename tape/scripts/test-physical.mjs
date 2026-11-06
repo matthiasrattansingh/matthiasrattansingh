@@ -126,4 +126,55 @@ ok('rent is in the realistic $0.40-0.60/bbl/month band by default', () => {
   assert.ok(t.rent >= 0.4 && t.rent <= 0.6);
 });
 
+// ---------- two-book ----------
+const TB = await import('../src/physical/twobook.js');
+const E = await import('../src/trade/engine.js');
+const agents = json('agents.json').agents;
+const agent = (id) => agents.find((a) => a.id === id);
+const callit = json('callit.json').cards;
+const legged = callit.filter((c) => c.session.physical);
+const wti = callit.find((c) => c.id === 'ci-wti-negative-2020');
+const sWti = { ...E.buildSession(wti), maxLots: TB.HEDGE_MAX_LOTS, addStep: TB.HEDGE_ADD };
+const phys = wti.session.physical;
+const gradeFor = (decisions) => {
+  const sim = E.simulate(sWti, decisions);
+  const naked = TB.physCurve(phys, sWti);
+  let book = E.emptyBook();
+  const ratios = [];
+  for (let i = 0; i < sWti.C; i++) { book = E.act(book, decisions[i] ?? { type: 'HOLD' }, E.decisionPrice(sWti, i), i, sWti); ratios.push(TB.hedgeRatio(phys, book.pos)); }
+  return TB.hedgeGrade({ ratios, combined: sim.curve.map((v, i) => v + naked[i]), naked, news: sWti.news });
+};
+ok('at least 8 paper sessions carry a physical leg', () => assert.ok(legged.length >= 8));
+ok('hedge ratio: short 250 lots vs long 250k bbl = 100%; same-side = doubled', () => {
+  assert.equal(TB.hedgeRatio(phys, { side: 'SHORT', lots: 250 }), 1);
+  assert.equal(TB.hedgeRatio(phys, { side: 'LONG', lots: 250 }), -1);
+  assert.equal(TB.hedgeRatio(phys, null), 0);
+});
+ok('hedge grade: full hedge = S, doubled the bet = D, naked into the news = D', () => {
+  assert.equal(gradeFor([{ type: 'OPEN', side: 'SHORT', lots: 250 }]).grade, 'S');
+  assert.equal(gradeFor([{ type: 'OPEN', side: 'LONG', lots: 100 }]).grade, 'D');
+  assert.equal(gradeFor([]).grade, 'D'); // naked through 'May WTI goes NEGATIVE'
+});
+ok('bots carry the same physical book: Mo 0%, Quinn ~80%, Dan the wrong way', () => {
+  assert.equal(TB.botHedgeDecisions(agent('mo'), phys, sWti).filter(Boolean).length, 0);
+  const q = TB.botHedgeDecisions(agent('quinn'), phys, sWti)[0];
+  assert.equal(q.side, 'SHORT'); assert.equal(q.lots, 200);
+  for (let i = 0; i < 10; i++) {
+    const d = TB.botHedgeDecisions(agent('dan'), phys, sWti, `s${i}`)[0];
+    if (d) assert.ok(d.side === 'LONG' || d.lots <= 50, 'Dan hedges wrong-way (or barely)');
+  }
+  const mo = TB.botTwoBook(agent('mo'), phys, sWti, 'x');
+  assert.equal(Math.round(mo.final), Math.round(TB.physCurve(phys, sWti).at(-1)));
+  const qb = TB.botTwoBook(agent('quinn'), phys, sWti, 'x');
+  assert.ok(Math.abs(qb.final) < Math.abs(mo.final) * 0.3, "Quinn's hedge should absorb most of the move");
+});
+ok('basis events move only the physical leg', () => {
+  const col = callit.find((c) => c.id === 'ci-colonial-hack-2021');
+  const s = E.buildSession(col);
+  const p = col.session.physical;
+  const before = TB.physPnl(p, s, s.p0, 2);
+  const after = TB.physPnl(p, s, s.p0, 3);
+  assert.equal(Math.round(after - before), -625000); // -$2.50/bbl on 250k bbl, long the Gulf barrels
+});
+
 console.log(`physical tests: ${n} passed ✓`);

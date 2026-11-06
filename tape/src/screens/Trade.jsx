@@ -9,12 +9,13 @@ import { pickNext } from '../game/order.js';
 import { sizesFor } from '../game/ride.js';
 import { afterSession } from '../game/afterSession.js';
 import { EVAL_DD, evalActive } from '../game/evalAccount.js';
-import { CONCEPT_CARDS, ECON, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
+import { AGENTS, CONCEPT_CARDS, ECON, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
 import CargoSession from '../physical/CargoSession.jsx';
 import TankSession from '../physical/TankSession.jsx';
 import { tankSplit } from '../physical/tank.js';
 import PhysDebrief from '../physical/PhysDebrief.jsx';
-import { bookPhysical } from '../physical/ledger.js';
+import { bookPhysical, integratedUnlocked } from '../physical/ledger.js';
+import { botById } from '../lib/rivals.js';
 import Rings from '../components/Rings.jsx';
 import ChatSheet, { ChatButton } from '../components/ChatSheet.jsx';
 import { acceptChallenge, markRead } from '../game/chat.js';
@@ -81,7 +82,9 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     // Today's event special jumps the queue once; otherwise unplayed -> lowest grade -> review.
     const sp = specialFor(p, today, SESSION_CARDS);
     if (sp && !sp.played && !recent.current.includes(`special:${sp.date}`)) return specialItem(sp);
-    const card = pickNext(p, SESSION_CARDS, { recent: recent.current, salt: String(Date.now()) });
+    // Two-book sessions stay locked until 5 cargoes are done: learn the physical chain first.
+    const pool = SESSION_CARDS.filter((c) => c.mode !== 'integrated' || integratedUnlocked(p));
+    const card = pickNext(p, pool, { recent: recent.current, salt: String(Date.now()) });
     return { key: `${card.id}-${Date.now()}`, card };
   };
   const [chatOpen, setChatOpen] = useState(false);
@@ -89,7 +92,8 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   // ?session=<id> (or a Library tap) opens a specific session first.
   const [current, setCurrent] = useState(() => {
     const want = startWith ?? new URLSearchParams(location.search).get('session');
-    const card = want && cardById.get(want);
+    const found = want && cardById.get(want);
+    const card = found && (found.mode !== 'integrated' || integratedUnlocked(progress)) ? found : null;
     return card ? { key: `pick-${want}-${Date.now()}`, card } : choose(progress);
   });
   currentRef.current = current;
@@ -298,6 +302,66 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       />
     );
   })();
+
+  // Two-book: book the combined result to the physical desk, graded on the hedge.
+  const onTwoBookFinish = (r) => {
+    const tb = r.twoBook;
+    const pnl = Math.round(tb.paperFinal + tb.physFinal);
+    const events = apply((p) => bookPhysical(p, { card: current.card, kind: 'integrated', pnl, best: Math.max(1, Math.abs(tb.naked[tb.naked.length - 1])), C: r.session.C, hedgeGrade: tb.grade.grade }));
+    recent.current = [current.card.id, ...recent.current].slice(0, 8);
+    setTimeout(() => setResult({ phys: 'integrated', ...r, pnl, events }), 1200);
+  };
+  const twoBookDebrief = result?.phys === 'integrated' && next && (() => {
+    const tb = result.twoBook;
+    const g = tb.grade;
+    const desk = result.bots.map((b) => ({ ...botById[b.id], pnl: b.pnl })).concat([{ id: 'you', name: 'You', emoji: '🫵', pnl: result.pnl }]).sort((a, b) => b.pnl - a.pnl);
+    return (
+      <PhysDebrief
+        title={`Two-book · ${current.card.instrument}`}
+        pnl={result.pnl}
+        best={Math.max(1, Math.abs(tb.naked[tb.naked.length - 1]))}
+        gradeOverride={g.grade}
+        bestText={`graded on the hedge · naked, the physical book would have made ${fmtMoney(Math.round(tb.physFinal), { compact: true })}`}
+        lines={[
+          { label: `Physical: ${tb.physical.desc}`, value: tb.physFinal, note: 'the exposure you could not close' },
+          { label: 'Paper hedge', value: tb.paperFinal, note: `average hedge ratio ${Math.round(g.avg * 100)}%` },
+          { label: 'Combined book', value: result.pnl },
+        ]}
+        extraTop={(
+          <div className="mt-3 rounded-xl border border-sky-400/40 bg-sky-500/10 p-3">
+            <div className="flex items-baseline justify-between">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-sky-300">Hedge grade</span>
+              <span className="num text-2xl font-extrabold text-sky-200">{g.grade}</span>
+            </div>
+            <p className="text-[13px] text-white/85">{g.why}</p>
+            <div className="num mt-1 text-[11px] text-dim">combined drawdown {fmtMoney(-g.combinedDD, { compact: true })} vs naked {fmtMoney(-g.nakedDD, { compact: true })} ({Math.round(g.rel * 100)}%)</div>
+            <ol className="num mt-2 space-y-0.5 text-[11.5px]">
+              {desk.map((r, k) => <li key={r.id} className={r.id === 'you' ? 'font-bold text-amber' : 'text-white/80'}>{k + 1}. {r.emoji} {r.name} <span className={r.pnl >= 0 ? 'text-up' : 'text-down'}>{fmtMoney(r.pnl, { compact: true })}</span></li>)}
+            </ol>
+          </div>
+        )}
+        why={current.card.why}
+        source={`${current.card.source} ${tb.physical.source}`}
+        concept={conceptById.get(current.card.session.concept)}
+        onConcept={(cc, ok) => bookConcept(progress, record, cc, ok)}
+        next={next}
+        onNext={() => go()}
+        onStop={() => setMode('idle')}
+        extras={extras}
+      />
+    );
+  })();
+
+  if (current.card.mode === 'integrated') {
+    return (
+      <div className="relative">
+        <TradeSession key={current.key} card={current.card} salt={current.key} onFinish={onTwoBookFinish}
+          bankroll={ECON.hedge.credit_line_usd.value} physical={current.card.session.physical} agents={AGENTS} />
+        {twoBookDebrief}
+        {chat}
+      </div>
+    );
+  }
 
   if (current.card.type === 'tank') {
     return (

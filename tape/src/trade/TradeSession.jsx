@@ -5,6 +5,7 @@ import { fmtMoney } from '../lib/book.js';
 import { BOTS } from '../lib/rivals.js';
 import { decimalsFor, fmtDate } from '../lib/format.js';
 import { tick, thud, ping, unlock } from '../lib/sound.js';
+import { HEDGE_ADD, HEDGE_MAX_LOTS, HEDGE_SIZES, botTwoBook, hedgeGrade, hedgeRatio, physCurve, physPnl } from '../physical/twobook.js';
 
 const SIZES = [1, 2, 5];
 export const DECIDE_MS = 8000;
@@ -26,21 +27,31 @@ function buzz(pattern) {
  * Props: card, bankroll (equity at the start: account + any ride), salt (seeds the bots),
  * onFinish({ session, decisions, sim, bots, marginCall, pnl, stats }), and optionally:
  * sizes / maxLots (unlocks), ride (ride balance shown next to equity), ghost (best-run
- * equity curve), guard ({ peak, limit } trailing drawdown that ends the session: eval).
+ * equity curve), guard ({ peak, limit } trailing drawdown that ends the session: eval),
+ * physical (two-book: an exposure you can't close, only hedge; bankroll is then the
+ * paper margin line) with agents (the desk bots' physical rules).
  */
 export default function TradeSession({
-  card, bankroll, salt = '', onFinish, maxCandles, sizes = SIZES, maxLots, ride = 0, ghost = null, guard = null, account = null,
+  card, bankroll, salt = '', onFinish, maxCandles, sizes: sizesIn = SIZES, maxLots, ride = 0, ghost = null, guard = null, account = null,
+  physical = null, agents = null,
 }) {
   const [s] = useState(() => {
     const full = buildSession(card);
     const out = maxCandles ? regroup(full, maxCandles) : full;
+    if (physical) return { ...out, maxLots: HEDGE_MAX_LOTS, addStep: HEDGE_ADD };
     return maxLots ? { ...out, maxLots } : out;
   });
+  const sizes = physical ? HEDGE_SIZES : sizesIn;
+  const ratios = useRef([]);
+  const physEl = useRef(null);
+  const physNow = (price, t) => (physical ? physPnl(physical, s, price, t) : 0);
   const stats = useRef({ peak: 0, maxDD: 0, warned: false, traded: false, guardPeak: guard?.peak ?? 0 });
   const d = decimalsFor(s.unit);
   const bots = useMemo(
-    () => BOTS.map((b) => ({ ...b, sim: simulate(s, botDecisions(b.id, s, salt)) })),
-    [s, salt],
+    () => (physical && agents
+      ? agents.map((a) => ({ ...BOTS.find((b) => b.id === a.id), sim: botTwoBook(a, physical, s, salt) }))
+      : BOTS.map((b) => ({ ...b, sim: simulate(s, botDecisions(b.id, s, salt)) }))),
+    [s, salt, physical, agents],
   );
 
   const canvasRef = useRef(null);
@@ -58,23 +69,26 @@ export default function TradeSession({
   const [book, setBook] = useState(emptyBook());
   const [phase, setPhase] = useState('decide'); // decide | candle | over
   const [i, setI] = useState(0); // next candle to play
-  const [lots, setLots] = useState(2);
+  const [lots, setLots] = useState(physical ? 100 : 2);
   const sizeRow = sizes.length > 4;
   const [news, setNews] = useState(null);
   const [flash, setFlash] = useState(null);
   const [mine, setMine] = useState(0); // session P&L at the last candle close
 
   // Live numbers are written straight to the DOM every frame (no re-render).
-  const paint = (pnl) => {
+  const paint = (pnl, phys = 0) => {
+    // pnl = paper; phys = physical leg (two-book only). The big number is the combined book.
+    const total = pnl + phys;
     if (pnlEl.current) {
-      pnlEl.current.textContent = fmtMoney(Math.round(pnl));
-      pnlEl.current.className = `num text-[32px] font-extrabold leading-none ${pnl > 0 ? 'text-up' : pnl < 0 ? 'text-down' : 'text-white'}`;
+      pnlEl.current.textContent = fmtMoney(Math.round(total));
+      pnlEl.current.className = `num text-[32px] font-extrabold leading-none ${total > 0 ? 'text-up' : total < 0 ? 'text-down' : 'text-white'}`;
     }
+    if (physEl.current) physEl.current.textContent = `PHYS ${fmtMoney(Math.round(phys), { compact: true })} · PAPER ${fmtMoney(Math.round(pnl), { compact: true })}`;
     if (eqEl.current) eqEl.current.textContent = fmtMoney(Math.round(bankroll + pnl), { sign: false });
     // Session stats for quests and the debrief.
     const st = stats.current;
-    st.peak = Math.max(st.peak, pnl);
-    st.maxDD = Math.max(st.maxDD, st.peak - pnl);
+    st.peak = Math.max(st.peak, total);
+    st.maxDD = Math.max(st.maxDD, st.peak - total);
     st.guardPeak = Math.max(st.guardPeak, bankroll + pnl);
     // Margin bar: how close you are to a margin call (or, in an eval, to the drawdown limit).
     const f = guard
@@ -97,7 +111,18 @@ export default function TradeSession({
     const pnl = extra.marginCall || extra.guardHit ? extra.pnl : sim.final;
     paint(pnl);
     const { maxDD, warned, traded } = stats.current;
+    let twoBook = null;
+    if (physical) {
+      // Ratios per candle (carry the last decision forward), then the hedge grade.
+      const r = [];
+      for (let k = 0; k < s.C; k++) r[k] = ratios.current[k] ?? (k ? r[k - 1] : 0);
+      const naked = physCurve(physical, s);
+      const combined = sim.curve.map((v, k) => v + naked[k]);
+      const physFinal = extra.marginCall ? physNow(s.candles[Math.min(i, s.C - 1)].c, i + 1) : naked[naked.length - 1];
+      twoBook = { physical, ratios: r, naked, combined, physFinal, paperFinal: pnl, grade: hedgeGrade({ ratios: r, combined, naked, news: s.news }) };
+    }
     finishRef.current?.({
+      twoBook,
       session: s, decisions: decisions.current, sim, pnl,
       bots: bots.map((b) => ({ id: b.id, pnl: Math.round(b.sim.final) })),
       stats: { maxDD, warned, traded, guardPeak: stats.current.guardPeak },
@@ -111,7 +136,7 @@ export default function TradeSession({
     if (ghost && ghost.length === s.C) chart.setGhost(ghost);
     chart.onTick = (price, t) => {
       const pnl = equityOf(bookRef.current, price, t, s);
-      const f = paint(pnl);
+      const f = paint(pnl, physNow(price, t));
       if (overRef.current) return;
       if (bankroll + pnl <= 0) {
         chart.anim = null; // the market stops for you: margin call
@@ -124,7 +149,7 @@ export default function TradeSession({
     chart.onDone = (ci) => {
       if (overRef.current) return;
       const close = s.candles[ci].c;
-      const eq = equityOf(bookRef.current, close, ci + 1, s);
+      const eq = equityOf(bookRef.current, close, ci + 1, s) + physNow(close, ci + 1);
       const delta = eq - startEq.current;
       setMine(eq);
       chart.setLive(ci, eq);
@@ -146,7 +171,7 @@ export default function TradeSession({
   // Breaking news arrives between candles.
   useEffect(() => {
     if (phase !== 'decide') return undefined;
-    const item = s.news.find((n) => n.at === i);
+    const item = s.news.find((n) => n.at === i) ?? physical?.events?.find((e) => e.at === i);
     if (!item) return undefined;
     setNews(item);
     if (item.major) buzz([60, 40, 60]);
@@ -176,11 +201,12 @@ export default function TradeSession({
     bookRef.current = nb;
     decisions.current[i] = action;
     if (nb.pos) stats.current.traded = true;
+    if (physical) ratios.current[i] = hedgeRatio(physical, nb.pos);
     setBook(nb);
     chartRef.current.setEntry(nb.pos ? { price: nb.pos.entry, label: posLabel(s, nb.pos, d) } : null);
     const eq = equityOf(nb, price, i, s);
-    startEq.current = eq;
-    paint(eq);
+    startEq.current = eq + physNow(price, i);
+    paint(eq, physNow(price, i));
     setPhase('candle');
     chartRef.current.play(i, CANDLE_MS);
   }
@@ -208,6 +234,7 @@ export default function TradeSession({
         <span className="num shrink-0 text-[10px] text-dim">{phase === 'over' ? 'SESSION OVER' : `${candleLabel} · ${Math.min(i + 1, s.C)}/${s.C}`}</span>
       </div>
       <div className="truncate px-3 text-[12.5px] font-semibold text-amber">{s.open}</div>
+      {physical && <div className="truncate px-3 text-[11.5px] font-bold text-sky-300">📦 {physical.who}: {physical.desc} · hedge it</div>}
 
       <div className="relative min-h-0 flex-1 px-1 pt-1">
         <canvas ref={canvasRef} className="block h-full w-full" />
@@ -234,14 +261,17 @@ export default function TradeSession({
       <div className="border-t border-line px-3 pt-1.5">
         <div className="flex items-end justify-between">
           <div className="min-w-0">
-            <div className="num truncate text-[13px] font-bold text-white/90">{posLabel(s, book.pos, d)}</div>
+            <div className="num truncate text-[13px] font-bold text-white/90">
+              {physical ? `${posLabel(s, book.pos, d)} · ${Math.round(hedgeRatio(physical, book.pos) * 100)}% hedged` : posLabel(s, book.pos, d)}
+            </div>
             <div ref={pnlEl} className="num text-[32px] font-extrabold leading-none">$0</div>
+            {physical && <div ref={physEl} className="num truncate text-[11px] font-bold text-white/70" />}
           </div>
           <div className="text-right">
             <div className="text-[10px] uppercase tracking-wider text-dim">
               {account === 'eval' && <span className="mr-1 rounded bg-amber/25 px-1 font-bold text-amber">EVAL</span>}
               {ride > 0 && <span className="mr-1 rounded bg-up/20 px-1 font-bold text-up">RIDE {fmtMoney(ride)}</span>}
-              Equity
+              {physical ? 'Paper margin line' : 'Equity'}
             </div>
             <div ref={eqEl} className="num text-lg font-bold leading-tight" />
           </div>
@@ -277,7 +307,7 @@ export default function TradeSession({
         ) : (
           <div className="grid grid-cols-4 gap-2 pt-[22px]">
             <Btn tone="flat" off={!deciding} onClick={tap({ type: 'HOLD' })}>HOLD</Btn>
-            <Btn tone="up" off={!deciding} onClick={tap({ type: 'ADD' })}>ADD 1</Btn>
+            <Btn tone="up" off={!deciding} onClick={tap({ type: 'ADD' })}>ADD {s.addStep ?? 1}</Btn>
             <Btn tone="amber" off={!deciding} onClick={tap({ type: 'CUT' })}>CUT ½</Btn>
             <Btn tone="down" off={!deciding} onClick={tap({ type: 'CLOSE' })}>CLOSE</Btn>
           </div>

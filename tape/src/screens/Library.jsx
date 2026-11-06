@@ -2,6 +2,7 @@ import { SESSION_CARDS } from '../data/index.js';
 import { fmtMoney } from '../lib/book.js';
 import { collectionStats } from '../game/collection.js';
 import { cardDate, cardKind, cardTitle } from '../lib/cards.js';
+import { integratedUnlocked, INTEGRATED_UNLOCK_CARGOES } from '../physical/ledger.js';
 
 const GRADE_STYLE = {
   S: 'bg-amber text-black', A: 'bg-up text-black', B: 'bg-sky-400 text-black', C: 'bg-white/70 text-black', D: 'bg-down text-white',
@@ -12,7 +13,16 @@ const nameOf = (c) => cardTitle(c);
 const shortDate = (c) => new Date(`${cardDate(c)}T12:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 /** One collectible: played = name, date, best P&L, grade; unplayed = a silhouette. */
-function Tile({ card, row, onOpen, missed }) {
+function Tile({ card, row, onOpen, missed, locked }) {
+  if (locked) {
+    return (
+      <div className="flex aspect-[3/4] flex-col items-center justify-center rounded-xl border border-sky-400/20 bg-sky-500/[.04] p-2 text-center">
+        <span className="text-2xl opacity-50">🔒</span>
+        <span className="num mt-1 text-[10px] font-bold text-sky-300/70">two-book</span>
+        <span className="num text-[9px] text-dim">{INTEGRATED_UNLOCK_CARGOES} cargoes to unlock</span>
+      </div>
+    );
+  }
   if (missed) {
     return (
       <div className="flex aspect-[3/4] flex-col justify-between rounded-xl border border-dashed border-white/15 bg-white/[.03] p-2 opacity-60 grayscale">
@@ -58,7 +68,7 @@ export default function Library({ progress, onOpen, specials = [] }) {
       <div className="mt-1 h-1.5 rounded bg-white/10"><div className="h-full rounded bg-amber" style={{ width: `${(stats.collected / stats.total) * 100}%` }} /></div>
       <p className="mt-1 text-[11px] text-dim">S = within 90% of holding the right side at 5 lots · A 70% · B 45% · C any profit · D lost money</p>
       <div className="mt-3 grid grid-cols-3 gap-2">
-        {sorted.map((c) => <Tile key={c.id} card={c} row={progress.played[c.id]} onOpen={onOpen} />)}
+        {sorted.map((c) => <Tile key={c.id} card={c} row={progress.played[c.id]} onOpen={onOpen} locked={c.mode === 'integrated' && !integratedUnlocked(progress)} />)}
       </div>
       {specials.length > 0 && (
         <>

@@ -63,12 +63,14 @@ export function act(book, action, price, t, s) {
       if (pos) return book;
       return { ...book, pos: { side: action.side, lots: action.lots, entry: price, t0: t } };
     case 'ADD': {
-      if (!pos || pos.lots >= (s.maxLots ?? MAX_LOTS)) return book;
+      const cap = s.maxLots ?? MAX_LOTS;
+      if (!pos || pos.lots >= cap) return book;
+      const add = Math.min(s.addStep ?? 1, cap - pos.lots); // two-book hedgers add in blocks
       if (pos.side === 'VOL') {
-        // Re-strike: bank what the vol position made so far, sell one more lot at today's price.
-        return { realized: book.realized + pnlOf(pos, price, t, s), pos: { side: 'VOL', lots: pos.lots + 1, entry: price, t0: t } };
+        // Re-strike: bank what the vol position made so far, sell more at today's price.
+        return { realized: book.realized + pnlOf(pos, price, t, s), pos: { side: 'VOL', lots: pos.lots + add, entry: price, t0: t } };
       }
-      const lots = pos.lots + 1;
+      const lots = pos.lots + add;
       return { ...book, pos: { ...pos, lots, entry: (pos.entry * pos.lots + price) / lots } };
     }
     case 'CUT': {
