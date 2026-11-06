@@ -2,8 +2,6 @@ import { useCallback, useRef, useState } from 'react';
 import TradeSession from '../trade/TradeSession.jsx';
 import { createFeed } from '../lib/feed.js';
 import { comboMultiplier, fmtMoney } from '../lib/book.js';
-import { botDecisions, simulate } from '../trade/engine.js';
-import { BOTS } from '../lib/rivals.js';
 import { SESSION_CARDS } from '../data/index.js';
 
 // TRADE: an endless run of sessions. Sessions you lose come back via the
@@ -16,13 +14,12 @@ export default function Trade({ progress, record }) {
   const [current, setCurrent] = useState(() => feedRef.current.next(1, progress)[0]);
   const [result, setResult] = useState(null);
 
-  const onFinish = useCallback(({ session, sim }) => {
+  const onFinish = useCallback(({ session, sim, bots, pnl: raw, marginCall }) => {
     const p = progressRef.current;
-    const win = sim.final > 0;
+    const win = raw > 0;
     const mult = win ? comboMultiplier(p.combo) : 1;
-    const pnl = Math.round(sim.final * mult);
-    const bots = BOTS.map((b) => ({ id: b.id, pnl: Math.round(simulate(session, botDecisions(b.id, session, current.key)).final) }));
-    const trade = { pnl, base: Math.round(sim.final), mult, win, bots };
+    const pnl = Math.round(raw * mult);
+    const trade = { pnl, base: Math.round(raw), mult, win, bots };
     record({
       cardId: session.id,
       category: session.card.category,
@@ -30,8 +27,8 @@ export default function Trade({ progress, record }) {
       points: Math.max(-20, Math.min(60, Math.round(pnl / 2000))),
       trade,
     });
-    setResult({ trade, sim, session });
-  }, [record, current.key]);
+    setResult({ trade, sim, session, marginCall });
+  }, [record]);
 
   const next = () => {
     setResult(null);
@@ -40,7 +37,7 @@ export default function Trade({ progress, record }) {
 
   return (
     <div className="relative">
-      <TradeSession key={current.key} card={current.card} bankroll={progress.bankroll} onFinish={onFinish} />
+      <TradeSession key={current.key} card={current.card} bankroll={progress.bankroll} salt={current.key} onFinish={onFinish} />
       {result && (
         <div className="pop absolute inset-x-0 bottom-0 z-30 rounded-t-2xl border-t border-line bg-black/95 px-4 pt-4 pb-6">
           <div className="text-[10px] uppercase tracking-[0.2em] text-dim">Session P&L</div>

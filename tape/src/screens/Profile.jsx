@@ -3,6 +3,7 @@ import { levelFor, LEVELS } from '../lib/levels.js';
 import { CATEGORIES, liveStreak } from '../lib/progress.js';
 import { ALL_CARDS } from '../data/index.js';
 import { fmtMoney } from '../lib/book.js';
+import { soundOn, setSoundOn } from '../lib/sound.js';
 
 const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const titleOf = (c) => c?.title ?? c?.headline ?? c?.name ?? c?.id;
@@ -19,6 +20,7 @@ function Stat({ label, value, tone = 'text-white' }) {
 // Profile: level ladder, streak, scores, accuracy by category, miss queue.
 export default function Profile({ progress, session, onReset }) {
   const [confirm, setConfirm] = useState(false);
+  const [sound, setSound] = useState(soundOn);
   const lvl = levelFor(progress.xp);
   const misses = Object.entries(progress.misses).sort((a, b) => a[1].due - b[1].due);
   const total = Object.values(progress.stats).reduce((a, s) => ({ right: a.right + s.right, total: a.total + s.total }), { right: 0, total: 0 });
@@ -97,6 +99,12 @@ export default function Profile({ progress, session, onReset }) {
             ))}
           </ul>
         )}
+
+        <button onClick={() => { setSoundOn(!sound); setSound(!sound); }}
+          className="mt-6 flex w-full items-center justify-between rounded-xl border border-line bg-panel px-3 py-3">
+          <span className="text-sm font-semibold">Trading sounds <span className="text-[11px] font-normal text-dim">tick on close, thud on a big loss</span></span>
+          <span className={`num rounded-full px-2.5 py-0.5 text-xs font-bold ${sound ? 'bg-up text-black' : 'bg-white/10 text-dim'}`}>{sound ? 'ON' : 'OFF'}</span>
+        </button>
 
         <div className="mt-8 text-center">
           {confirm ? (
