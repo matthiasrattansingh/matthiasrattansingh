@@ -9,6 +9,7 @@ import { pickNext } from '../game/order.js';
 import { sizesFor } from '../game/ride.js';
 import { afterSession } from '../game/afterSession.js';
 import { CONCEPT_CARDS, SESSION_CARDS } from '../data/index.js';
+import Rings from '../components/Rings.jsx';
 
 const conceptById = new Map(CONCEPT_CARDS.map((c) => [c.id, c]));
 const cardById = new Map(SESSION_CARDS.map((c) => [c.id, c]));
@@ -146,6 +147,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           <p className="mt-3 text-lg font-bold">Autoplay paused</p>
           <p className="mt-1 text-sm text-dim">The market's still moving. Tap NEXT when you're ready.</p>
           {rideBal > 0 && <p className="num mt-3 text-sm font-bold text-up">RIDE {fmtMoney(rideBal)} riding into your next session</p>}
+          <div className="mt-6"><Rings progress={progress} /></div>
         </div>
         <NextUp card={n.card} hold onGo={() => go(n)} onStop={() => {}} />
       </div>
@@ -180,7 +182,8 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           canRide={result.trade.pnl > 0 && !result.marginCall && !rode}
           rode={rode}
           rideLost={result.rideLost}
-          banner={result.events?.[0]?.text ?? null}
+          banner={(result.events?.find((e) => e.type === 'league') ?? result.events?.[0])?.text ?? null}
+          extra={<div className="mb-2"><Rings progress={progress} small /></div>}
         />
       )}
       {toast && <div className="pop num fixed inset-x-0 bottom-24 z-40 mx-auto w-fit rounded-lg bg-white px-3 py-2 text-xs font-bold text-black">{toast}</div>}

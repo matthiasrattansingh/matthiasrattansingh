@@ -38,7 +38,7 @@ function EquityCurve({ curve, best, worst }) {
 // The bottom panel is autoplay: the next session is already moving behind a countdown.
 // RIDE carries a winning session's profit into the next session as bonus margin.
 export default function Debrief({
-  result, concept, onConcept, onNext, onShare, next, onStop, onRide, ride = 0, canRide = false, rode = false, rideLost = 0, banner = null,
+  result, concept, onConcept, onNext, onShare, next, onStop, onRide, ride = 0, canRide = false, rode = false, rideLost = 0, banner = null, extra = null,
 }) {
   const { session: s, sim, trade, decisions, marginCall } = result;
   const values = useMemo(() => decisionValues(s, decisions), [s, decisions]);
@@ -153,6 +153,7 @@ export default function Debrief({
       <div className="pb-[env(safe-area-inset-bottom)]">
         <NextUp card={next.card} label={next.label} hold={Boolean(concept) && pick === null} onGo={onNext} onStop={onStop}>
           {banner && <div className="pop mb-1.5 truncate rounded-md bg-white/10 px-2 py-1 text-[11.5px] font-semibold">{banner}</div>}
+          {extra}
           <div className="mb-2 flex gap-2">
             <button onClick={() => onShare(grid)} className="num h-10 flex-1 rounded-lg border border-white/25 bg-black text-[11px] font-bold tracking-widest">SHARE</button>
             {canRide && (

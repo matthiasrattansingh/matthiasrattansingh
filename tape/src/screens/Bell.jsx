@@ -8,6 +8,7 @@ import { BOTS } from '../lib/rivals.js';
 import { seeded } from '../lib/format.js';
 import { CONCEPT_CARDS, SESSION_CARDS } from '../data/index.js';
 import { bookConcept, bookSession, shareOrCopy } from './Trade.jsx';
+import { afterSession } from '../game/afterSession.js';
 
 
 function Warmup({ concept, onDone }) {
@@ -84,7 +85,7 @@ function Results({ date, r, abandoned }) {
 }
 
 // The daily challenge: warm-up question, then today's session as 5 candles.
-export default function Bell({ date, progress, record, saveBell }) {
+export default function Bell({ date, progress, record, apply, saveBell }) {
   const card = useMemo(() => bellSession(SESSION_CARDS, date), [date]);
   // Warm-up uses a different concept from today's session, so it can't give the trade away.
   const concept = useMemo(() => {
@@ -113,6 +114,7 @@ export default function Bell({ date, progress, record, saveBell }) {
       maxCandles={BELL_CANDLES}
       onFinish={(r) => {
         const trade = bookSession(progress, record, r);
+        apply((p) => afterSession(p, { session: r.session, pnl: r.pnl, curve: r.sim.curve, full: false, stats: r.stats, bots: r.bots, marginCall: r.marginCall, trade, now: Date.now() }));
         const beat = trade.bots.filter((b) => trade.pnl > b.pnl).length;
         saveBell(date, 'result', {
           pnl: trade.pnl, beat, grid: gradeGrid(r.sim), title: `${r.session.instrument} · ${r.session.open}`,

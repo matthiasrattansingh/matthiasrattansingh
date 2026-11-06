@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { refresh } from './game/afterSession.js';
 import Feed from './components/Feed.jsx';
 import Hud from './components/Hud.jsx';
 import MarginCall from './components/MarginCall.jsx';
@@ -24,6 +25,9 @@ export default function App() {
   const [liveSeen, setLiveSeen] = useState({});
   const noop = useCallback(() => {}, []);
 
+  // Roll over the day (quests) and the week (league) on open and on every tab switch.
+  useEffect(() => { apply((p) => refresh(p, new Date())); }, [tab, apply]);
+
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-black">
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 mx-auto max-w-md bg-gradient-to-b from-black via-black/90 to-transparent pb-1">
@@ -32,7 +36,7 @@ export default function App() {
 
       <div className="mx-auto h-[100dvh] max-w-md">
         {tab === 'trade' && <Trade progress={progress} record={record} apply={apply} />}
-        {tab === 'bell' && <Bell date={date} progress={progress} record={record} saveBell={saveBell} />}
+        {tab === 'bell' && <Bell date={date} progress={progress} record={record} apply={apply} saveBell={saveBell} />}
         {tab === 'live' && (
           <Feed
             items={LIVE_ITEMS}

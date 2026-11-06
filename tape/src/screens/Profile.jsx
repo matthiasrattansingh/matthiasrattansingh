@@ -5,6 +5,7 @@ import { ALL_CARDS } from '../data/index.js';
 import { fmtMoney } from '../lib/book.js';
 import { soundOn, setSoundOn } from '../lib/sound.js';
 import { cashOutRide } from '../lib/progress.js';
+import { TIER_ICON } from '../game/league.js';
 
 const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const titleOf = (c) => c?.title ?? c?.headline ?? c?.name ?? c?.id;
@@ -71,6 +72,20 @@ export default function Profile({ progress, session, onReset, apply }) {
           <Stat label="Best session" value={fmtMoney(progress.bestSession, { compact: true })} />
           <Stat label="Hit rate" value={total.total ? `${Math.round((total.right / total.total) * 100)}%` : '—'} />
         </div>
+
+        <h3 className="mt-6 mb-2 text-[11px] uppercase tracking-[0.2em] text-dim">League history</h3>
+        {progress.leagueHistory?.length ? (
+          <ul className="space-y-1">
+            {progress.leagueHistory.map((h) => (
+              <li key={h.week} className="num flex items-center justify-between rounded-lg border border-line bg-panel px-3 py-2 text-[12.5px]">
+                <span>{TIER_ICON[h.tier]} {h.tier} · week of {h.week}</span>
+                <span className={h.result === 'promoted' ? 'text-up' : h.result === 'demoted' ? 'text-down' : 'text-dim'}>#{h.rank} · {h.result}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-dim">{progress.league ? `${TIER_ICON[progress.league.tier]} ${progress.league.tier} league in progress. Results land here every Monday.` : 'Your first league starts now.'}</p>
+        )}
 
         <h3 className="mt-6 mb-2 text-[11px] uppercase tracking-[0.2em] text-dim">Accuracy by category</h3>
         <div className="space-y-2">

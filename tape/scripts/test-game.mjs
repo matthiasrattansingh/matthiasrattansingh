@@ -85,4 +85,81 @@ ok('order: unplayed first, then lowest grade, recent skipped', () => {
   assert.equal(pickNext(p, cards, { recent: [cards[3].id] }).id, cards[7].id);
 });
 
+// ---------- step 2: quests ----------
+const { makeQuests, checkQuests, ensureQuests, TEMPLATES } = await import('../src/game/quests.js');
+const { newLeague, botXp, standings, ensureLeague, passCheck, SEATS, mondayOf } = await import('../src/game/league.js');
+const info = (over = {}) => ({ session: abq, pnl: 0, stats: { traded: true, maxDD: 0, warned: false }, bots: [{ id: 'mo', pnl: 0 }, { id: 'carla', pnl: 0 }, { id: 'quinn', pnl: 0 }, { id: 'dan', pnl: 0 }], marginCall: false, ...over });
+
+ok('3 distinct quests per day, same for the same date', () => {
+  const a = makeQuests('2026-11-06');
+  assert.equal(a.length, 3); assert.equal(new Set(a.map((q) => q.t)).size, 3);
+  assert.deepEqual(a, makeQuests('2026-11-06'));
+  const seen = new Set(); for (let d = 1; d <= 28; d++) makeQuests(`2026-02-${String(d).padStart(2, '0')}`).forEach((q) => seen.add(q.t));
+  assert.equal(seen.size, Object.keys(TEMPLATES).length);
+});
+ok('quests pay $1,000 + XP once', () => {
+  let p = { ...emptyProgress(), quests: { date: 'D', list: [{ t: 'earnX', x: 10000, done: false }, { t: 'lowDD', done: false }, { t: 'beatBot', bot: 'dan', done: false }] } };
+  let out = checkQuests(p, info({ pnl: 12000, stats: { traded: true, maxDD: 9000, warned: false }, bots: [{ id: 'dan', pnl: 20000 }] }), 'D');
+  assert.equal(out.progress.bankroll, 101000); assert.equal(out.events.length, 1); assert.equal(out.progress.xp, 40);
+  out = checkQuests(out.progress, info({ pnl: 12000, stats: { traded: true, maxDD: 100, warned: false }, bots: [{ id: 'dan', pnl: 0 }] }), 'D');
+  assert.equal(out.progress.bankroll, 103000); // lowDD + beatBot now; earnX not paid twice
+  assert.ok(out.progress.quests.list.every((q) => q.done));
+});
+ok('spread / no-warning quest rules', () => {
+  const spreadSess = buildSession(cards.find((c) => c.type === 'spread'));
+  assert.ok(TEMPLATES.spreadWin.check({}, info({ session: spreadSess, pnl: 1 })));
+  assert.ok(!TEMPLATES.spreadWin.check({}, info({ pnl: 1 })));
+  assert.ok(!TEMPLATES.noWarning.check({}, info({ stats: { traded: true, warned: true } })));
+  assert.ok(!TEMPLATES.noWarning.check({}, info({ stats: { traded: false, warned: false } })));
+});
+ok('new day = new quests', () => {
+  const p = ensureQuests(ensureQuests(emptyProgress(), '2026-11-06'), '2026-11-07');
+  assert.equal(p.quests.date, '2026-11-07');
+});
+
+// ---------- step 2: league ----------
+const mon = new Date(2026, 10, 2, 0, 0); // Monday 2 Nov 2026
+const at = (day, hour) => new Date(2026, 10, 2 + day, hour);
+ok('30 seats: 4 desk bots + 25 generated + you', () => {
+  const lg = newLeague('Bronze', at(2, 12), 0);
+  assert.equal(lg.members.length, SEATS - 1);
+  assert.equal(new Set(lg.members.map((m) => m.name)).size, SEATS - 1);
+  assert.ok(['mo', 'carla', 'quinn', 'dan'].every((id) => lg.members.some((m) => m.id === id)));
+  assert.equal(lg.week, '2026-11-02'); assert.equal(mondayOf(at(6, 23)).getDate(), 2);
+});
+ok('bot XP only grows through the week; weekdays heavier; some binge late Sunday', () => {
+  const lg = newLeague('Bronze', at(0, 9), 0);
+  let weekday = 0; let weekend = 0;
+  for (const m of lg.members) {
+    let prev = 0;
+    for (let h = 0; h < 7 * 24; h += 3) { const v = botXp(m, lg, new Date(mon.getTime() + h * 3600e3)); assert.ok(v >= prev); prev = v; }
+    const d = (k) => botXp(m, lg, at(k + 1, 0)) - botXp(m, lg, at(k, 0));
+    weekday += (d(0) + d(1) + d(2) + d(3) + d(4)) / 5; weekend += d(5);
+  }
+  assert.ok(weekday > weekend);
+  const binger = lg.members.find((m) => m.sunday);
+  assert.ok(binger, 'some bot binges on Sunday');
+  assert.ok(botXp(binger, lg, at(6, 23)) - botXp(binger, lg, at(6, 17)) > binger.mean);
+});
+ok('week end: top 10 promote, bottom 5 demote, new league', () => {
+  const base = { ...emptyProgress(), xp: 0 };
+  const lg = newLeague('Silver', at(1, 10), 0);
+  const top = ensureLeague({ ...base, league: lg, xp: 999999 }, at(8, 9));
+  assert.equal(top.progress.league.tier, 'Gold'); assert.equal(top.progress.leagueHistory[0].result, 'promoted');
+  assert.equal(top.progress.league.week, '2026-11-09');
+  const bottom = ensureLeague({ ...base, league: lg, xp: 0 }, at(8, 9));
+  assert.equal(bottom.progress.league.tier, 'Bronze'); assert.equal(bottom.progress.leagueHistory[0].result, 'demoted');
+  const two = ensureLeague({ ...base, league: lg, xp: 0 }, at(15, 9)); // two weeks away: both closed
+  assert.equal(two.progress.leagueHistory.length, 2);
+});
+ok('standings rank you and pass checks announce changes', () => {
+  let p = { ...emptyProgress(), xp: 0, league: newLeague('Bronze', at(2, 12), 0) };
+  const t = standings(p, at(2, 12));
+  assert.equal(t.length, SEATS); assert.ok(t.find((r) => r.me));
+  p = passCheck(p, at(2, 12)).progress; // first check just records who's ahead
+  p = { ...p, xp: 100000 };
+  const out = passCheck(p, at(2, 12));
+  assert.match(out.events[0].text, /You passed/);
+});
+
 console.log(`game tests: ${n} passed ✓`);
