@@ -84,7 +84,7 @@ function ProfileBody({ progress, session, onReset, apply }) {
     <>
         {progress.funded && <div className="num mb-2 rounded-lg border border-amber/60 bg-amber/15 py-1.5 text-center text-xs font-extrabold tracking-[0.3em] text-amber">🏆 FUNDED TRADER</div>}
         <div className="rounded-2xl border border-amber/40 bg-amber/10 p-4">
-          <div className="text-[10px] uppercase tracking-[0.2em] text-amber">Level {lvl.index + 1} of {LEVELS.length}</div>
+          <div className="text-[10px] uppercase tracking-[0.2em] text-amber">Paper track · level {lvl.index + 1} of {LEVELS.length}</div>
           <div className="text-2xl font-extrabold">{lvl.name}</div>
           <p className="mt-0.5 text-[13px] text-white/75">{lvl.blurb}</p>
           <div className="mt-3 h-2 rounded bg-white/10">

@@ -11,7 +11,8 @@ const cards = [...load('callit.json'), ...load('spreads.json')].filter((c) => c.
 let n = 0;
 const ok = (name, fn) => { fn(); n++; if (process.env.VERBOSE) console.log('✓', name); };
 
-ok('50 sessions present', () => assert.equal(cards.length, 50));
+ok('54 sessions present (40 scenarios, 10 spreads, 4 basis)', () => assert.equal(cards.length, 54));
+ok('basis sessions: Midland, MEH, LLS, sweet-sour', () => assert.equal(cards.filter((c) => c.basis).length, 4));
 
 for (const c of cards) {
   const s = buildSession(c);
