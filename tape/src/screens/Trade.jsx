@@ -20,6 +20,7 @@ import DeskTable from '../physical/DeskTable.jsx';
 import { rememberCargo, rememberHedge, rivalAdjust } from '../physical/memory.js';
 import NegotiationPanel from '../physical/NegotiationPanel.jsx';
 import { bestSale, desperationAt, fairDiff, indexFor, sellNegotiated } from '../physical/cargo.js';
+import { recordNegotiation } from '../physical/relationships.js';
 import { runAgentCargo, runAgentTank } from '../physical/agents.js';
 import { buildTank as buildTankFor } from '../physical/tank.js';
 import { botById } from '../lib/rivals.js';
@@ -239,16 +240,23 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     const port = sale.port;
     const portName = c.ports.find((p) => p.id === port).name;
     const atBerth = st.at === port && !sale.afloat;
+    // Distress: buyers shade bids for every day your demurrage meter has been red.
+    const lay = c.ports.find((p) => p.id === port).laytime ?? 1.5;
+    const distressDays = st.at ? Math.max(0, Math.floor(st.waited - lay)) : 0;
     const halfDayCost = (atBerth && st.waited >= (c.ports.find((p) => p.id === port).laytime ?? 1.5) ? c.demurrage : c.charter) / 2;
     const ctx = {
       side: 'sell', fair: fairDiff(c, port, st.day), desperation: desperationAt(c, port, st.day),
       roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.key}|${st.day}|${port}`,
-      distressDays: 0, index: (term) => indexFor(c, getSt().day, term).price, costPerHalfDay: halfDayCost,
-      onHalfDay: (h) => (h % 2 === 0 ? advance() : true), place: `${portName}${sale.afloat ? ' (afloat)' : ''}`, bbl: c.bbl, name: '',
+      distressDays, index: (term) => indexFor(c, getSt().day, term).price, costPerHalfDay: halfDayCost,
+      onHalfDay: (h) => (h % 2 === 0 ? advance() : true), place: `${portName}${sale.afloat ? ' (afloat)' : ''}`, bbl: c.bbl, name: progress.playerName ?? '',
     };
     return (
-      <NegotiationPanel ctx={ctx} onClose={() => onCancel()}
-        onDeal={(deal) => onDone(sellNegotiated(c, getSt(), { port, diff: deal.diff, term: deal.term, afloat: sale.afloat, nego: deal }))} />
+      <NegotiationPanel ctx={ctx}
+        onClose={(nn) => { apply((p) => ({ progress: recordNegotiation(p, { parties: nn.parties }) })); onCancel(); }}
+        onDeal={(deal) => {
+          apply((p) => ({ progress: recordNegotiation(p, { parties: deal.parties, deal, edge: deal.edge }) }));
+          onDone(sellNegotiated(c, getSt(), { port, diff: deal.diff, term: deal.term, afloat: sale.afloat, nego: deal }));
+        }} />
     );
   };
 
@@ -290,6 +298,11 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
             <div className="num mt-1 text-[13px]">
               Sold to <b>{st.sold.nego.name}</b> at <b>{st.sold.diff >= 0 ? '+' : ''}{st.sold.diff.toFixed(2)}</b> vs {st.sold.term === 'AVG5' ? 'AVG5' : 'the index'} · first bid {st.sold.nego.first >= 0 ? '+' : ''}{st.sold.nego.first.toFixed(2)} · {st.sold.nego.halfDays / 2}d of haggling
             </div>
+            <div className="num mt-1 flex items-baseline justify-between">
+              <span className="text-[12px]">Negotiation edge <b className={st.sold.nego.edge >= 0 ? 'text-up' : 'text-down'}>{fmtMoney(st.sold.nego.edge, { compact: true })}</b> · {st.sold.nego.pulled ? `${st.sold.nego.pulled} bid${st.sold.nego.pulled > 1 ? 's' : ''} pulled` : 'no bids pulled'}</span>
+              <span className="rounded bg-amber px-1.5 text-sm font-extrabold text-black">{st.sold.nego.grade.grade}</span>
+            </div>
+            <div className="num text-[10.5px] text-dim">grade: edge captured vs their reservation ({Math.round(st.sold.nego.grade.captured * 100)}%) less days burned</div>
             {st.sold.term === 'AVG5' && (
               <div className="num mt-1 text-[11.5px] text-white/80">
                 AVG5 resolved over {st.sold.index.days.map((d) => `${c.dates[d].slice(5)} $${c.flat[d].toFixed(2)}`).join(' · ')} = ${st.sold.index.price.toFixed(2)} (index on the day ${c.flat[st.sold.day].toFixed(2)}: {fmtMoney((st.sold.index.price - c.flat[st.sold.day]) * c.bbl, { compact: true })} from the term)

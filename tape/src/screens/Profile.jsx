@@ -25,7 +25,7 @@ function Stat({ label, value, tone = 'text-white' }) {
 const VIEWS = [['profile', 'PROFILE'], ['library', 'LIBRARY'], ['eval', 'EVAL']];
 
 /** The PHYSICAL career track: desk P&L, cargoes, lifetime hedge grade. */
-function PhysicalTrack({ progress }) {
+function PhysicalTrack({ progress, apply }) {
   const ph = progress.phys;
   const lvl = physLevel(ph.xp);
   const hedge = hedgeAverage(progress);
@@ -44,6 +44,19 @@ function PhysicalTrack({ progress }) {
         <div className="rounded-lg bg-black/40 p-2"><div className="text-[9px] uppercase text-dim">Cargo · tank</div><div className="text-sm font-bold">{ph.cargoes} · {ph.tanks}</div></div>
         <div className="rounded-lg bg-black/40 p-2"><div className="text-[9px] uppercase text-dim">Hedge grade</div><div className="text-sm font-bold text-sky-200">{hedge ? `${hedge.letter} (${hedge.avg.toFixed(1)})` : '—'}</div></div>
       </div>
+      <div className="num mt-2 flex items-center justify-between rounded-lg bg-black/40 px-3 py-2">
+        <span className="text-[10px] uppercase tracking-wider text-dim">Negotiation edge</span>
+        <span className="text-sm font-bold">
+          <span className={(ph.negotiation?.edge ?? 0) >= 0 ? 'text-up' : 'text-down'}>{fmtMoney(ph.negotiation?.edge ?? 0, { compact: true })}</span>
+          <span className="text-[11px] font-normal text-dim"> · {ph.negotiation?.deals ?? 0} deals · {ph.negotiation?.pulled ?? 0} bids pulled on you</span>
+        </span>
+      </div>
+      <label className="num mt-2 flex items-center justify-between gap-2 text-[10.5px] text-dim">
+        <span>Name the counterparties use</span>
+        <input value={progress.playerName ?? ''} maxLength={16} placeholder="(none)"
+          onChange={(e) => { const v = e.target.value; apply?.((p) => ({ progress: { ...p, playerName: v } })); }}
+          className="w-28 rounded bg-black/50 px-2 py-1 text-right text-[12px] text-white outline-none" />
+      </label>
       <p className="mt-2 text-[11px] text-dim">
         {integratedUnlocked(progress) ? `Two-book sessions unlocked · ${ph.integrated} played${hedge ? ` · lifetime hedge average over ${hedge.n}` : ''}` : `Two-book sessions unlock after ${INTEGRATED_UNLOCK_CARGOES} cargoes (${ph.cargoes}/${INTEGRATED_UNLOCK_CARGOES}).`}
       </p>
@@ -116,7 +129,7 @@ function ProfileBody({ progress, session, onReset, apply }) {
           </div>
         )}
 
-        <PhysicalTrack progress={progress} />
+        <PhysicalTrack progress={progress} apply={apply} />
 
         <div className="mt-3 grid grid-cols-3 gap-2">
           <Stat label="Day streak" value={`📅${liveStreak(progress.streak)}`} tone="text-amber" />

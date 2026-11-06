@@ -49,8 +49,9 @@ export function openNegotiation(opts) {
 export function relationAdjust(rel, econ) {
   if (!rel) return 0;
   const [lo, hi] = econ?.negotiation?.relationship_adjust_usd_bbl?.value ?? [0.03, 0.08];
-  const good = rel.deals ?? 0;
-  const bad = (rel.stalled ?? 0) / 3 + (rel.walkaways ?? 0) * 2;
+  // Closed deals warm them up; stalling and late walk-aways cool them down.
+  const good = rel.deals_closed ?? 0;
+  const bad = (rel.rounds_stalled_on_them ?? 0) / 3 + (rel.walk_aways_after_3plus_rounds ?? 0) * 2;
   const net = good - bad;
   if (net === 0) return 0;
   return Math.sign(net) * Math.min(hi, lo + Math.abs(net) * 0.01);
@@ -131,9 +132,9 @@ export function tell(p, side = 'sell', history = null, name = '') {
   const who = name ? `, ${name}` : '';
   if (p.status === 'pulled') return side === 'sell' ? 'We’re out. Found barrels elsewhere.' : 'Sold it to someone else. Too slow.';
   if (p.status === 'walked') return 'Your loss.';
-  if (history?.stalled >= 4) return `Last time you stalled me ${history.stalled} rounds${who}. Not again.`;
-  if (history?.walkaways >= 1) return `You walked on me last time${who}. Prove you're serious.`;
-  if (history?.deals >= 2) return `Good to trade with you again${who}.`;
+  if (history?.rounds_stalled_on_them >= 4) return `Last time you stalled me ${history.rounds_stalled_on_them} rounds${who}.`;
+  if (history?.walk_aways_after_3plus_rounds >= 1) return `You walked on me after 3 rounds${who}. Serious?`;
+  if (history?.deals_closed >= 2) return `Good to trade with you again${who}.`;
   if (p.final) return 'That’s my final number.';
   if (p.patience <= 1) return 'I need an answer now.';
   if (p.desperation > 0.65) return side === 'sell' ? 'We need barrels this week. Can you do it?' : 'I have a cargo arriving and no tank. Help me out.';

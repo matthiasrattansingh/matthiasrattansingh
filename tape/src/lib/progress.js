@@ -56,6 +56,7 @@ export function emptyProgress() {
     specials: {}, // date -> { kind, cardId, played, pnl }
     // v3: physical desk (company book; never touches the personal $100k account)
     phys: emptyPhys(),
+    playerName: '',
   };
 }
 
@@ -80,7 +81,8 @@ export function hydrate(saved) {
     quests: saved.quests ?? base.quests,
     chat: { ...base.chat, ...saved.chat },
     specials: saved.specials ?? {},
-    phys: { ...emptyPhys(), ...saved.phys, memory: { ...emptyPhys().memory, ...saved.phys?.memory } },
+    phys: { ...emptyPhys(), ...saved.phys, memory: { ...emptyPhys().memory, ...saved.phys?.memory }, negotiation: { ...emptyPhys().negotiation, ...saved.phys?.negotiation } },
+    playerName: saved.playerName ?? '',
     // v1 saves have no install date: count the migration day as the start.
     createdAt: v1 ? base.createdAt : saved.createdAt ?? base.createdAt,
     marginCall: false,
@@ -92,7 +94,7 @@ export function emptyPhys() {
     pnl: 0, sessions: 0, cargoes: 0, tanks: 0, integrated: 0, xp: 0, best: 0,
     hedgeGrades: [], // 'S'..'D' per integrated session
     memory: { ports: {}, daysToSell: [], hedgeAtLoad: 0, hedgeChances: 0, demurrage: [] },
-    relationships: {}, // agentId -> { deals, stalled, walkaways }
+    relationships: {}, // agentId -> { deals_closed, rounds_stalled_on_them, walk_aways_after_3plus_rounds }
     negotiation: { edge: 0, pulled: 0, deals: 0 },
   };
 }
