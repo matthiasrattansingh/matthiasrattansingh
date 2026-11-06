@@ -2,3 +2,4 @@ node_modules/
 dist/
 scripts/.ohlc-cache/
 scripts/.eia-cache/
+__pycache__/
