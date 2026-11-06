@@ -16,6 +16,8 @@ import { tankSplit } from '../physical/tank.js';
 import PhysDebrief from '../physical/PhysDebrief.jsx';
 import { bookPhysical, integratedUnlocked } from '../physical/ledger.js';
 import PhysStrip from '../physical/PhysStrip.jsx';
+import DeskTable from '../physical/DeskTable.jsx';
+import { rememberCargo, rememberHedge, rivalAdjust } from '../physical/memory.js';
 import { runAgentCargo, runAgentTank } from '../physical/agents.js';
 import { buildTank as buildTankFor } from '../physical/tank.js';
 import { botById } from '../lib/rivals.js';
@@ -198,11 +200,13 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   );
 
   // The desk agents play the same physical session, from public state only.
+  // After 5 cargoes, rivals pre-position at your favorite port (fixed for the session).
+  const adjust = useMemo(() => rivalAdjust(progress), [current.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const agentRuns = useMemo(() => {
-    if (current.card.type === 'cargo') return AGENTS.map((a) => runAgentCargo(a, current.card, ECON));
+    if (current.card.type === 'cargo') return AGENTS.map((a) => runAgentCargo(a, current.card, ECON, { adjust }));
     if (current.card.type === 'tank') { const t = buildTankFor(current.card, ECON); return AGENTS.map((a) => runAgentTank(a, t)); }
     return null;
-  }, [current.card]);
+  }, [current.card, adjust]);
   const physStrip = agentRuns && ((step, mine) => <PhysStrip runs={agentRuns} step={step} mine={mine} />);
 
   const inEval = evalActive(progress);
@@ -230,6 +234,10 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   // Physical sessions: book to the physical desk ledger, then the physical debrief.
   const onPhysFinish = (kind) => (r) => {
     const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? r.t?.W ?? 0, ...(r.book ?? {}) }));
+    if (kind === 'cargo') {
+      const sold = r.st.sold;
+      apply((p) => ({ progress: rememberCargo(p, { portName: r.c.ports.find((x) => x.id === sold.port).name, days: sold.day + 1, demurrage: r.st.cost.demurrage }) }));
+    }
     // Dan pays his tank rent bleed in public.
     const dan = agentRuns?.find((x) => x.agent.id === 'dan');
     if (kind === 'tank' && dan?.rent > 0) {
@@ -255,6 +263,11 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           { label: 'Events', value: s.events },
         ]}
         log={st.log}
+        extraBottom={agentRuns && (
+          <DeskTable kind="cargo" runs={agentRuns}
+            me={{ kind: 'cargo', pnl: st.sold.pnl, split: s, summary: `You: ${st.sold.afloat ? 'sold afloat toward' : 'discharged'} ${portName(st.sold.port)} day ${st.sold.day + 1}, ${st.cost.demurrage ? fmtMoney(st.cost.demurrage, { compact: true, sign: false }) + ' demurrage' : '$0 demurrage'}${result.c.faded ? ` · rivals faded ${portName(result.c.faded)}` : ''}` }}
+            cols={[{ key: 'flat', label: 'flat' }, { key: 'basis', label: 'basis' }, { key: 'costs', label: 'costs' }, { key: 'events', label: 'events' }]} />
+        )}
         why={current.card.why}
         source={current.card.source}
         concept={conceptById.get(current.card.concept)}
@@ -307,6 +320,11 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           </div>
         )}
         log={st.log.map((l) => ({ day: l.week, text: l.text }))}
+        extraBottom={agentRuns && (
+          <DeskTable runs={agentRuns}
+            me={{ kind: 'tank', pnl: sp.total, split: sp, summary: `You: ${st.log.filter((l) => l.type === 'carry').length ? st.log.filter((l) => l.type === 'carry').map((l) => l.text.split(',')[0]).join('; ') : 'never stored'}` }}
+            cols={[{ key: 'locked', label: 'carry' }, { key: 'unwind', label: 'unwind' }, { key: 'rent', label: 'rent' }, { key: 'financing', label: 'fin' }]} />
+        )}
         why={current.card.why}
         source={current.card.source}
         concept={conceptById.get(current.card.concept)}
@@ -324,6 +342,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     const tb = r.twoBook;
     const pnl = Math.round(tb.paperFinal + tb.physFinal);
     const events = apply((p) => bookPhysical(p, { card: current.card, kind: 'integrated', pnl, best: Math.max(1, Math.abs(tb.naked[tb.naked.length - 1])), C: r.session.C, hedgeGrade: tb.grade.grade }));
+    apply((p) => ({ progress: rememberHedge(p, tb.ratios[0] ?? 0) }));
     recent.current = [current.card.id, ...recent.current].slice(0, 8);
     setTimeout(() => setResult({ phys: 'integrated', ...r, pnl, events }), 1200);
   };
@@ -392,7 +411,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   if (current.card.type === 'cargo') {
     return (
       <div className="relative">
-        <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} rivals={physStrip} />
+        <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} rivals={physStrip} adjust={adjust} />
         {physDebrief}
         {chat}
       </div>

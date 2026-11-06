@@ -179,4 +179,61 @@ ok('basis events move only the physical leg', () => {
   assert.equal(Math.round(after - before), -625000); // -$2.50/bbl on 250k bbl, long the Gulf barrels
 });
 
+// ---------- agents (add-on A) ----------
+const AG = await import('../src/physical/agents.js');
+const MEM = await import('../src/physical/memory.js');
+const { emptyProgress } = await import('../src/lib/progress.js');
+const diesel = byId('cg-diesel-squeeze-2022');
+
+ok("seeded cargo: Quinn's netback choice beats Mo's chased port after costs", () => {
+  // Texas freeze, seed 'a': Mo chases Houston's recent gain into the refinery freeze; Quinn takes the best netback.
+  const freeze = byId('cg-texas-freeze-2021');
+  const q = AG.runAgentCargo(agent('quinn'), freeze, econ, { seed: 'a' });
+  const m = AG.runAgentCargo(agent('mo'), freeze, econ, { seed: 'a' });
+  assert.equal(m.st.sold.port, 'hou'); assert.equal(q.st.sold.port, 'rtm');
+  assert.ok(q.pnl > m.pnl + 1_000_000, `quinn ${q.pnl} vs mo ${m.pnl}`);
+  assert.ok(q.split.costs < 0 && m.split.costs < 0); // both after costs
+  assert.equal(AG.runAgentCargo(agent('quinn'), freeze, econ, { seed: 'a' }).pnl, q.pnl); // deterministic
+});
+ok("Dan pays the desk's highest demurrage across 10 seeds", () => {
+  const total = Object.fromEntries(agents.map((a) => [a.id, 0]));
+  for (let i = 0; i < 10; i++) for (const card of cargoCards) for (const a of agents) total[a.id] += AG.runAgentCargo(a, card, econ, { seed: `s${i}` }).demurrage;
+  const top = Object.entries(total).sort((a, b) => b[1] - a[1])[0][0];
+  assert.equal(top, 'dan', JSON.stringify(total));
+});
+ok('no agent reads the future: the view throws on look-ahead', () => {
+  const c = C.buildCargo(diesel, econ);
+  assert.throws(() => AG.cargoView(c, 3).delivered('nyh', 4), /look-ahead/);
+  for (const card of cargoCards) for (const a of agents) AG.runAgentCargo(a, card, econ); // would throw if any rule peeked
+});
+ok('no agent reads the future: poisoning every later day leaves earlier decisions unchanged', () => {
+  for (const card of cargoCards) {
+    for (const a of agents) {
+      const real = AG.runAgentCargo(a, card, econ).actions;
+      for (let d = 0; d < card.days.length - 1; d++) {
+        const poisoned = { ...card, days: card.days.map((x, i) => (i > d ? { ...x, flat: x.flat * 3 + 50 } : x)) };
+        const got = AG.runAgentCargo(a, poisoned, econ).actions.filter((x) => x.day <= d);
+        assert.deepEqual(got, real.filter((x) => x.day <= d), `${a.id} on ${card.id} changed its day-${d} decisions after seeing poisoned future data`);
+      }
+    }
+  }
+});
+ok('tank agents: Mo never stores, Quinn carries when the math clears, Dan pays rent', () => {
+  const t = T.buildTank(tankCards.find((c) => c.id === 'tk-super-contango-2020'), econ);
+  assert.equal(AG.runAgentTank(agent('mo'), t).st.rent, 0);
+  assert.ok(AG.runAgentTank(agent('quinn'), t).pnl > 0);
+  assert.ok(AG.runAgentTank(agent('dan'), t).rent > 0);
+  assert.equal(AG.runAgentTank(agent('quinn'), T.buildTank(tankCards.find((c) => c.id === 'tk-backwardation-2021'), econ)).st.rent, 0);
+});
+ok('memory: after 5 cargoes Quinn scouts you and rivals fade your favorite port', () => {
+  let p = emptyProgress();
+  for (let i = 0; i < 5; i++) p = MEM.rememberCargo(p, { portName: 'Houston', days: 4 + i, demurrage: 45000 });
+  assert.match(p.chat.msgs.at(-1).text, /Houston 5 of 5 times, sell in 6\.0 days/);
+  const fz = C.buildCargo(byId('cg-texas-freeze-2021'), econ);
+  const faded = MEM.rivalAdjust(p)(fz);
+  assert.equal(faded.faded, 'hou');
+  assert.ok(Math.abs(C.shiftAt(faded, 'hou', 0) - C.shiftAt(fz, 'hou', 0) + MEM.FADE_USD_BBL) < 1e-9);
+  assert.equal(MEM.rivalAdjust(emptyProgress()), null);
+});
+
 console.log(`physical tests: ${n} passed ✓`);

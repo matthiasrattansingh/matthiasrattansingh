@@ -73,28 +73,26 @@ export function runAgentCargo(agent, card, econ, { seed = '', adjust = null } = 
   const rule = agent.physical;
   let st = newCargoState();
   const history = [];
-  const reads = { maxDay: 0 };
+  const actions = []; // [{ day, type, port? }] — the decision log, for tests and the debrief
+  const act = (a) => { actions.push({ day: st.day, ...a }); st = step(c, st, a); };
   for (let guard = 0; guard < 60 && !st.sold; guard++) {
     const v = cargoView(c, st.day);
-    reads.maxDay = Math.max(reads.maxDay, st.day);
     if (!st.at && (st.dest === null || c.decisions.includes(st.day))) {
       const port = choosePort(rule.port_choice_method, v, st);
-      if (port !== st.dest) { st = step(c, st, { type: 'PORT', port }); continue; }
+      if (port !== st.dest) { act({ type: 'PORT', port }); continue; }
     }
     if (st.at) {
       const canBerth = st.queue === 0;
-      st = canBerth && wantsToSell(rule.sell_timing, rule.demurrage_tolerance_days, v, st, st.at)
-        ? step(c, st, { type: 'SELL' })
-        : step(c, st, { type: 'WAIT' });
+      act(canBerth && wantsToSell(rule.sell_timing, rule.demurrage_tolerance_days, v, st, st.at) ? { type: 'SELL', port: st.at } : { type: 'WAIT' });
     } else {
-      st = step(c, st, { type: 'SAIL' });
+      act({ type: 'SAIL' });
     }
     if (!st.sold) history[st.day] = mark(c, st);
   }
   const portName = (id) => c.ports.find((p) => p.id === id)?.name ?? id;
   const s = st.sold;
   const summary = `${agent.name.split(' ')[1]}: ${s.afloat ? `sold afloat toward ${portName(s.port)}` : `discharged ${portName(s.port)}`} day ${s.day + 1}, ${st.cost.demurrage ? `$${Math.round(st.cost.demurrage / 1000)}k demurrage` : '$0 demurrage'}`;
-  return { agent, c, st, pnl: s.pnl, split: s.split, history, summary, demurrage: st.cost.demurrage };
+  return { agent, c, st, pnl: s.pnl, split: s.split, history, summary, demurrage: st.cost.demurrage, actions };
 }
 
 /** What the agent would book if it sold right now (its live P&L for the strip). */
