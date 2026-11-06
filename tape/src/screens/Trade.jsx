@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TradeSession from '../trade/TradeSession.jsx';
 import Debrief from '../trade/Debrief.jsx';
 import NextUp from '../trade/NextUp.jsx';
@@ -15,10 +15,13 @@ import TankSession from '../physical/TankSession.jsx';
 import { tankSplit } from '../physical/tank.js';
 import PhysDebrief from '../physical/PhysDebrief.jsx';
 import { bookPhysical, integratedUnlocked } from '../physical/ledger.js';
+import PhysStrip from '../physical/PhysStrip.jsx';
+import { runAgentCargo, runAgentTank } from '../physical/agents.js';
+import { buildTank as buildTankFor } from '../physical/tank.js';
 import { botById } from '../lib/rivals.js';
 import Rings from '../components/Rings.jsx';
 import ChatSheet, { ChatButton } from '../components/ChatSheet.jsx';
-import { acceptChallenge, markRead } from '../game/chat.js';
+import { acceptChallenge, markRead, post } from '../game/chat.js';
 import { specialFor } from '../game/calendar.js';
 import { localDay } from '../lib/progress.js';
 
@@ -194,6 +197,14 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     </>
   );
 
+  // The desk agents play the same physical session, from public state only.
+  const agentRuns = useMemo(() => {
+    if (current.card.type === 'cargo') return AGENTS.map((a) => runAgentCargo(a, current.card, ECON));
+    if (current.card.type === 'tank') { const t = buildTankFor(current.card, ECON); return AGENTS.map((a) => runAgentTank(a, t)); }
+    return null;
+  }, [current.card]);
+  const physStrip = agentRuns && ((step, mine) => <PhysStrip runs={agentRuns} step={step} mine={mine} />);
+
   const inEval = evalActive(progress);
   // In an eval, sessions trade the eval sub-account: no ride, and the trailing drawdown is the limit.
   const { sizes, maxLots } = sizesFor(inEval ? { ...progress, ride: { active: false } } : progress);
@@ -219,6 +230,11 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   // Physical sessions: book to the physical desk ledger, then the physical debrief.
   const onPhysFinish = (kind) => (r) => {
     const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? r.t?.W ?? 0, ...(r.book ?? {}) }));
+    // Dan pays his tank rent bleed in public.
+    const dan = agentRuns?.find((x) => x.agent.id === 'dan');
+    if (kind === 'tank' && dan?.rent > 0) {
+      apply((p) => ({ progress: post(p, 'dan', 'brag', `Paid ${fmtMoney(dan.rent, { compact: true, sign: false })} rent to store oil on a coin flip. ${dan.pnl >= 0 ? 'WORTH IT' : 'worth it?? 🎰'}`) }));
+    }
     recent.current = [current.card.id, ...recent.current].slice(0, 8);
     setTimeout(() => setResult({ phys: kind, ...r, events }), 1200);
   };
@@ -366,7 +382,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   if (current.card.type === 'tank') {
     return (
       <div className="relative">
-        <TankSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('tank')} />
+        <TankSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('tank')} rivals={physStrip} />
         {tankDebrief}
         {chat}
       </div>
@@ -376,7 +392,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   if (current.card.type === 'cargo') {
     return (
       <div className="relative">
-        <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} />
+        <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} rivals={physStrip} />
         {physDebrief}
         {chat}
       </div>

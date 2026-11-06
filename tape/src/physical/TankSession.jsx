@@ -125,7 +125,7 @@ export default function TankSession({ card, econ, onFinish, rivals = null, rende
         </div>
       </div>
 
-      {rivals}
+      {typeof rivals === 'function' ? rivals(st.week, tankPnl(t, st)) : rivals}
 
       <div className="border-t border-line px-3 pt-1">
         <div className="flex items-end justify-between">

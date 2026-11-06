@@ -86,6 +86,12 @@ export function bestSale(c, st) {
   return best;
 }
 
+/** A sale at a specific port: at berth if you're alongside and berthed, otherwise afloat. */
+export function saleAt(c, st, portId) {
+  const berthed = st.at === portId && st.queue === 0;
+  return { port: portId, price: netbackAt(c, st, portId), afloat: !berthed };
+}
+
 export const canChoosePort = (c, st) => !st.sold && !st.at && (st.dest === null || c.decisions.includes(st.day));
 
 function applyDayEvents(c, st) {
@@ -116,7 +122,8 @@ export function step(c, st, action) {
     return arrive(c, { ...st, dest: p.id, eta, log: [...st.log, { day: st.day, text: `Course set for ${p.name} (ETA day ${eta})`, type: 'port' }] });
   }
   if (action.type === 'SELL') {
-    const sale = bestSale(c, st);
+    // SELL { port } sells at that port (afloat if you're not alongside); plain SELL takes the best price now.
+    const sale = action.port ? saleAt(c, st, action.port) : bestSale(c, st);
     return finishSale(c, st, sale);
   }
   if (st.day >= c.D - 1) return finishSale(c, st, bestSale(c, st)); // last day: you must sell

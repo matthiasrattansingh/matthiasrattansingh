@@ -133,7 +133,7 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
         })}
       </div>
 
-      {rivals}
+      {typeof rivals === 'function' ? rivals(st.day, markToMarket(c, st)) : rivals}
 
       <div className="border-t border-line px-3 pt-1">
         <div className="flex items-center justify-between text-[10.5px]">

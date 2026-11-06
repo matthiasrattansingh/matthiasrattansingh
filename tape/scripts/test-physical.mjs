@@ -159,10 +159,12 @@ ok('bots carry the same physical book: Mo 0%, Quinn ~80%, Dan the wrong way', ()
   assert.equal(TB.botHedgeDecisions(agent('mo'), phys, sWti).filter(Boolean).length, 0);
   const q = TB.botHedgeDecisions(agent('quinn'), phys, sWti)[0];
   assert.equal(q.side, 'SHORT'); assert.equal(q.lots, 200);
-  for (let i = 0; i < 10; i++) {
+  let wrong = 0;
+  for (let i = 0; i < 20; i++) {
     const d = TB.botHedgeDecisions(agent('dan'), phys, sWti, `s${i}`)[0];
-    if (d) assert.ok(d.side === 'LONG' || d.lots <= 50, 'Dan hedges wrong-way (or barely)');
+    if (d?.side === 'LONG') wrong++; // same side as the long physical = doubling the bet
   }
+  assert.ok(wrong >= 10, `Dan should usually hedge the wrong way (${wrong}/20)`);
   const mo = TB.botTwoBook(agent('mo'), phys, sWti, 'x');
   assert.equal(Math.round(mo.final), Math.round(TB.physCurve(phys, sWti).at(-1)));
   const qb = TB.botTwoBook(agent('quinn'), phys, sWti, 'x');

@@ -78,9 +78,12 @@ export function botHedgeDecisions(agent, phys, s, salt = '') {
     const lots = lotsFor(rule.ratio);
     if (lots > 0) out[0] = { type: 'OPEN', side: hedgeSide, lots };
   } else if (rule.mode === 'random') {
-    const r = rule.min + seeded(`${agent.id}|${s.id}|${salt}`)() * (rule.max - rule.min);
-    const lots = lotsFor(r);
-    if (lots > 0) out[0] = { type: 'OPEN', side: r >= 0 ? hedgeSide : phys.side, lots };
+    // A random size, and (with wrong_way_bias) usually on the same side as the exposure: doubling the bet.
+    const rand = seeded(`${agent.id}|${s.id}|${salt}`);
+    const size = rand() * Math.max(Math.abs(rule.min ?? 0), Math.abs(rule.max ?? 1));
+    const wrong = rand() < (rule.wrong_way_bias ?? 0.5);
+    const lots = lotsFor(size);
+    if (lots > 0) out[0] = { type: 'OPEN', side: wrong ? phys.side : hedgeSide, lots };
   } else if (rule.mode === 'after_adverse_move') {
     for (let i = 1; i < s.C; i++) {
       if (physPnl(phys, s, decisionPrice(s, i), i) < 0) { out[i] = { type: 'OPEN', side: hedgeSide, lots: lotsFor(rule.ratio) }; break; }
