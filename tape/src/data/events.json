@@ -1,0 +1,51 @@
+{
+ "_readme": "Real recurring market events that unlock a one-day special session in TRADE. Weekdays: 1 = Monday ... 7 = Sunday. 'pool' lists the session ids the special is drawn from (seeded by date). Add OPEC+ meeting dates under opec.dates as YYYY-MM-DD; check opec.org for the current schedule.",
+ "recurring": [
+  {
+   "id": "eia-petroleum",
+   "weekday": 3,
+   "time": "9:30 AM CT",
+   "label": "EIA PRINT SPECIAL",
+   "blurb": "EIA Weekly Petroleum Status Report day: trade an inventory shock.",
+   "pool": [
+    "ci-eia-draw-2016",
+    "ci-eia-build-2016",
+    "ci-eia-build-freeze-2021",
+    "ci-eia-build-feb2023",
+    "ci-eia-record-draw-2023",
+    "ci-wti-negative-2020"
+   ]
+  },
+  {
+   "id": "eia-natgas",
+   "weekday": 4,
+   "time": "9:30 AM CT",
+   "label": "STORAGE REPORT SPECIAL",
+   "blurb": "EIA Weekly Natural Gas Storage Report day: trade a storage story.",
+   "pool": [
+    "ci-wti-negative-2020",
+    "ci-backwardation-flip-2020",
+    "ss-brent-wti-2011",
+    "ci-eia-build-feb2023",
+    "ci-price-war-2020"
+   ]
+  }
+ ],
+ "opec": {
+  "label": "OPEC+ MEETING SPECIAL",
+  "blurb": "OPEC+ meets today: trade a cartel decision.",
+  "pool": [
+   "ci-opec-thanksgiving-2014",
+   "ci-opec-vienna-2016",
+   "ci-opec-surprise-cut-2023",
+   "ci-saudi-lollipop-2021",
+   "ci-opec-talks-mar2020",
+   "ci-opec-historic-cut-2020",
+   "ci-saudi-cut-jun2023"
+  ],
+  "dates": [
+   "2026-11-29"
+  ],
+  "_source": "29 Nov 2026 per OPEC press release of 1 Nov 2026 (opec.org/pr-detail/2033620-1-november-2026.html). Add later dates as OPEC announces them."
+ }
+}

@@ -1,0 +1,2883 @@
+{
+ "cards": [
+  {
+   "id": "ss-brent-wti-2011",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "Brent − WTI",
+   "formula": "Brent minus WTI",
+   "unit": "$/bbl",
+   "headline": "Cushing, Oklahoma storage is at record highs. Protests are spreading across North Africa.",
+   "setup": [
+    "WTI is landlocked: Canadian and Bakken crude pile up at Cushing with no pipeline to the Gulf.",
+    "Brent is seaborne and prices Middle East and African supply risk."
+   ],
+   "legs": [
+    {
+     "name": "Brent",
+     "price": 95.5,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "WTI",
+     "price": 90.3,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2011-01-05",
+    "now": 5.2,
+    "series": [
+     2.22,
+     2.0,
+     1.98,
+     1.82,
+     1.61,
+     1.81,
+     2.12,
+     2.69,
+     2.23,
+     2.07,
+     2.7,
+     2.49,
+     2.62,
+     2.69,
+     2.58,
+     2.93,
+     3.58,
+     4.01,
+     3.65,
+     3.93,
+     3.38,
+     3.17,
+     2.74,
+     2.85,
+     2.89,
+     3.02,
+     3.25,
+     3.37,
+     3.29,
+     4.15,
+     5.2
+    ]
+   },
+   "horizon": "6 weeks",
+   "outcome": {
+    "date": "2011-02-18",
+    "spread": 16.32,
+    "result": "WIDEN",
+    "after": [
+     6.14,
+     5.3,
+     6.45,
+     6.5,
+     6.26,
+     6.66,
+     6.42,
+     7.3,
+     7.72,
+     8.49,
+     8.74,
+     9.06,
+     10.58,
+     11.75,
+     10.08,
+     8.82,
+     10.97,
+     11.48,
+     11.22,
+     10.8,
+     11.77,
+     12.98,
+     15.11,
+     14.14,
+     15.85,
+     18.27,
+     17.32,
+     18.79,
+     16.23,
+     16.32
+    ]
+   },
+   "why": [
+    "Cushing's glut pushed WTI down while unrest in Egypt and then Libya lifted Brent.",
+    "The Brent premium went from ~$5 to ~$16. Logistics, not quality, set this spread."
+   ],
+   "source": "ICE Brent & NYMEX WTI front-month settlements Jan-Feb 2011; EIA Cushing stocks. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "3-4 day candles · from real daily settlements",
+    "candles": [
+     [
+      5.2,
+      6.5,
+      5.2,
+      6.5,
+      "6 Jan–11 Jan"
+     ],
+     [
+      6.5,
+      7.3,
+      6.26,
+      7.3,
+      "12 Jan–19 Jan"
+     ],
+     [
+      7.3,
+      8.74,
+      7.3,
+      8.74,
+      "20 Jan–24 Jan"
+     ],
+     [
+      8.74,
+      11.75,
+      8.74,
+      10.08,
+      "25 Jan–28 Jan"
+     ],
+     [
+      10.08,
+      11.48,
+      8.82,
+      11.22,
+      "31 Jan–3 Feb"
+     ],
+     [
+      11.22,
+      12.98,
+      10.8,
+      12.98,
+      "4 Feb–8 Feb"
+     ],
+     [
+      12.98,
+      18.27,
+      12.98,
+      18.27,
+      "9 Feb–14 Feb"
+     ],
+     [
+      18.27,
+      18.79,
+      16.23,
+      16.32,
+      "15 Feb–18 Feb"
+     ]
+    ],
+    "days": [
+     "2011-01-06",
+     "2011-01-12",
+     "2011-01-20",
+     "2011-01-25",
+     "2011-01-31",
+     "2011-02-04",
+     "2011-02-09",
+     "2011-02-15"
+    ],
+    "open": "Cushing stocks at record; WTI landlocked",
+    "news": [
+     {
+      "text": "Egypt protests erupt",
+      "major": false,
+      "day": "2011-01-25",
+      "at": 3
+     },
+     {
+      "text": "Mubarak resigns",
+      "major": false,
+      "day": "2011-02-11",
+      "at": 7
+     },
+     {
+      "text": "Unrest spreads to Libya",
+      "major": true,
+      "day": "2011-02-17",
+      "at": 7
+     }
+    ],
+    "concept": "cb-brent-wti"
+   }
+  },
+  {
+   "id": "ss-brent-wti-2013",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "Brent − WTI",
+   "formula": "Brent minus WTI",
+   "unit": "$/bbl",
+   "headline": "The Seaway pipeline reversal has expanded, and crude-by-rail is booming.",
+   "setup": [
+    "The Brent premium is near $21, close to its widest on record.",
+    "New pipes are starting to move Cushing and Permian crude to the Gulf Coast."
+   ],
+   "legs": [
+    {
+     "name": "Brent",
+     "price": 117.52,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "WTI",
+     "price": 96.66,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2013-02-19",
+    "now": 20.86,
+    "series": [
+     18.22,
+     18.21,
+     18.79,
+     18.66,
+     18.07,
+     17.08,
+     17.74,
+     17.02,
+     16.37,
+     15.12,
+     15.05,
+     16.18,
+     17.57,
+     17.33,
+     17.4,
+     17.04,
+     16.79,
+     16.96,
+     18.06,
+     18.99,
+     19.43,
+     19.88,
+     20.11,
+     21.41,
+     23.18,
+     21.1,
+     21.15,
+     21.71,
+     21.27,
+     22.72,
+     20.86
+    ]
+   },
+   "horizon": "~3 months",
+   "outcome": {
+    "date": "2013-05-10",
+    "spread": 7.87,
+    "result": "NARROW",
+    "after": [
+     21.14,
+     20.97,
+     20.08,
+     19.33,
+     19.97,
+     20.63,
+     18.9,
+     17.11,
+     16.39,
+     15.29,
+     15.02,
+     13.36,
+     13.11,
+     13.5,
+     13.08,
+     11.3,
+     11.15,
+     11.82,
+     11.64,
+     11.4,
+     11.63,
+     10.3,
+     10.16,
+     8.91,
+     8.86,
+     9.3,
+     7.72,
+     7.87
+    ]
+   },
+   "why": [
+    "As takeaway capacity opened, Cushing drained and WTI caught up with seaborne crude.",
+    "The spread narrowed to ~$8. When a bottleneck clears, the arbitrage closes."
+   ],
+   "source": "ICE Brent & NYMEX WTI front-month settlements Feb-May 2013; Seaway expansion Jan 2013. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "6-7 day candles · from real daily settlements",
+    "candles": [
+     [
+      20.86,
+      21.33,
+      19.11,
+      19.33,
+      "20 Feb–28 Feb"
+     ],
+     [
+      19.33,
+      20.79,
+      18.16,
+      18.16,
+      "1 Mar–11 Mar"
+     ],
+     [
+      18.16,
+      18.16,
+      15.02,
+      15.02,
+      "12 Mar–21 Mar"
+     ],
+     [
+      15.02,
+      15.02,
+      12.66,
+      12.66,
+      "22 Mar–3 Apr"
+     ],
+     [
+      12.66,
+      13.08,
+      10.76,
+      10.76,
+      "4 Apr–11 Apr"
+     ],
+     [
+      10.76,
+      13.68,
+      10.76,
+      11.63,
+      "12 Apr–22 Apr"
+     ],
+     [
+      11.63,
+      11.63,
+      8.91,
+      8.92,
+      "23 Apr–1 May"
+     ],
+     [
+      8.92,
+      9.3,
+      7.72,
+      7.87,
+      "2 May–10 May"
+     ]
+    ],
+    "days": [
+     "2013-02-20",
+     "2013-03-01",
+     "2013-03-12",
+     "2013-03-22",
+     "2013-04-04",
+     "2013-04-12",
+     "2013-04-23",
+     "2013-05-02"
+    ],
+    "open": "Seaway expanded; Cushing starts draining",
+    "news": [
+     {
+      "text": "Longhorn pipeline starts Permian flows",
+      "major": false,
+      "day": "2013-04-01",
+      "at": 4
+     }
+    ],
+    "concept": "cb-basis"
+   }
+  },
+  {
+   "id": "ss-brent-wti-2018",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "Brent − WTI",
+   "formula": "Brent minus WTI",
+   "unit": "$/bbl",
+   "headline": "US output nears 10.7 mb/d. Permian pipelines are running full.",
+   "setup": [
+    "The Brent premium is about $5. The US may reimpose Iran sanctions next week.",
+    "Export docks and pipes out of West Texas are bottlenecked."
+   ],
+   "legs": [
+    {
+     "name": "Brent",
+     "price": 74.87,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "WTI",
+     "price": 69.72,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2018-05-04",
+    "now": 5.15,
+    "series": [
+     4.61,
+     4.57,
+     4.57,
+     4.86,
+     5.15,
+     5.33,
+     4.63,
+     4.61,
+     4.65,
+     4.79,
+     5.05,
+     5.23,
+     5.53,
+     5.24,
+     4.95,
+     5.19,
+     5.2,
+     5.06,
+     5.01,
+     5.49,
+     5.68,
+     6.07,
+     6.16,
+     5.95,
+     6.55,
+     6.54,
+     6.6,
+     7.92,
+     5.43,
+     5.19,
+     5.15
+    ]
+   },
+   "horizon": "5 weeks",
+   "outcome": {
+    "date": "2018-06-08",
+    "spread": 10.72,
+    "result": "WIDEN",
+    "after": [
+     5.44,
+     5.79,
+     6.07,
+     6.11,
+     6.42,
+     7.27,
+     7.12,
+     7.79,
+     7.81,
+     7.23,
+     6.98,
+     7.44,
+     7.96,
+     8.08,
+     8.56,
+     8.66,
+     9.29,
+     10.55,
+     11.78,
+     10.54,
+     9.86,
+     10.63,
+     11.37,
+     10.72
+    ]
+   },
+   "why": [
+    "Shale barrels got stuck inland while Iran sanctions risk lifted the seaborne benchmark.",
+    "The Brent premium doubled to ~$11. US exports surged to arbitrage it."
+   ],
+   "source": "ICE Brent & NYMEX WTI front-month settlements May-Jun 2018; EIA weekly US production. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "3-3 day candles · from real daily settlements",
+    "candles": [
+     [
+      5.15,
+      6.07,
+      5.15,
+      6.07,
+      "7 May–9 May"
+     ],
+     [
+      6.07,
+      7.27,
+      6.07,
+      7.27,
+      "10 May–14 May"
+     ],
+     [
+      7.27,
+      7.81,
+      7.12,
+      7.81,
+      "15 May–17 May"
+     ],
+     [
+      7.81,
+      7.81,
+      6.98,
+      7.44,
+      "18 May–22 May"
+     ],
+     [
+      7.44,
+      8.56,
+      7.44,
+      8.56,
+      "23 May–25 May"
+     ],
+     [
+      8.56,
+      10.55,
+      8.56,
+      10.55,
+      "29 May–31 May"
+     ],
+     [
+      10.55,
+      11.78,
+      9.86,
+      9.86,
+      "1 Jun–5 Jun"
+     ],
+     [
+      9.86,
+      11.37,
+      9.86,
+      10.72,
+      "6 Jun–8 Jun"
+     ]
+    ],
+    "days": [
+     "2018-05-07",
+     "2018-05-10",
+     "2018-05-15",
+     "2018-05-18",
+     "2018-05-23",
+     "2018-05-29",
+     "2018-06-01",
+     "2018-06-06"
+    ],
+    "open": "Permian pipes full; US output 10.7 mb/d",
+    "news": [
+     {
+      "text": "US exits Iran deal, sanctions return",
+      "major": true,
+      "day": "2018-05-08",
+      "at": 1
+     }
+    ],
+    "concept": "cb-freight"
+   }
+  },
+  {
+   "id": "ss-brent-wti-2015",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 3,
+   "title": "Brent − WTI",
+   "formula": "Brent minus WTI",
+   "unit": "$/bbl",
+   "headline": "Congress is negotiating a budget deal that would end the 40-year US crude export ban.",
+   "setup": [
+    "The Brent premium is ~$3.60. US crude can't legally be exported, except to Canada.",
+    "Lifting the ban would let US barrels compete directly with Brent."
+   ],
+   "legs": [
+    {
+     "name": "Brent",
+     "price": 44.18,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "WTI",
+     "price": 40.54,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2015-11-19",
+    "now": 3.64,
+    "series": [
+     3.62,
+     3.02,
+     2.76,
+     2.58,
+     2.51,
+     2.33,
+     1.47,
+     2.72,
+     3.16,
+     2.65,
+     2.7,
+     3.39,
+     3.56,
+     3.61,
+     3.11,
+     2.74,
+     2.97,
+     2.65,
+     2.64,
+     2.26,
+     2.78,
+     3.13,
+     3.32,
+     3.23,
+     2.88,
+     2.31,
+     2.87,
+     1.84,
+     2.9,
+     3.39,
+     3.64
+    ]
+   },
+   "horizon": "5 weeks",
+   "outcome": {
+    "date": "2015-12-24",
+    "spread": -0.21,
+    "result": "NARROW",
+    "after": [
+     4.27,
+     3.08,
+     3.25,
+     3.13,
+     3.15,
+     2.96,
+     2.59,
+     2.55,
+     2.76,
+     3.03,
+     3.08,
+     2.75,
+     2.95,
+     2.97,
+     2.31,
+     1.61,
+     1.1,
+     1.67,
+     2.23,
+     2.15,
+     1.61,
+     -0.03,
+     -0.14,
+     -0.21
+    ]
+   },
+   "why": [
+    "The ban was lifted on 18 Dec, so WTI no longer needed a discount to clear the domestic market.",
+    "The spread fell to around zero, and WTI briefly traded above Brent."
+   ],
+   "source": "ICE Brent & NYMEX WTI front-month settlements Nov-Dec 2015; Consolidated Appropriations Act signed 18 Dec 2015. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "3-3 day candles · from real daily settlements",
+    "candles": [
+     [
+      3.64,
+      4.27,
+      3.08,
+      3.25,
+      "20 Nov–24 Nov"
+     ],
+     [
+      3.25,
+      3.25,
+      2.96,
+      2.96,
+      "25 Nov–30 Nov"
+     ],
+     [
+      2.96,
+      2.96,
+      2.55,
+      2.76,
+      "1 Dec–3 Dec"
+     ],
+     [
+      2.76,
+      3.08,
+      2.75,
+      2.75,
+      "4 Dec–8 Dec"
+     ],
+     [
+      2.75,
+      2.97,
+      2.31,
+      2.31,
+      "9 Dec–11 Dec"
+     ],
+     [
+      2.31,
+      2.31,
+      1.1,
+      1.67,
+      "14 Dec–16 Dec"
+     ],
+     [
+      1.67,
+      2.23,
+      1.61,
+      1.61,
+      "17 Dec–21 Dec"
+     ],
+     [
+      1.61,
+      1.61,
+      -0.21,
+      -0.21,
+      "22 Dec–24 Dec"
+     ]
+    ],
+    "days": [
+     "2015-11-20",
+     "2015-11-25",
+     "2015-12-01",
+     "2015-12-04",
+     "2015-12-09",
+     "2015-12-14",
+     "2015-12-17",
+     "2015-12-22"
+    ],
+    "open": "Congress weighs ending US export ban",
+    "news": [
+     {
+      "text": "OPEC drops its output ceiling",
+      "major": false,
+      "day": "2015-12-04",
+      "at": 3
+     },
+     {
+      "text": "US crude export ban lifted",
+      "major": true,
+      "day": "2015-12-18",
+      "at": 7
+     }
+    ],
+    "concept": "cb-netback"
+   }
+  },
+  {
+   "id": "ss-diesel-crack-2022",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 1,
+   "title": "Diesel crack",
+   "formula": "NY Harbor ULSD minus Brent",
+   "unit": "$/bbl",
+   "headline": "Russian troops are on Ukraine's border. Russia supplies roughly half of Europe's diesel imports.",
+   "setup": [
+    "The diesel crack (ULSD minus Brent) is ~$22/bbl, about normal.",
+    "Distillate inventories in the US and Europe are already below average."
+   ],
+   "legs": [
+    {
+     "name": "ULSD",
+     "price": 2.8292,
+     "unit": "$/gal"
+    },
+    {
+     "name": "Brent",
+     "price": 96.84,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2022-02-23",
+    "now": 21.99,
+    "series": [
+     23.61,
+     23.95,
+     24.29,
+     25.09,
+     24.58,
+     24.8,
+     24.64,
+     23.84,
+     25.14,
+     24.08,
+     23.9,
+     25.29,
+     28.03,
+     26.96,
+     24.68,
+     25.97,
+     26.82,
+     28.15,
+     27.48,
+     27.24,
+     26.51,
+     27.1,
+     27.33,
+     27.82,
+     27.92,
+     26.82,
+     25.2,
+     24.05,
+     23.28,
+     21.55,
+     21.99
+    ]
+   },
+   "horizon": "1 month",
+   "outcome": {
+    "date": "2022-03-23",
+    "spread": 51.22,
+    "result": "WIDEN",
+    "after": [
+     22.59,
+     21.75,
+     25.57,
+     27.38,
+     33.85,
+     36.68,
+     40.49,
+     41.49,
+     58.39,
+     34.36,
+     29.11,
+     30.87,
+     30.7,
+     27.34,
+     32.18,
+     39.83,
+     43.19,
+     44.02,
+     46.82,
+     51.22
+    ]
+   },
+   "why": [
+    "Buyers shunned Russian diesel after the invasion, and diesel is harder to replace than crude.",
+    "The crack more than doubled to ~$51/bbl in a month."
+   ],
+   "source": "NYMEX HO & ICE Brent front-month settlements Feb-Mar 2022. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "2-3 day candles · from real daily settlements",
+    "candles": [
+     [
+      21.99,
+      22.59,
+      21.75,
+      21.75,
+      "24 Feb–25 Feb"
+     ],
+     [
+      21.75,
+      33.85,
+      21.75,
+      33.85,
+      "28 Feb–2 Mar"
+     ],
+     [
+      33.85,
+      41.49,
+      33.85,
+      41.49,
+      "3 Mar–7 Mar"
+     ],
+     [
+      41.49,
+      58.39,
+      34.36,
+      34.36,
+      "8 Mar–9 Mar"
+     ],
+     [
+      34.36,
+      34.36,
+      29.11,
+      30.87,
+      "10 Mar–11 Mar"
+     ],
+     [
+      30.87,
+      32.18,
+      27.34,
+      32.18,
+      "14 Mar–16 Mar"
+     ],
+     [
+      32.18,
+      44.02,
+      32.18,
+      44.02,
+      "17 Mar–21 Mar"
+     ],
+     [
+      44.02,
+      51.22,
+      44.02,
+      51.22,
+      "22 Mar–23 Mar"
+     ]
+    ],
+    "days": [
+     "2022-02-24",
+     "2022-02-28",
+     "2022-03-03",
+     "2022-03-08",
+     "2022-03-10",
+     "2022-03-14",
+     "2022-03-17",
+     "2022-03-22"
+    ],
+    "open": "Russia: ~half of EU diesel imports",
+    "news": [
+     {
+      "text": "Russia invades Ukraine",
+      "major": true,
+      "day": "2022-02-24",
+      "at": 0
+     },
+     {
+      "text": "US bans imports of Russian oil",
+      "major": true,
+      "day": "2022-03-08",
+      "at": 3
+     }
+    ],
+    "concept": "cb-crack-spread"
+   }
+  },
+  {
+   "id": "ss-gas-crack-harvey-2017",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 1,
+   "title": "Gasoline crack",
+   "formula": "RBOB minus Brent",
+   "unit": "$/bbl",
+   "headline": "Hurricane Harvey makes landfall tonight near Corpus Christi.",
+   "setup": [
+    "The gasoline crack (RBOB minus Brent) is ~$17.60/bbl.",
+    "The Texas Gulf Coast holds about a quarter of US refining capacity."
+   ],
+   "legs": [
+    {
+     "name": "RBOB",
+     "price": 1.6666,
+     "unit": "$/gal"
+    },
+    {
+     "name": "Brent",
+     "price": 52.41,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2017-08-25",
+    "now": 17.59,
+    "series": [
+     16.63,
+     16.96,
+     17.47,
+     18.21,
+     18.16,
+     17.6,
+     16.79,
+     16.84,
+     16.96,
+     17.58,
+     17.88,
+     18.99,
+     17.14,
+     16.72,
+     16.53,
+     16.72,
+     16.09,
+     15.93,
+     15.34,
+     15.42,
+     15.65,
+     15.49,
+     15.54,
+     15.41,
+     15.62,
+     15.49,
+     14.87,
+     14.94,
+     15.42,
+     17.85,
+     17.59
+    ]
+   },
+   "horizon": "4 trading days",
+   "outcome": {
+    "date": "2017-08-31",
+    "spread": 37.5,
+    "result": "WIDEN",
+    "after": [
+     20.03,
+     22.9,
+     28.3,
+     37.5
+    ]
+   },
+   "why": [
+    "Refineries shut while crude kept flowing, so product prices spiked relative to crude.",
+    "The crack hit ~$37.50/bbl into September RBOB's expiry."
+   ],
+   "source": "NYMEX RB & ICE Brent front-month settlements 25-31 Aug 2017. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry."
+  },
+  {
+   "id": "ss-gas-crack-winter-2023",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "Gasoline crack",
+   "formula": "RBOB minus Brent",
+   "unit": "$/bbl",
+   "headline": "Labor Day is next week. Summer driving season is ending.",
+   "setup": [
+    "The gasoline crack is ~$32/bbl. Front-month RBOB rolls to winter-grade specs from October.",
+    "Brent is rallying on Saudi and Russian supply cuts."
+   ],
+   "legs": [
+    {
+     "name": "RBOB",
+     "price": 2.8092,
+     "unit": "$/gal"
+    },
+    {
+     "name": "Brent",
+     "price": 85.86,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2023-08-30",
+    "now": 32.13,
+    "series": [
+     34.8,
+     35.57,
+     36.61,
+     38.85,
+     36.2,
+     39.18,
+     39.68,
+     39.15,
+     37.46,
+     35.76,
+     33.38,
+     30.98,
+     30.65,
+     32.44,
+     33.32,
+     35.44,
+     35.6,
+     37.72,
+     35.85,
+     34.71,
+     36.97,
+     34.39,
+     33.77,
+     31.99,
+     33.11,
+     33.08,
+     33.4,
+     36.33,
+     33.0,
+     31.71,
+     32.13
+    ]
+   },
+   "horizon": "1 month",
+   "outcome": {
+    "date": "2023-09-29",
+    "spread": 7.17,
+    "result": "NARROW",
+    "after": [
+     29.33,
+     20.28,
+     18.36,
+     18.66,
+     20.25,
+     20.81,
+     23.55,
+     22.51,
+     23.13,
+     21.49,
+     19.81,
+     18.88,
+     17.3,
+     16.48,
+     16.74,
+     14.33,
+     13.55,
+     13.65,
+     12.59,
+     9.84,
+     7.17
+    ]
+   },
+   "why": [
+    "Winter-grade gasoline is cheaper to make (more butane), demand fades, and crude was rising.",
+    "The crack fell to ~$7/bbl. Gasoline cracks are seasonal; mind the RVP switch."
+   ],
+   "source": "NYMEX RB & ICE Brent front-month settlements Aug-Sep 2023. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "2-3 day candles · from real daily settlements",
+    "candles": [
+     [
+      32.13,
+      32.13,
+      18.36,
+      18.36,
+      "31 Aug–5 Sep"
+     ],
+     [
+      18.36,
+      20.25,
+      18.36,
+      20.25,
+      "6 Sep–7 Sep"
+     ],
+     [
+      20.25,
+      23.55,
+      20.25,
+      22.51,
+      "8 Sep–12 Sep"
+     ],
+     [
+      22.51,
+      23.13,
+      21.49,
+      21.49,
+      "13 Sep–14 Sep"
+     ],
+     [
+      21.49,
+      21.49,
+      17.3,
+      17.3,
+      "15 Sep–19 Sep"
+     ],
+     [
+      17.3,
+      17.3,
+      14.33,
+      14.33,
+      "20 Sep–22 Sep"
+     ],
+     [
+      14.33,
+      14.33,
+      13.55,
+      13.65,
+      "25 Sep–26 Sep"
+     ],
+     [
+      13.65,
+      13.65,
+      7.17,
+      7.17,
+      "27 Sep–29 Sep"
+     ]
+    ],
+    "days": [
+     "2023-08-31",
+     "2023-09-06",
+     "2023-09-08",
+     "2023-09-13",
+     "2023-09-15",
+     "2023-09-20",
+     "2023-09-25",
+     "2023-09-27"
+    ],
+    "open": "Summer driving season ends",
+    "news": [
+     {
+      "text": "Front RBOB rolls to winter grade",
+      "major": false,
+      "day": "2023-09-01",
+      "at": 1
+     },
+     {
+      "text": "Saudi, Russia extend cuts to year-end",
+      "major": true,
+      "day": "2023-09-05",
+      "at": 1
+     }
+    ],
+    "concept": "cb-rvp"
+   }
+  },
+  {
+   "id": "ss-diesel-crack-winter-2023",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "Diesel crack",
+   "formula": "NY Harbor ULSD minus Brent",
+   "unit": "$/bbl",
+   "headline": "Europe's winter is mild so far. The EU ban on Russian diesel starts 5 Feb.",
+   "setup": [
+    "The diesel crack is ~$58/bbl, still far above its ~$20-25 norm.",
+    "Europe stocked up on Russian cargoes before the ban, and China is exporting more diesel."
+   ],
+   "legs": [
+    {
+     "name": "ULSD",
+     "price": 3.4272,
+     "unit": "$/gal"
+    },
+    {
+     "name": "Brent",
+     "price": 86.13,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2023-01-24",
+    "now": 57.81,
+    "series": [
+     44.8,
+     41.24,
+     46.69,
+     49.19,
+     54.93,
+     56.69,
+     52.0,
+     48.45,
+     48.48,
+     49.66,
+     50.54,
+     53.26,
+     56.53,
+     58.61,
+     56.89,
+     55.3,
+     47.53,
+     46.98,
+     46.15,
+     47.62,
+     47.86,
+     51.6,
+     52.48,
+     51.17,
+     51.47,
+     50.62,
+     52.07,
+     55.63,
+     57.98,
+     60.95,
+     57.81
+    ]
+   },
+   "horizon": "3 weeks",
+   "outcome": {
+    "date": "2023-02-15",
+    "spread": 34.08,
+    "result": "NARROW",
+    "after": [
+     55.05,
+     55.18,
+     50.49,
+     45.75,
+     49.17,
+     41.11,
+     39.49,
+     36.62,
+     35.3,
+     38.29,
+     36.43,
+     33.75,
+     33.92,
+     35.43,
+     37.9,
+     34.08
+    ]
+   },
+   "why": [
+    "Warm weather and full tanks meant the ban hit an already-supplied market. Cargoes just rerouted.",
+    "The crack fell about $24 to ~$34/bbl."
+   ],
+   "source": "NYMEX HO & ICE Brent front-month settlements Jan-Feb 2023; EU product embargo effective 5 Feb 2023. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "2-2 day candles · from real daily settlements",
+    "candles": [
+     [
+      57.81,
+      57.81,
+      55.05,
+      55.18,
+      "25 Jan–26 Jan"
+     ],
+     [
+      55.18,
+      55.18,
+      45.75,
+      45.75,
+      "27 Jan–30 Jan"
+     ],
+     [
+      45.75,
+      49.17,
+      41.11,
+      41.11,
+      "31 Jan–1 Feb"
+     ],
+     [
+      41.11,
+      41.11,
+      36.62,
+      36.62,
+      "2 Feb–3 Feb"
+     ],
+     [
+      36.62,
+      38.29,
+      35.3,
+      38.29,
+      "6 Feb–7 Feb"
+     ],
+     [
+      38.29,
+      38.29,
+      33.75,
+      33.75,
+      "8 Feb–9 Feb"
+     ],
+     [
+      33.75,
+      35.43,
+      33.75,
+      35.43,
+      "10 Feb–13 Feb"
+     ],
+     [
+      35.43,
+      37.9,
+      34.08,
+      34.08,
+      "14 Feb–15 Feb"
+     ]
+    ],
+    "days": [
+     "2023-01-25",
+     "2023-01-27",
+     "2023-01-31",
+     "2023-02-02",
+     "2023-02-06",
+     "2023-02-08",
+     "2023-02-10",
+     "2023-02-14"
+    ],
+    "open": "Mild winter; EU Russian diesel ban Feb 5",
+    "news": [
+     {
+      "text": "EU ban on Russian diesel takes effect",
+      "major": true,
+      "day": "2023-02-06",
+      "at": 4
+     }
+    ],
+    "concept": "cb-diesel-vs-gasoline"
+   }
+  },
+  {
+   "id": "ss-321-covid-2020",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 1,
+   "title": "3-2-1 crack",
+   "formula": "(2×RBOB + 1×ULSD − 3×WTI) / 3",
+   "unit": "$/bbl",
+   "headline": "COVID is spreading in Europe and the US. Travel restrictions are starting.",
+   "setup": [
+    "The 3-2-1 crack, a rough refinery margin, is ~$18/bbl.",
+    "Gasoline and jet fuel demand drops faster than refiners can cut runs."
+   ],
+   "legs": [
+    {
+     "name": "RBOB",
+     "price": 1.5555,
+     "unit": "$/gal"
+    },
+    {
+     "name": "WTI",
+     "price": 46.78,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2020-03-04",
+    "now": 18.24,
+    "series": [
+     13.09,
+     12.69,
+     13.18,
+     12.51,
+     11.92,
+     12.63,
+     13.38,
+     12.64,
+     12.87,
+     13.24,
+     12.97,
+     13.9,
+     14.31,
+     15.36,
+     15.6,
+     15.23,
+     16.56,
+     16.35,
+     16.06,
+     16.58,
+     17.18,
+     16.74,
+     16.45,
+     16.21,
+     14.97,
+     13.0,
+     13.26,
+     15.18,
+     17.76,
+     17.16,
+     18.24
+    ]
+   },
+   "horizon": "3 weeks",
+   "outcome": {
+    "date": "2020-03-25",
+    "spread": 6.19,
+    "result": "NARROW",
+    "after": [
+     17.55,
+     17.0,
+     16.98,
+     15.54,
+     15.44,
+     9.87,
+     9.37,
+     5.27,
+     7.47,
+     10.84,
+     8.54,
+     8.61,
+     2.4,
+     3.54,
+     6.19
+    ]
+   },
+   "why": [
+    "Lockdowns crushed product demand while refineries kept running, so margins collapsed.",
+    "The 3-2-1 fell to ~$6/bbl, and refiners soon cut runs to ~70%."
+   ],
+   "source": "NYMEX RB, HO, CL front-month settlements Mar 2020. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "1-2 day candles · from real daily settlements",
+    "candles": [
+     [
+      18.24,
+      18.24,
+      17.0,
+      17.0,
+      "5 Mar–6 Mar"
+     ],
+     [
+      17.0,
+      17.0,
+      15.54,
+      15.54,
+      "9 Mar–10 Mar"
+     ],
+     [
+      15.54,
+      15.54,
+      9.87,
+      9.87,
+      "11 Mar–12 Mar"
+     ],
+     [
+      9.87,
+      9.87,
+      5.27,
+      5.27,
+      "13 Mar–16 Mar"
+     ],
+     [
+      5.27,
+      7.47,
+      5.27,
+      7.47,
+      "17 Mar"
+     ],
+     [
+      7.47,
+      10.84,
+      7.47,
+      8.54,
+      "18 Mar–19 Mar"
+     ],
+     [
+      8.54,
+      8.61,
+      2.4,
+      2.4,
+      "20 Mar–23 Mar"
+     ],
+     [
+      2.4,
+      6.19,
+      2.4,
+      6.19,
+      "24 Mar–25 Mar"
+     ]
+    ],
+    "days": [
+     "2020-03-05",
+     "2020-03-09",
+     "2020-03-11",
+     "2020-03-13",
+     "2020-03-17",
+     "2020-03-18",
+     "2020-03-20",
+     "2020-03-24"
+    ],
+    "open": "COVID spreading in US and Europe",
+    "news": [
+     {
+      "text": "Saudi-Russia price war begins",
+      "major": true,
+      "day": "2020-03-09",
+      "at": 1
+     },
+     {
+      "text": "WHO declares a pandemic",
+      "major": true,
+      "day": "2020-03-11",
+      "at": 2
+     },
+     {
+      "text": "California orders stay at home",
+      "major": false,
+      "day": "2020-03-19",
+      "at": 6
+     }
+    ],
+    "concept": "cb-321"
+   }
+  },
+  {
+   "id": "ss-diesel-vs-gas-2022",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 3,
+   "title": "Diesel vs gasoline",
+   "formula": "ULSD minus RBOB",
+   "unit": "$/bbl",
+   "headline": "US distillate stocks are 20%+ below normal heading into autumn.",
+   "setup": [
+    "ULSD trades ~$12/bbl over RBOB. Summer gasoline demand is fading.",
+    "Europe is preparing for a winter without Russian gas and diesel."
+   ],
+   "legs": [
+    {
+     "name": "ULSD",
+     "price": 3.1791,
+     "unit": "$/gal"
+    },
+    {
+     "name": "RBOB",
+     "price": 2.8862,
+     "unit": "$/gal"
+    }
+   ],
+   "spread": {
+    "date": "2022-08-08",
+    "now": 12.3,
+    "series": [
+     20.08,
+     16.51,
+     11.1,
+     8.81,
+     10.43,
+     10.55,
+     11.45,
+     7.31,
+     10.65,
+     9.48,
+     12.85,
+     16.72,
+     18.15,
+     19.43,
+     20.4,
+     16.43,
+     13.41,
+     13.81,
+     18.51,
+     9.78,
+     5.65,
+     9.61,
+     12.12,
+     9.31,
+     5.74,
+     18.56,
+     13.6,
+     21.11,
+     22.84,
+     15.13,
+     12.3
+    ]
+   },
+   "horizon": "3 weeks",
+   "outcome": {
+    "date": "2022-08-30",
+    "spread": 47.15,
+    "result": "WIDEN",
+    "after": [
+     15.69,
+     14.28,
+     17.33,
+     19.82,
+     20.52,
+     24.34,
+     28.68,
+     26.19,
+     28.69,
+     37.17,
+     38.17,
+     50.93,
+     47.75,
+     48.56,
+     43.36,
+     47.15
+    ]
+   },
+   "why": [
+    "Diesel was the tightest product globally (heating, trucking, gas-to-oil switching), while gasoline was well supplied.",
+    "ULSD's premium over RBOB jumped to ~$47/bbl."
+   ],
+   "source": "NYMEX HO & RB front-month settlements Aug 2022; EIA weekly distillate stocks. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "2-2 day candles · from real daily settlements",
+    "candles": [
+     [
+      12.3,
+      15.69,
+      12.3,
+      14.28,
+      "9 Aug–10 Aug"
+     ],
+     [
+      14.28,
+      19.82,
+      14.28,
+      19.82,
+      "11 Aug–12 Aug"
+     ],
+     [
+      19.82,
+      24.34,
+      19.82,
+      24.34,
+      "15 Aug–16 Aug"
+     ],
+     [
+      24.34,
+      28.68,
+      24.34,
+      26.19,
+      "17 Aug–18 Aug"
+     ],
+     [
+      26.19,
+      37.17,
+      26.19,
+      37.17,
+      "19 Aug–22 Aug"
+     ],
+     [
+      37.17,
+      50.92,
+      37.17,
+      50.92,
+      "23 Aug–24 Aug"
+     ],
+     [
+      50.92,
+      50.92,
+      47.75,
+      48.56,
+      "25 Aug–26 Aug"
+     ],
+     [
+      48.56,
+      48.56,
+      43.36,
+      47.15,
+      "29 Aug–30 Aug"
+     ]
+    ],
+    "days": [
+     "2022-08-09",
+     "2022-08-11",
+     "2022-08-15",
+     "2022-08-17",
+     "2022-08-19",
+     "2022-08-23",
+     "2022-08-25",
+     "2022-08-29"
+    ],
+    "open": "US distillate stocks 20% below normal",
+    "news": [
+     {
+      "text": "Powell: rates to stay high for a while",
+      "major": false,
+      "day": "2022-08-26",
+      "at": 7
+     }
+    ],
+    "concept": "cb-diesel-vs-gasoline"
+   }
+  },
+  {
+   "id": "ss-diesel-crack-summer-2023",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "Diesel crack",
+   "formula": "NY Harbor ULSD minus Brent",
+   "unit": "$/bbl",
+   "headline": "Heat waves are cutting refinery runs. OPEC+ cuts are removing medium-sour crude.",
+   "setup": [
+    "The diesel crack is ~$29/bbl. Distillate stocks are well below average.",
+    "Medium-sour grades yield more diesel than light shale crude."
+   ],
+   "legs": [
+    {
+     "name": "ULSD",
+     "price": 2.5591,
+     "unit": "$/gal"
+    },
+    {
+     "name": "Brent",
+     "price": 78.47,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2023-07-07",
+    "now": 29.01,
+    "series": [
+     22.35,
+     23.02,
+     22.28,
+     22.56,
+     22.25,
+     22.24,
+     22.94,
+     22.86,
+     23.15,
+     23.16,
+     23.93,
+     24.41,
+     24.37,
+     25.14,
+     26.32,
+     25.82,
+     28.47,
+     30.55,
+     28.07,
+     30.58,
+     29.41,
+     27.25,
+     28.25,
+     28.5,
+     27.05,
+     27.12,
+     27.92,
+     25.2,
+     28.07,
+     27.61,
+     29.01
+    ]
+   },
+   "horizon": "7 weeks",
+   "outcome": {
+    "date": "2023-08-25",
+    "spread": 54.43,
+    "result": "WIDEN",
+    "after": [
+     29.54,
+     29.12,
+     29.07,
+     28.28,
+     29.24,
+     29.2,
+     29.54,
+     31.5,
+     32.26,
+     34.25,
+     33.62,
+     33.02,
+     36.48,
+     38.27,
+     39.27,
+     40.06,
+     42.07,
+     42.98,
+     44.01,
+     42.37,
+     41.31,
+     43.43,
+     47.14,
+     46.04,
+     44.29,
+     43.5,
+     42.29,
+     43.43,
+     45.82,
+     47.91,
+     46.42,
+     47.8,
+     48.21,
+     49.21,
+     54.43
+    ]
+   },
+   "why": [
+    "Fewer diesel-rich barrels plus refinery outages tightened distillates going into autumn.",
+    "The crack widened to ~$54/bbl."
+   ],
+   "source": "NYMEX HO & ICE Brent front-month settlements Jul-Aug 2023. Computed from front-month settlements (Yahoo Finance continuous series); legs can sit in different delivery months around expiry.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "4-5 day candles · from real daily settlements",
+    "candles": [
+     [
+      29.01,
+      29.54,
+      28.28,
+      28.28,
+      "10 Jul–13 Jul"
+     ],
+     [
+      28.28,
+      32.26,
+      28.28,
+      32.26,
+      "14 Jul–20 Jul"
+     ],
+     [
+      32.26,
+      36.48,
+      32.26,
+      36.48,
+      "21 Jul–26 Jul"
+     ],
+     [
+      36.48,
+      42.98,
+      36.48,
+      42.98,
+      "27 Jul–2 Aug"
+     ],
+     [
+      42.98,
+      44.01,
+      41.31,
+      43.43,
+      "3 Aug–8 Aug"
+     ],
+     [
+      43.43,
+      47.14,
+      43.43,
+      43.5,
+      "9 Aug–14 Aug"
+     ],
+     [
+      43.5,
+      47.91,
+      42.29,
+      46.42,
+      "15 Aug–21 Aug"
+     ],
+     [
+      46.42,
+      54.43,
+      46.42,
+      54.43,
+      "22 Aug–25 Aug"
+     ]
+    ],
+    "days": [
+     "2023-07-10",
+     "2023-07-14",
+     "2023-07-21",
+     "2023-07-27",
+     "2023-08-03",
+     "2023-08-09",
+     "2023-08-15",
+     "2023-08-22"
+    ],
+    "open": "Heat waves cut refinery runs",
+    "news": [
+     {
+      "text": "Saudi extends 1 mb/d cut into Sept",
+      "major": false,
+      "day": "2023-08-03",
+      "at": 4
+     }
+    ],
+    "concept": "cb-sweet-sour"
+   }
+  },
+  {
+   "id": "ss-midland-cushing-2018",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "Midland discount",
+   "formula": "Cushing WTI minus WTI Midland",
+   "unit": "$/bbl",
+   "basis": true,
+   "headline": "Permian output is outrunning pipeline space to Cushing and the Gulf.",
+   "setup": [
+    "Midland crude trades about $10 under Cushing.",
+    "New pipelines (Cactus II, Gray Oak) are a year away."
+   ],
+   "legs": [
+    {
+     "name": "WTI Cushing",
+     "price": 65.81,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "WTI Midland",
+     "price": 55.42,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2018-06-01",
+    "now": 10.39,
+    "series": [
+     4.34,
+     4.95,
+     4.92,
+     5.78,
+     5.99,
+     6.17,
+     6.61,
+     7.01,
+     7.72,
+     7.61,
+     7.65,
+     7.91,
+     8.03,
+     8.38,
+     8.11,
+     8.37,
+     8.73,
+     8.31,
+     8.86,
+     8.49,
+     8.95,
+     8.64,
+     9.33,
+     9.09,
+     9.43,
+     9.52,
+     9.18,
+     9.53,
+     9.55,
+     9.92,
+     10.39
+    ]
+   },
+   "horizon": "63 trading days",
+   "outcome": {
+    "date": "2018-08-30",
+    "spread": 15.91,
+    "result": "WIDEN",
+    "after": [
+     10.13,
+     10.15,
+     10.39,
+     10.54,
+     10.82,
+     11.16,
+     10.94,
+     11.31,
+     11.44,
+     11.75,
+     11.15,
+     11.86,
+     12.01,
+     12.25,
+     12.29,
+     12.12,
+     12.79,
+     12.71,
+     13.13,
+     13.01,
+     12.89,
+     12.45,
+     13.03,
+     12.71,
+     12.77,
+     13.09,
+     12.87,
+     12.71,
+     12.68,
+     12.85,
+     12.54,
+     12.3,
+     12.69,
+     12.65,
+     12.35,
+     12.61,
+     11.93,
+     12.06,
+     11.9,
+     11.73,
+     11.86,
+     12.04,
+     12.15,
+     12.16,
+     12.35,
+     12.8,
+     13.3,
+     13.11,
+     13.26,
+     13.38,
+     13.13,
+     14.25,
+     13.99,
+     14.38,
+     14.67,
+     14.85,
+     15.13,
+     14.79,
+     15.29,
+     15.4,
+     15.84,
+     15.66,
+     15.91
+    ]
+   },
+   "why": [
+    "With pipes full, Midland barrels could only clear at a discount big enough to pay for trucks and rail.",
+    "The discount widened toward the mid-teens by late August before new capacity arrived in 2019."
+   ],
+   "source": "Modeled path through approximate Midland-Cushing levels reported in Reuters/Argus coverage, Apr-Aug 2018 ($3 to ~$16/bbl). WTI legs: NYMEX settlements (real).",
+   "session": {
+    "bars": "multi-day",
+    "simulated": true,
+    "label": "Basis path modeled from reported levels · WTI real",
+    "candles": [
+     [
+      10.39,
+      11.31,
+      10.13,
+      11.31,
+      "4 Jun–13 Jun"
+     ],
+     [
+      11.31,
+      12.29,
+      11.15,
+      12.12,
+      "14 Jun–25 Jun"
+     ],
+     [
+      12.12,
+      13.13,
+      12.12,
+      12.71,
+      "26 Jun–6 Jul"
+     ],
+     [
+      12.71,
+      13.09,
+      12.3,
+      12.3,
+      "9 Jul–18 Jul"
+     ],
+     [
+      12.3,
+      12.69,
+      11.9,
+      11.9,
+      "19 Jul–27 Jul"
+     ],
+     [
+      11.9,
+      13.3,
+      11.73,
+      13.3,
+      "30 Jul–8 Aug"
+     ],
+     [
+      13.3,
+      14.67,
+      13.11,
+      14.67,
+      "9 Aug–20 Aug"
+     ],
+     [
+      14.67,
+      15.91,
+      14.67,
+      15.91,
+      "21 Aug–30 Aug"
+     ]
+    ],
+    "days": [
+     "2018-06-04",
+     "2018-06-14",
+     "2018-06-26",
+     "2018-07-09",
+     "2018-07-19",
+     "2018-07-30",
+     "2018-08-09",
+     "2018-08-21"
+    ],
+    "open": "Permian pipes full; Midland barrels stranded",
+    "news": [
+     {
+      "at": 0,
+      "text": "Plains: Permian takeaway full into 2019",
+      "major": false,
+      "day": "2018-06-13"
+     },
+     {
+      "at": 6,
+      "text": "Midland discount hits widest in years",
+      "major": true,
+      "day": "2018-08-20"
+     }
+    ],
+    "concept": "cb-basis"
+   }
+  },
+  {
+   "id": "ss-meh-cushing-2019",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 3,
+   "title": "Houston (MEH) premium",
+   "formula": "MEH WTI minus Cushing WTI",
+   "unit": "$/bbl",
+   "basis": true,
+   "headline": "Cactus II and EPIC start moving Permian crude straight to Corpus Christi.",
+   "setup": [
+    "Houston crude trades about $2.60 over Cushing.",
+    "More barrels reaching the coast means more competition for dock space."
+   ],
+   "legs": [
+    {
+     "name": "WTI Cushing",
+     "price": 53.95,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "WTI Houston (MEH)",
+     "price": 51.27,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2019-08-01",
+    "now": 2.68,
+    "series": [
+     3.02,
+     3.67,
+     3.31,
+     3.31,
+     3.43,
+     3.5,
+     2.75,
+     2.59,
+     3.15,
+     2.85,
+     2.71,
+     2.75,
+     2.94,
+     3.36,
+     2.94,
+     3.11,
+     3.2,
+     3.06,
+     2.56,
+     2.75,
+     2.66,
+     3.09,
+     2.99,
+     2.52,
+     2.68,
+     2.95,
+     2.48,
+     3.48,
+     3.12,
+     2.37,
+     2.68
+    ]
+   },
+   "horizon": "65 trading days",
+   "outcome": {
+    "date": "2019-11-01",
+    "spread": 1.24,
+    "result": "NARROW",
+    "after": [
+     2.43,
+     3.01,
+     2.36,
+     2.78,
+     2.46,
+     2.82,
+     2.14,
+     1.81,
+     2.27,
+     2.35,
+     2.18,
+     1.85,
+     2.2,
+     2.08,
+     1.82,
+     2.0,
+     1.67,
+     1.92,
+     1.92,
+     1.96,
+     2.05,
+     2.24,
+     1.89,
+     2.03,
+     1.57,
+     1.38,
+     1.4,
+     1.81,
+     1.4,
+     1.65,
+     2.27,
+     0.95,
+     1.8,
+     1.64,
+     1.56,
+     1.41,
+     1.57,
+     1.49,
+     1.44,
+     1.85,
+     1.05,
+     1.86,
+     1.02,
+     1.02,
+     1.44,
+     1.37,
+     1.22,
+     1.41,
+     1.42,
+     1.35,
+     1.21,
+     1.22,
+     1.03,
+     1.16,
+     1.3,
+     1.64,
+     1.2,
+     0.96,
+     1.38,
+     1.61,
+     1.32,
+     1.24,
+     1.42,
+     1.61,
+     1.24
+    ]
+   },
+   "why": [
+    "New pipes flooded the Gulf Coast with Permian barrels, so coastal crude lost its scarcity premium.",
+    "The MEH premium narrowed toward ~$1, roughly the cost of moving crude from Cushing to the coast."
+   ],
+   "source": "Modeled path through approximate MEH-Cushing premiums reported in 2019 (Argus/Reuters; ~$3 narrowing to ~$1/bbl). WTI legs: NYMEX settlements (real).",
+   "session": {
+    "bars": "multi-day",
+    "simulated": true,
+    "label": "Basis path modeled from reported levels · WTI real",
+    "candles": [
+     [
+      2.68,
+      3.01,
+      1.81,
+      1.81,
+      "2 Aug–13 Aug"
+     ],
+     [
+      1.81,
+      2.35,
+      1.81,
+      2.0,
+      "14 Aug–23 Aug"
+     ],
+     [
+      2.0,
+      2.24,
+      1.67,
+      2.03,
+      "26 Aug–5 Sep"
+     ],
+     [
+      2.03,
+      2.27,
+      0.95,
+      0.95,
+      "6 Sep–17 Sep"
+     ],
+     [
+      0.95,
+      1.85,
+      0.95,
+      1.05,
+      "18 Sep–30 Sep"
+     ],
+     [
+      1.05,
+      1.86,
+      1.02,
+      1.42,
+      "1 Oct–10 Oct"
+     ],
+     [
+      1.42,
+      1.64,
+      1.03,
+      1.2,
+      "11 Oct–22 Oct"
+     ],
+     [
+      1.2,
+      1.61,
+      0.96,
+      1.24,
+      "23 Oct–1 Nov"
+     ]
+    ],
+    "days": [
+     "2019-08-02",
+     "2019-08-14",
+     "2019-08-26",
+     "2019-09-06",
+     "2019-09-18",
+     "2019-10-01",
+     "2019-10-11",
+     "2019-10-23"
+    ],
+    "open": "New Permian pipes about to reach the Gulf",
+    "news": [
+     {
+      "at": 0,
+      "text": "Cactus II starts flows to Corpus Christi",
+      "major": true,
+      "day": "2019-08-12"
+     },
+     {
+      "at": 3,
+      "text": "Abqaiq attack: Gulf export bids jump",
+      "major": false,
+      "day": "2019-09-16"
+     }
+    ],
+    "concept": "cb-freight"
+   }
+  },
+  {
+   "id": "ss-lls-wti-2013",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 2,
+   "title": "LLS premium",
+   "formula": "Light Louisiana Sweet minus Cushing WTI",
+   "unit": "$/bbl",
+   "basis": true,
+   "headline": "Seaway is expanded and Longhorn is about to carry Permian crude to Houston.",
+   "setup": [
+    "LLS trades about $18 over Cushing WTI.",
+    "Inland crude has been trapped since 2011."
+   ],
+   "legs": [
+    {
+     "name": "WTI Cushing",
+     "price": 90.68,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "LLS (St. James)",
+     "price": 72.88,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2013-03-01",
+    "now": 17.8,
+    "series": [
+     21.06,
+     21.45,
+     21.05,
+     20.95,
+     20.87,
+     20.51,
+     20.82,
+     19.6,
+     19.94,
+     20.08,
+     19.62,
+     19.94,
+     20.08,
+     19.75,
+     19.51,
+     19.38,
+     19.43,
+     19.09,
+     19.03,
+     18.98,
+     18.74,
+     18.97,
+     18.75,
+     18.75,
+     18.91,
+     18.29,
+     18.53,
+     18.15,
+     18.12,
+     18.13,
+     17.8
+    ]
+   },
+   "horizon": "93 trading days",
+   "outcome": {
+    "date": "2013-07-15",
+    "spread": 2.17,
+    "result": "NARROW",
+    "after": [
+     17.6,
+     17.38,
+     17.22,
+     17.09,
+     17.29,
+     16.4,
+     16.98,
+     16.05,
+     16.02,
+     16.26,
+     15.89,
+     15.63,
+     15.66,
+     15.0,
+     15.11,
+     14.84,
+     14.92,
+     14.56,
+     13.8,
+     13.87,
+     13.8,
+     13.89,
+     13.12,
+     13.01,
+     13.48,
+     12.87,
+     12.6,
+     12.33,
+     12.63,
+     12.16,
+     11.95,
+     11.53,
+     11.66,
+     11.6,
+     11.6,
+     11.29,
+     10.83,
+     10.93,
+     10.64,
+     10.1,
+     10.85,
+     10.55,
+     10.59,
+     9.71,
+     10.09,
+     9.6,
+     9.23,
+     9.18,
+     9.18,
+     8.98,
+     9.03,
+     9.04,
+     8.4,
+     8.36,
+     7.82,
+     8.55,
+     8.06,
+     7.62,
+     7.78,
+     7.46,
+     7.61,
+     7.17,
+     6.99,
+     6.87,
+     6.84,
+     6.9,
+     5.98,
+     6.63,
+     6.24,
+     6.18,
+     6.23,
+     5.71,
+     5.59,
+     5.57,
+     5.17,
+     5.26,
+     5.32,
+     4.96,
+     4.63,
+     4.6,
+     4.46,
+     4.08,
+     4.16,
+     3.66,
+     3.92,
+     3.51,
+     3.4,
+     3.26,
+     3.07,
+     2.66,
+     2.49,
+     2.53,
+     2.17
+    ]
+   },
+   "why": [
+    "As pipelines reached the Gulf, inland barrels competed with LLS and the trapped-crude premium vanished.",
+    "LLS-WTI collapsed from about $18 to under $3 in four months."
+   ],
+   "source": "Modeled path through approximate LLS-WTI levels reported in early-mid 2013 (EIA Today in Energy, Reuters). WTI legs: NYMEX settlements (real).",
+   "session": {
+    "bars": "multi-day",
+    "simulated": true,
+    "label": "Basis path modeled from reported levels · WTI real",
+    "candles": [
+     [
+      17.8,
+      17.8,
+      15.63,
+      15.63,
+      "4 Mar–19 Mar"
+     ],
+     [
+      15.63,
+      15.66,
+      13.12,
+      13.12,
+      "20 Mar–4 Apr"
+     ],
+     [
+      13.12,
+      13.48,
+      11.53,
+      11.6,
+      "5 Apr–22 Apr"
+     ],
+     [
+      11.6,
+      11.6,
+      9.6,
+      9.6,
+      "23 Apr–7 May"
+     ],
+     [
+      9.6,
+      9.6,
+      7.62,
+      7.62,
+      "8 May–23 May"
+     ],
+     [
+      7.62,
+      7.78,
+      5.98,
+      6.18,
+      "24 May–11 Jun"
+     ],
+     [
+      6.18,
+      6.23,
+      4.46,
+      4.46,
+      "12 Jun–26 Jun"
+     ],
+     [
+      4.46,
+      4.46,
+      2.17,
+      2.17,
+      "27 Jun–15 Jul"
+     ]
+    ],
+    "days": [
+     "2013-03-04",
+     "2013-03-20",
+     "2013-04-05",
+     "2013-04-23",
+     "2013-05-08",
+     "2013-05-24",
+     "2013-06-12",
+     "2013-06-27"
+    ],
+    "open": "Gulf crude at an $18 premium; pipes coming",
+    "news": [
+     {
+      "at": 1,
+      "text": "Longhorn pipeline starts Permian flows",
+      "major": true,
+      "day": "2013-04-02"
+     }
+    ],
+    "concept": "cb-brent-wti"
+   }
+  },
+  {
+   "id": "ss-sweet-sour-2019",
+   "type": "spread",
+   "category": "spreads",
+   "difficulty": 3,
+   "title": "Sweet-sour spread",
+   "formula": "LLS (sweet) minus Mars (sour)",
+   "unit": "$/bbl",
+   "basis": true,
+   "headline": "OPEC+ agrees new cuts from January, mostly medium-sour barrels.",
+   "setup": [
+    "Sweet LLS trades about $3.50 over sour Mars.",
+    "Venezuela's heavy-sour exports are under pressure."
+   ],
+   "legs": [
+    {
+     "name": "WTI Cushing",
+     "price": 52.95,
+     "unit": "$/bbl"
+    },
+    {
+     "name": "Mars (sour)",
+     "price": 49.85,
+     "unit": "$/bbl"
+    }
+   ],
+   "spread": {
+    "date": "2018-12-03",
+    "now": 3.1,
+    "series": [
+     4.11,
+     3.63,
+     4.02,
+     3.93,
+     4.15,
+     4.0,
+     4.42,
+     3.77,
+     3.92,
+     3.99,
+     4.24,
+     3.75,
+     3.93,
+     4.06,
+     3.72,
+     3.72,
+     3.92,
+     3.78,
+     3.82,
+     3.61,
+     4.04,
+     4.07,
+     3.62,
+     3.32,
+     3.88,
+     3.28,
+     3.89,
+     3.25,
+     3.52,
+     3.4,
+     3.1
+    ]
+   },
+   "horizon": "59 trading days",
+   "outcome": {
+    "date": "2019-03-01",
+    "spread": 0.85,
+    "result": "NARROW",
+    "after": [
+     2.97,
+     3.26,
+     4.11,
+     3.73,
+     2.99,
+     3.21,
+     3.23,
+     2.94,
+     3.39,
+     3.23,
+     2.78,
+     2.57,
+     2.66,
+     2.77,
+     2.96,
+     2.43,
+     2.86,
+     2.6,
+     2.52,
+     2.66,
+     2.73,
+     2.55,
+     2.42,
+     2.51,
+     2.2,
+     2.31,
+     1.93,
+     2.16,
+     1.66,
+     1.85,
+     1.26,
+     1.68,
+     1.6,
+     1.59,
+     1.53,
+     1.65,
+     1.65,
+     1.47,
+     1.16,
+     1.69,
+     1.51,
+     1.4,
+     1.13,
+     1.15,
+     1.38,
+     1.09,
+     1.11,
+     1.28,
+     0.99,
+     1.0,
+     0.84,
+     0.96,
+     0.86,
+     0.87,
+     1.13,
+     0.74,
+     0.76,
+     0.41,
+     0.85
+    ]
+   },
+   "why": [
+    "OPEC+ cuts and US sanctions on Venezuela removed sour crude, so sour barrels got bid up toward sweet.",
+    "The sweet-sour spread compressed toward $1 by March 2019."
+   ],
+   "source": "Modeled path through approximate LLS-Mars levels reported in late 2018-early 2019 (Argus, Reuters, EIA). WTI legs: NYMEX settlements (real).",
+   "session": {
+    "bars": "multi-day",
+    "simulated": true,
+    "label": "Basis path modeled from reported levels · WTI real",
+    "candles": [
+     [
+      3.1,
+      4.11,
+      2.97,
+      3.23,
+      "4 Dec–13 Dec"
+     ],
+     [
+      3.23,
+      3.39,
+      2.57,
+      2.96,
+      "14 Dec–26 Dec"
+     ],
+     [
+      2.96,
+      2.96,
+      2.43,
+      2.55,
+      "27 Dec–7 Jan"
+     ],
+     [
+      2.55,
+      2.55,
+      1.66,
+      1.85,
+      "8 Jan–17 Jan"
+     ],
+     [
+      1.85,
+      1.85,
+      1.26,
+      1.65,
+      "18 Jan–29 Jan"
+     ],
+     [
+      1.65,
+      1.69,
+      1.13,
+      1.15,
+      "30 Jan–7 Feb"
+     ],
+     [
+      1.15,
+      1.38,
+      0.84,
+      0.96,
+      "8 Feb–20 Feb"
+     ],
+     [
+      0.96,
+      1.13,
+      0.41,
+      0.85,
+      "21 Feb–1 Mar"
+     ]
+    ],
+    "days": [
+     "2018-12-04",
+     "2018-12-14",
+     "2018-12-27",
+     "2019-01-08",
+     "2019-01-18",
+     "2019-01-30",
+     "2019-02-08",
+     "2019-02-21"
+    ],
+    "open": "OPEC+ cuts start; sour barrels get scarce",
+    "news": [
+     {
+      "at": 0,
+      "text": "OPEC+ agrees 1.2 mb/d cut from January",
+      "major": true,
+      "day": "2018-12-07"
+     },
+     {
+      "at": 4,
+      "text": "US sanctions Venezuela's PDVSA",
+      "major": true,
+      "day": "2019-01-28"
+     }
+    ],
+    "concept": "cb-sweet-sour"
+   }
+  }
+ ]
+}

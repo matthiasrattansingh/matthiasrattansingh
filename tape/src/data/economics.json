@@ -1,0 +1,30 @@
+{
+ "_readme": "Physical-trading economics. Every value has a realistic 2020-2026 range and a _source. Ranges are approximate public-reporting levels, not quotes; edit freely. Scenario files may override a value (e.g. a scenario's own charter rate).",
+ "cargo": {
+  "default_bbl": { "value": 500000, "_source": "A typical Aframax crude parcel is ~500-750 kbbl (80-120 kt); 500 kbbl is a standard US Gulf export lot." },
+  "charter_usd_day": { "value": 40000, "range": [18000, 120000], "_source": "Aframax time-charter-equivalent earnings ran roughly $15k-$40k/day in quiet markets 2020-21 and $50k-$100k+/day in 2022-23 after Russia-related rerouting (Baltic Exchange TD9/TD25, Clarksons market reports)." },
+  "demurrage_usd_day": { "value": 45000, "range": [25000, 120000], "_source": "Charter-party demurrage is usually set near the prevailing charter rate for the vessel size (ASBATANKVOY practice); Aframax demurrage commonly $25k-$60k/day 2020-2025." },
+  "laytime_days": { "value": 1.5, "_source": "Standard laytime of 36 running hours for discharge (ASBATANKVOY / BPVOY4 forms)." },
+  "port_costs_usd": { "value": 120000, "range": [60000, 250000], "_source": "Port dues, pilotage, towage, agency and terminal charges for an Aframax call in the US Gulf or NW Europe, approx. $60k-$250k per call." },
+  "financing_pct_year": { "value": 0.06, "range": [0.02, 0.08], "_source": "Trade finance ~SOFR + 1-2%: SOFR was near 0.05% in 2021 and ~5.3% in 2023-24 (NY Fed)." },
+  "quality_penalty_usd_bbl": { "value": 0.35, "range": [0.1, 1.0], "_source": "Off-spec settlements (sulfur, cloud point, cetane, water) are typically negotiated at $0.10-$1.00/bbl discounts (industry practice; Argus/Platts quality differentials)." }
+ },
+ "tank": {
+  "capacity_bbl": { "value": 500000, "_source": "A single large Cushing/Houston tank lease is 300-600 kbbl; 500 kbbl keeps the arithmetic simple." },
+  "rent_cushing_usd_bbl_month": { "value": 0.45, "range": [0.25, 1.0], "_source": "Cushing term leases typically $0.25-$0.50/bbl/month; spot storage was reported at roughly $0.85-$1.00+ in April 2020 (Reuters, Bloomberg)." },
+  "rent_houston_usd_bbl_month": { "value": 0.55, "range": [0.35, 1.0], "_source": "US Gulf Coast storage leases typically ~$0.40-$0.60/bbl/month; higher in tight periods (industry reports)." },
+  "financing_pct_year": { "value": 0.06, "range": [0.02, 0.08], "_source": "Inventory finance ~SOFR + 1-2% (see cargo.financing_pct_year)." },
+  "margin_of_safety_usd_bbl_month": { "value": 0.1, "range": [0.05, 0.25], "_source": "Desks typically require a buffer over rent + financing before committing to a carry trade (operational risk, roll slippage)." }
+ },
+ "hedge": {
+  "credit_line_usd": { "value": 3000000, "range": [1000000, 10000000], "_source": "A mid-size trading desk's hedge margin facility. CME WTI (CL) initial margin ran roughly $5k-$10k per contract over 2020-2025, so ~250 hedge lots need ~$1.5-2.5M of margin capacity." },
+  "lot_bbl": { "value": 1000, "_source": "NYMEX CL / ICE Brent / NYMEX HO/RB contract size is 1,000 bbl (42,000 gal)." }
+ },
+ "negotiation": {
+  "round_days": { "value": 0.5, "_source": "Each counter or stall burns about half a day of the voyage clock (game rule)." },
+  "counter_step_usd_bbl": { "value": 0.05, "_source": "Crude differentials are quoted to the nickel ($0.05/bbl) in physical trade (Argus/Platts assessment convention)." },
+  "distress_shading_usd_bbl_day": { "value": 0.05, "range": [0.02, 0.15], "_source": "Buyers widen bids once a seller is visibly on demurrage; $0.02-$0.15/bbl per day is the order of daily demurrage cost per barrel on an Aframax ($45k/day ÷ 500 kbbl ≈ $0.09/bbl)." },
+  "relationship_adjust_usd_bbl": { "value": [0.03, 0.08], "_source": "Counterparty relationship effects on opening bids (game rule, sized well inside typical bid/ask of $0.10-$0.25)." },
+  "avg5_window_days": { "value": 5, "_source": "Common pricing term: average of quotes over five days around the bill of lading or discharge date." }
+ }
+}

@@ -1,0 +1,8 @@
+{
+  "levels": [
+    { "name": "Scheduler", "minXp": 0, "blurb": "You move barrels on paper. Learn the plumbing." },
+    { "name": "Analyst", "minXp": 600, "blurb": "You read the balances and call the weekly numbers." },
+    { "name": "Risk Trader", "minXp": 1800, "blurb": "You size positions and live with the P&L." },
+    { "name": "Book Runner", "minXp": 4500, "blurb": "You run the book. The desk follows your calls." }
+  ]
+}
