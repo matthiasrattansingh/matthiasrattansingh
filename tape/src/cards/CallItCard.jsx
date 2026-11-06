@@ -2,28 +2,28 @@ import { useState } from 'react';
 import CardShell from '../components/CardShell.jsx';
 import Sparkline from '../components/Sparkline.jsx';
 import Choice from '../components/Choice.jsx';
-import Reveal from '../components/Reveal.jsx';
+import SizePicker from '../components/SizePicker.jsx';
+import TradeReveal from '../components/TradeReveal.jsx';
 import { scoreCallIt } from '../lib/scoring.js';
 import { fmtDate, fmtPrice, fmtSigned, fmtPct, toneFor } from '../lib/format.js';
 
 const CALLS = [
   { id: 'LONG', tone: 'up', label: 'LONG ▲' },
-  { id: 'FLAT', tone: 'flat', label: 'FLAT' },
+  { id: 'FLAT', tone: 'flat', label: 'FLAT ↔' },
   { id: 'SHORT', tone: 'down', label: 'SHORT ▼' },
 ];
+const CONVICTION = { 1: 1, 2: 2, 5: 3 }; // lots -> conviction for XP scoring
 
 // CALL IT: a real historical moment, chart drawn only up to the decision.
-// Pick a direction, then size it (conviction 1-3) to lock the call in.
+// Pick a direction, then a size: that places the trade in play money.
 export default function CallItCard({ card, answer, onAnswer, badge }) {
   const [call, setCall] = useState(null);
-  const done = Boolean(answer);
-  const res = answer?.result;
-  const perBbl = card.unit === '$/gal';
+  const done = Boolean(answer?.trade);
+  const perGal = card.unit === '$/gal';
+  const move = card.outcome.price - card.decision.price;
+  const pct = (move / Math.abs(card.decision.price)) * 100;
 
-  const lock = (conviction) => {
-    const result = scoreCallIt(card, call, conviction);
-    onAnswer({ call, conviction, result }, result);
-  };
+  const place = (lots) => onAnswer({ call, lots }, scoreCallIt(card, call, CONVICTION[lots]));
 
   return (
     <CardShell kicker={`CALL IT · ${card.category}`} badge={badge}>
@@ -43,23 +43,24 @@ export default function CallItCard({ card, answer, onAnswer, badge }) {
         </div>
       </div>
 
-      <p className={`mt-3 font-semibold leading-snug ${done ? 'text-[13px] text-white/80' : 'text-[15px]'}`}>{card.headline}</p>
-      {!done && (
+      {!done && <p className="mt-2.5 text-[15px] font-semibold leading-snug">{card.headline}</p>}
+      {!done && !call && (
         <ul className="mt-1.5 space-y-1 text-[13px] leading-snug text-white/70">
           {card.setup.map((s) => <li key={s}>{s}</li>)}
         </ul>
       )}
 
-      <div className={`rounded-xl border border-line bg-panel px-2 py-2 ${done ? 'mt-2' : 'mt-3'}`}>
-        <Sparkline data={card.series} after={card.after} showAfter={done} height={done ? 52 : 88} zeroLine={done && res.move < 0 && card.outcome.price < 0} />
+      <div className={`rounded-xl border border-line bg-panel px-2 py-1.5 ${done ? 'mt-2' : 'mt-3'}`}>
+        <Sparkline data={card.series} after={card.after} showAfter={done} height={done ? 56 : 68}
+          zeroLine={done && card.outcome.price < 0} />
         <div className="num flex justify-between px-1 text-[10px] text-dim">
           <span>{card.series.length - 1}d before</span>
-          <span className="text-amber">● decision</span>
+          <span className="text-amber">● you are here</span>
           {done && <span>{fmtDate(card.outcome.date)}</span>}
         </div>
       </div>
 
-      <div className="mt-auto pt-3">
+      <div className="mt-auto pt-2.5">
         {!done ? (
           <>
             <div className="grid grid-cols-3 gap-2">
@@ -69,32 +70,21 @@ export default function CallItCard({ card, answer, onAnswer, badge }) {
                 </Choice>
               ))}
             </div>
-            <div className={`mt-2 transition-opacity ${call ? 'opacity-100' : 'pointer-events-none opacity-30'}`}>
-              <div className="mb-1 text-center text-[10px] uppercase tracking-[0.2em] text-dim">size it · conviction locks your call</div>
-              <div className="grid grid-cols-3 gap-2">
-                {[1, 2, 3].map((n) => (
-                  <Choice key={n} tone="amber" onClick={() => lock(n)}>{'●'.repeat(n)}{'○'.repeat(3 - n)}</Choice>
-                ))}
-              </div>
-            </div>
+            {call && <SizePicker enabled onPick={place} />}
           </>
         ) : (
-          <Reveal
-            correct={res.correct}
-            points={res.points}
-            title={`${answer.call} ×${answer.conviction} · went ${res.actual}`}
+          <TradeReveal
+            trade={answer.trade}
+            fresh={Date.now() - answer.at < 4000}
+            title={`${answer.call} ${answer.lots} lot${answer.lots > 1 ? 's' : ''}${answer.call === 'FLAT' ? ' (short vol)' : ''}`}
+            detail={
+              <span className={`num text-right text-[12px] leading-tight ${toneFor(move)}`}>
+                {fmtSigned(move, perGal ? 4 : 2)}{perGal ? '/gal' : ''}<br />{fmtPct(pct)} → {fmtPrice(card.outcome.price, card.unit)}
+              </span>
+            }
             why={card.why}
             source={card.source}
-          >
-            <div className="num mt-1.5 flex flex-wrap items-baseline gap-x-3 text-sm">
-              <span className={`text-xl font-bold ${toneFor(res.move)}`}>
-                {fmtSigned(res.move, perBbl ? 4 : 2)}{perBbl ? '/gal' : ''}
-              </span>
-              <span className={toneFor(res.move)}>{fmtPct(res.pct)}</span>
-              {perBbl && <span className="text-dim">≈ {fmtSigned(res.moveBbl)}/bbl</span>}
-              <span className="text-dim">→ {fmtPrice(card.outcome.price, card.unit)}</span>
-            </div>
-          </Reveal>
+          />
         )}
       </div>
     </CardShell>

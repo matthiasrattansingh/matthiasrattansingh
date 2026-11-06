@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { levelFor, LEVELS } from '../lib/levels.js';
 import { CATEGORIES, liveStreak } from '../lib/progress.js';
 import { ALL_CARDS } from '../data/index.js';
+import { fmtMoney } from '../lib/book.js';
 
 const byId = new Map(ALL_CARDS.map((c) => [c.id, c]));
 const titleOf = (c) => c?.title ?? c?.headline ?? c?.name ?? c?.id;
@@ -24,7 +25,7 @@ export default function Profile({ progress, session, onReset }) {
 
   return (
     <div className="h-[100dvh] overflow-y-auto">
-      <div className="mx-auto max-w-md px-4 pt-16 pb-10">
+      <div className="mx-auto max-w-md px-4 pt-20 pb-10">
         <div className="rounded-2xl border border-amber/40 bg-amber/10 p-4">
           <div className="text-[10px] uppercase tracking-[0.2em] text-amber">Level {lvl.index + 1} of {LEVELS.length}</div>
           <div className="text-2xl font-extrabold">{lvl.name}</div>
@@ -47,12 +48,12 @@ export default function Profile({ progress, session, onReset }) {
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-2">
-          <Stat label="Streak" value={`🔥${liveStreak(progress.streak)}`} tone="text-amber" />
-          <Stat label="Best streak" value={progress.streak.best} />
+          <Stat label="Day streak" value={`📅${liveStreak(progress.streak)}`} tone="text-amber" />
+          <Stat label="Best days" value={progress.streak.best} />
           <Stat label="Answered" value={progress.answered} />
-          <Stat label="Session" value={`${session.score > 0 ? '+' : ''}${session.score}`}
-            tone={session.score > 0 ? 'text-up' : session.score < 0 ? 'text-down' : 'text-white'} />
-          <Stat label="Best session" value={progress.bestSession} />
+          <Stat label="Session P&L" value={fmtMoney(session.pnl, { compact: true })}
+            tone={session.pnl > 0 ? 'text-up' : session.pnl < 0 ? 'text-down' : 'text-white'} />
+          <Stat label="Best session" value={fmtMoney(progress.bestSession, { compact: true })} />
           <Stat label="Hit rate" value={total.total ? `${Math.round((total.right / total.total) * 100)}%` : '—'} />
         </div>
 

@@ -1,6 +1,9 @@
-// The progress model: XP, streak, accuracy by category and the miss queue.
+// The progress model: XP, streak, accuracy by category, the miss queue, and
+// the trading ledger (bankroll, win streak, desk standings, daily Open Bell).
 // Every function here is pure: (progress, ...) -> new progress.
 import { xpFor } from './scoring.js';
+import { START_BANKROLL } from './book.js';
+import { BOTS } from './rivals.js';
 
 export const CATEGORIES = {
   crude: 'Crude direction',
@@ -14,6 +17,8 @@ export const CATEGORIES = {
 // step it graduates out of the queue.
 export const REVIEW_STEPS = [4, 12, 30];
 
+const botZeros = () => Object.fromEntries(BOTS.map((b) => [b.id, 0]));
+
 export function emptyProgress() {
   return {
     version: 1,
@@ -24,6 +29,16 @@ export function emptyProgress() {
     stats: Object.fromEntries(Object.keys(CATEGORIES).map((k) => [k, { right: 0, total: 0 }])),
     seen: {},
     misses: {},
+    // trading ledger
+    bankroll: START_BANKROLL,
+    peak: START_BANKROLL,
+    blowups: 0,
+    combo: 0,
+    bestCombo: 0,
+    bigWin: 0,
+    bots: Object.fromEntries(BOTS.map((b) => [b.id, START_BANKROLL])),
+    day: { date: null, you: 0, bots: botZeros(), trades: 0 },
+    bell: {},
   };
 }
 
@@ -38,6 +53,10 @@ export function hydrate(saved) {
     stats: { ...base.stats, ...saved.stats },
     seen: saved.seen ?? {},
     misses: saved.misses ?? {},
+    bots: { ...base.bots, ...saved.bots },
+    day: { ...base.day, ...saved.day, bots: { ...base.day.bots, ...saved.day?.bots } },
+    bell: saved.bell ?? {},
+    marginCall: false,
   };
 }
 
@@ -66,6 +85,11 @@ export function liveStreak(streak, today = localDay()) {
   return dayDiff(streak.last, today) <= 1 ? streak.count : 0;
 }
 
+/** Today's desk standings (resets at local midnight). */
+export function todayDesk(day, date = localDay()) {
+  return day.date === date ? day : { date, you: 0, bots: botZeros(), trades: 0 };
+}
+
 function scheduleMiss(misses, id, correct, answered) {
   const cur = misses[id];
   const next = { ...misses };
@@ -79,35 +103,76 @@ function scheduleMiss(misses, id, correct, answered) {
   return next;
 }
 
+/** Apply a settled trade to the bankroll, desk standings and win streak. */
+function applyTrade(p, trade, date) {
+  let bankroll = p.bankroll + trade.pnl;
+  let blowups = p.blowups;
+  let marginCall = false;
+  if (bankroll <= 0) {
+    marginCall = true;
+    blowups += 1;
+    bankroll = START_BANKROLL;
+  }
+  const d = todayDesk(p.day, date);
+  const bots = { ...p.bots };
+  const dayBots = { ...d.bots };
+  for (const b of trade.bots) {
+    bots[b.id] = (bots[b.id] ?? START_BANKROLL) + b.pnl;
+    if (bots[b.id] <= 0) bots[b.id] = START_BANKROLL; // bots get margin-called too
+    dayBots[b.id] = (dayBots[b.id] ?? 0) + b.pnl;
+  }
+  const combo = trade.win ? p.combo + 1 : 0;
+  return {
+    ...p,
+    bankroll,
+    peak: Math.max(p.peak, bankroll),
+    blowups,
+    marginCall,
+    combo,
+    bestCombo: Math.max(p.bestCombo, combo),
+    bigWin: Math.max(p.bigWin, trade.pnl),
+    bots,
+    day: { date, you: d.you + trade.pnl, bots: dayBots, trades: d.trades + 1 },
+  };
+}
+
 /**
  * Record one answered card.
- * result: { cardId, category, correct, points }
+ * result: { cardId, category, correct, points, trade? }
  */
-export function recordResult(progress, result, today = localDay()) {
+export function recordResult(progress, result, date = localDay()) {
   const answered = progress.answered + 1;
   const cat = progress.stats[result.category] ?? { right: 0, total: 0 };
-  return {
+  const next = {
     ...progress,
     answered,
     xp: progress.xp + xpFor(result.points),
-    streak: touchStreak(progress.streak, today),
+    streak: touchStreak(progress.streak, date),
     stats: {
       ...progress.stats,
       [result.category]: { right: cat.right + (result.correct ? 1 : 0), total: cat.total + 1 },
     },
     seen: { ...progress.seen, [result.cardId]: (progress.seen[result.cardId] ?? 0) + 1 },
     misses: scheduleMiss(progress.misses, result.cardId, result.correct, answered),
+    marginCall: false,
   };
+  return result.trade ? applyTrade(next, result.trade, date) : next;
 }
 
 /** Small XP for "learn one thing" cards with no right/wrong (e.g. TAPE CHECK). */
-export function recordView(progress, cardId, xp = 3, today = localDay()) {
-  if (progress.seen[cardId] && progress.seenToday?.[cardId] === today) return progress;
+export function recordView(progress, cardId, xp = 3, date = localDay()) {
+  if (progress.seenToday?.[cardId] === date) return progress;
   return {
     ...progress,
     xp: progress.xp + xp,
-    streak: touchStreak(progress.streak, today),
+    streak: touchStreak(progress.streak, date),
     seen: { ...progress.seen, [cardId]: (progress.seen[cardId] ?? 0) + 1 },
-    seenToday: { ...(progress.seenToday ?? {}), [cardId]: today },
+    seenToday: { ...(progress.seenToday ?? {}), [cardId]: date },
   };
+}
+
+/** Save one Open Bell answer (the daily challenge) so it can't be replayed. */
+export function recordBell(progress, date, key, saved) {
+  const cur = progress.bell[date] ?? { saved: {} };
+  return { ...progress, bell: { ...progress.bell, [date]: { ...cur, saved: { ...cur.saved, [key]: saved } } } };
 }

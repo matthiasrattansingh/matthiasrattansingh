@@ -1,5 +1,5 @@
 // Minimal SVG sparkline. `data` is drawn solid; `after` (the reveal) is drawn
-// dashed in the outcome colour. The scale only includes `after` once it's
+// in the outcome colour, drawing itself on. The scale only includes `after` once it's
 // shown, so the chart never leaks where price went.
 export default function Sparkline({ data, after = [], showAfter = false, height = 88, zeroLine = false, marker = true }) {
   const all = showAfter ? [...data, ...after] : data;
@@ -28,8 +28,8 @@ export default function Sparkline({ data, after = [], showAfter = false, height 
       )}
       <polyline points={pts(data)} fill="none" strokeWidth="2" vectorEffect="non-scaling-stroke" className={baseTone} />
       {showAfter && after.length > 0 && (
-        <polyline points={pts([last, ...after], di)} fill="none" strokeWidth="2.5" strokeDasharray="5 4"
-          vectorEffect="non-scaling-stroke" className={afterTone} />
+        <polyline points={pts([last, ...after], di)} fill="none" strokeWidth="3" pathLength="1"
+          vectorEffect="non-scaling-stroke" className={`${afterTone} draw-on`} />
       )}
       {marker && (
         <>

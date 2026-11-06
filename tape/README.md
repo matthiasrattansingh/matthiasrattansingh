@@ -22,7 +22,25 @@ No backend and no API keys. Progress lives in your browser's `localStorage`.
 
 Tabs at the top: **FEED** (the mixed endless feed), **LIVE** (just the five TAPE CHECK cards) and **ME** (profile).
 
-## Scoring
+## The game
+
+- **Play-money account**: you start with $100,000. Every CALL IT and SPREAD SNAP is a trade: pick a
+  direction, then a size (1, 2 or 5 lots). One lot = 1,000 bbl, like the real contracts, so a $1/bbl
+  move is $1,000 per lot. FLAT means selling volatility: you collect the flat band if price stays
+  inside it and pay the excess if it breaks out.
+- **Win streaks pay**: 2 winning trades in a row ×1.25, 3 ×1.5, 5+ ×2 on winning P&L. Correct
+  CONCEPT BITEs pay a $2,500 research bonus and keep the streak alive.
+- **Margin call**: if a trade takes the account to $0 or below, you're refilled to $100,000 and it
+  counts as a blow-up on your record.
+- **The desk**: four rival bots trade every card with you: Momentum Mo (trend), Contrarian Carla
+  (fades moves), Quant Quinn (~60% hit rate) and Degen Dan (coin flip, max size). The reveal shows how
+  many you beat; the DESK tab ranks today's P&L and all-time account value.
+- **OPEN BELL** (BELL tab): the daily challenge. The same 5 cards for everyone on a given date, one
+  shot each, then a shareable result (🟩🟥 grid + P&L) to send to friends.
+- Play money only. There's no real-money wagering or prizes: that would be regulated gambling or
+  futures trading.
+
+## Scoring (XP and accuracy)
 
 - **CALL IT**: a right call earns `10 × conviction × size`, where size runs from 1.0× to 4.0× with the
   $/bbl move (product moves are converted at 42 gal/bbl). A wrong call loses `5 × conviction × size`.

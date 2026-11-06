@@ -3,6 +3,7 @@ import CardShell from '../components/CardShell.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { scoreConcept } from '../lib/scoring.js';
 import { seeded } from '../lib/format.js';
+import { fmtMoney } from '../lib/book.js';
 
 // CONCEPT BITE: one idea in four lines, then one multiple-choice question.
 // Choices are shuffled per feed slot, so the JSON can always list the answer first.
@@ -58,8 +59,11 @@ export default function ConceptCard({ card, slotKey, answer, onAnswer, badge }) 
         </div>
         {done && (
           <div className="mt-2">
-            <Reveal correct={answer.result.correct} points={answer.result.points}
-              title={answer.result.correct ? 'Right' : 'Not quite'} why={[card.question.explain]} source={card.source} />
+            <Reveal correct={answer.result.correct}
+              title={answer.result.correct
+                ? `Right · ${fmtMoney(answer.trade?.pnl ?? 0)} research bonus${answer.trade?.mult > 1 ? ` 🔥×${answer.trade.mult}` : ''}`
+                : 'Not quite · win streak reset'}
+              why={[card.question.explain]} source={card.source} />
           </div>
         )}
       </div>
