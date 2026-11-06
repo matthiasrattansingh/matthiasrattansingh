@@ -162,6 +162,58 @@ first is fine.
 A headline replaces the card's evergreen "What moves it" line when its date matches the latest bar
 (or the day before).
 
+## The physical desk
+
+Physical sessions trade barrels, not just paper. Their P&L books to a separate company **desk
+ledger** (`progress.phys`), never to your personal $100k account. Every cost constant lives in
+`src/data/economics.json`, each with a `_source` note and a realistic range.
+
+- **Cargo** (`cargo.json`). Day steps on a voyage: CHOOSE PORT, SAIL, WAIT, SELL. The chart shows
+  flat price (real Yahoo settles) against the delivered price at each port (basis modeled:
+  linear plus seeded noise, labeled on screen). Freight and demurrage meters run all the time. The
+  events deck has outages, congestion, weather, demand spikes and distressed sellers. The P&L
+  splits into flat, basis, freight + demurrage + port, and events.
+- **Tank** (`tank.json`). Weekly steps on the real EIA RCLC1-4 curve and real weekly Cushing
+  prints: CARRY, ROLL, SELL, WAIT, with rent and financing accruing. The debrief compares carry
+  earned with rent paid. *The spread has to pay more than the tank.*
+- **Two-book sessions.** Nine paper sessions carry a physical leg (`session.physical`) that you
+  can only hedge. The position bar shows PHYS / PAPER / combined, margin applies to paper only,
+  and you get an S-D hedge grade plus a lifetime average. These unlock after 5 cargoes.
+- **Two career tracks** in ME: PAPER, and PHYSICAL (Scheduler → Senior Scheduler → Cargo
+  Trader → Integrated Book). Basis-spread cards cover Midland, MEH, LLS and sweet-sour; their
+  anchors are modeled on real WTI days.
+- **Desk agents** (`agents.json`, `physical` block). Mo, Carla, Quinn and Dan play the same
+  cargo, tank and two-book sessions by their own rules: port choice, demurrage tolerance, sell
+  timing, hedge ratio and storage behavior. They see data only through `cargoView`, which throws
+  on look-ahead, and a test corrupts future data to prove it. The debrief shows a desk table.
+  After 5 cargoes the agents remember your habits and pre-position against your favorite port.
+
+### Negotiation
+
+SELL in a cargo session, or CARRY in a tank session, opens a bottom panel. In it you haggle
+with 1-3 counterparties, each with hidden state: reservation, patience, desperation, bluff and
+a preferred pricing term (NOW or AVG5).
+
+- **Moves**: ACCEPT, COUNTER (±$0.05 stepper, optional term flip), STALL or WALK. Every round
+  burns half a day: on a cargo the clock and demurrage tick, on a tank the rent does. An ask
+  inside their limit goes to "checking with the desk".
+- **Pressure**: once your demurrage meter is red, opening bids shade by
+  `negotiation.distress_shading_usd_bbl_day` for each red day. With 2+ live bids, counters
+  land more often (the leverage chip).
+- **Buy side**: on a tank CARRY the counterparties are sellers with floors. Seller distress
+  comes from the real EIA Cushing level vs working capacity. Above `seller_clock_ratio` a
+  "their clock" hint shows, and the seller with barrels landing and no tank shades down every
+  day.
+- **Set-pieces from the events deck**:
+  - The April 2022 NYH diesel squeeze brings 3 desperate buyers.
+  - A stranded VLCC dumping at Houston in April 2020 leaves one lowballing buyer.
+- **Relationships** persist per agent: `deals_closed`, `rounds_stalled_on_them` and
+  `walk_aways_after_3plus_rounds`. They move opening bids by $0.03-0.08 and show up in the chat
+  lines. Set the name they use in ME.
+- **NEGOTIATION EDGE** (career stat in ME) = agreed value minus the value of accepting that
+  party's first bid, summed over deals, plus a count of bids pulled on you. Each deal gets an
+  S-D grade: the edge captured vs their reservation, minus the days burned.
+
 ## Where the seed numbers come from
 
 CALL IT and SPREAD SNAP prices, outcomes and sparklines come from exchange settlement history for
@@ -177,6 +229,9 @@ card's `source` field names the specific dates and events.
 ```
 src/
   trade/       engine.js (positions, P&L, sell-vol, replay, bots), chart.js (canvas), TradeSession, Debrief
+  physical/    cargo.js, tank.js, twobook.js (pure engines), agents.js (no-look-ahead desk agents),
+               memory.js, ledger.js (desk P&L + tracks), negotiation.js + relationships.js,
+               CargoSession, TankSession, NegotiationPanel, PhysDebrief, DeskTable
   data/        JSON content + index.js loader (the only place content lives)
   cards/       one component per card type, registered in cards/index.js
   components/  Feed (scroll-snap), CardShell, StoryBar (15s reel timer), Hud, Sparkline, Reveal, Choice
