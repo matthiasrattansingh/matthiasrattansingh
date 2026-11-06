@@ -1,7 +1,8 @@
 # TAPE
 
-A vertical, swipe-up card feed for learning crude oil and refined products. Every card fits one
-phone screen, takes under 15 seconds, and ends with a decision or one concrete fact.
+A phone-first trading game for learning crude oil and refined products. Each TRADE session is a
+famous oil-market day replayed candle by candle: you hold a live position while the chart draws
+itself, and the market never waits for you.
 
 ```bash
 cd tape
@@ -9,34 +10,58 @@ npm install
 npm run dev        # open the printed URL; on your phone use the "Network" URL on the same Wi-Fi
 ```
 
-No backend and no API keys. Progress lives in your browser's `localStorage`.
+No backend and no API keys. Progress lives in your browser's `localStorage`. Add
+`?session=<id>` to the URL to open a specific session (e.g. `?session=ci-wti-negative-2020`).
 
-## What's in the feed
+## TRADE (the core loop)
 
-| Card | You do | Seed count |
-| --- | --- | --- |
-| **CALL IT** | Real historical moment, chart drawn up to the decision. Tap LONG / FLAT / SHORT, then size it (conviction 1-3). The reveal extends the chart, shows the move in $/bbl and the "why". | 40 |
-| **CONCEPT BITE** | One idea in four lines, then one multiple-choice question. | 25 |
-| **SPREAD SNAP** | Two related prices and the spread's last 30 sessions. Call WIDEN or NARROW over the horizon. | 11 |
-| **TAPE CHECK** | Today's WTI, Brent, RBOB, ULSD and Henry Hub: price, day change, 5-day sparkline, and a driver line. | 5 |
+- **A session = one famous day** (40 scenarios) or a spread move (10 sessions: Brent−WTI, diesel
+  and gasoline cracks, 3-2-1, diesel vs gasoline). 12-16 candles per scenario, 8 per spread.
+- **The chart animates**: each candle draws itself over 2 seconds (canvas, 60fps) with your dashed
+  entry line and the live price. Your P&L and equity tick every frame.
+- **You start flat**: pick a size (1/2/5 lots), then LONG / SHORT / SELL VOL (or WAIT). After that,
+  each candle is a decision: HOLD / ADD 1 / CUT ½ / CLOSE. Swipe up = HOLD.
+- **8-second decision timer** after every candle; if it runs out you HOLD and the next candle starts.
+- **Breaking news** drops in between candles (one line; your phone buzzes on major ones).
+- **Margin bar** under your equity turns amber, then pulses red; at zero you're margin-called
+  mid-session (💀, refilled to $100k, permanent record).
+- **Every candle close flashes its P&L**, and a strip shows the four bots' session P&L live.
+- **Debrief**: decision grid (🟩 made money · 🟥 lost · 🟦 flat), equity curve with your best and
+  worst decisions (valued by replaying the session without them), max drawdown, buy-and-hold
+  LONG/SHORT benchmarks, the desk's results, the 2-line "why it moved", and one concept question
+  tied to that day ($2,500 if right). Share it like OPEN BELL.
+- Optional sounds (tick on close, thud on a >$2k losing candle) are off by default: ME tab.
 
-Tabs at the top: **FEED** (the mixed endless feed), **LIVE** (just the five TAPE CHECK cards) and **ME** (profile).
+**Where the candles come from**: real daily open/high/low/close for the front-month NYMEX WTI, ICE
+Brent, NYMEX ULSD and RBOB contracts. Intraday history isn't freely available, so one-day scenarios
+split the real day into candles with a simulated path that hits the real open, high, low and close,
+and say so on screen ("path simulated, OHLC real"). Longer scenarios use real daily (or merged
+multi-day) candles. Spread sessions are built from real daily settlements. Breaking-news timing
+within a day is approximate. Regenerate with `python3 scripts/build-sessions.py` (downloads the
+OHLC once); hand-written fields (`open`, `news`, `concept`) are kept.
+
+### Adding a session
+
+Add a CALL IT card to `callit.json` (format below), then run `python3 scripts/build-sessions.py <id>`
+and add to its `session` block: `"open"` (≤ 44 chars), `"news"`: `[{ "day": "YYYY-MM-DD" or "at": candleIndex,
+"text": "≤ 40 chars", "major": true }]` and `"concept"` (a concept id). Run `npm run validate`.
 
 ## The game
 
-- **Play-money account**: you start with $100,000. Every CALL IT and SPREAD SNAP is a trade: pick a
-  direction, then a size (1, 2 or 5 lots). One lot = 1,000 bbl, like the real contracts, so a $1/bbl
-  move is $1,000 per lot. FLAT means selling volatility: you collect the flat band if price stays
-  inside it and pay the excess if it breaks out.
+- **Play-money account**: you start with $100,000. One lot = 1,000 bbl, like the real contracts, so a
+  $1/bbl move is $1,000 per lot. SELL VOL means selling volatility: you earn the flat band as time
+  passes (theta) and pay for any distance price moves from your entry.
 - **Win streaks pay**: 2 winning trades in a row ×1.25, 3 ×1.5, 5+ ×2 on winning P&L. Correct
-  CONCEPT BITEs pay a $2,500 research bonus and keep the streak alive.
+  concept answers (debriefs and the bell warm-up) pay a $2,500 research bonus and keep the streak alive.
+  Losing sessions return later through the miss queue (about 1 in 5 sessions).
 - **Margin call**: if a trade takes the account to $0 or below, you're refilled to $100,000 and it
   counts as a blow-up on your record.
-- **The desk**: four rival bots trade every card with you: Momentum Mo (trend), Contrarian Carla
-  (fades moves), Quant Quinn (~60% hit rate) and Degen Dan (coin flip, max size). The reveal shows how
-  many you beat; the DESK tab ranks today's P&L and all-time account value.
-- **OPEN BELL** (BELL tab): the daily challenge. The same 5 cards for everyone on a given date, one
-  shot each, then a shareable result (🟩🟥 grid + P&L) to send to friends.
+- **The desk**: four rival bots trade every session with you: Momentum Mo (rides the last few
+  candles), Contrarian Carla (fades them), Quant Quinn (~60% right on direction) and Degen Dan (coin
+  flip, 5 lots, adds after every losing candle). The DESK tab ranks today's P&L and all-time value.
+- **OPEN BELL** (BELL tab): the daily challenge. A warm-up concept question, then the same session
+  for everyone that day squeezed into 5 candles = 5 trades, one shot (leaving mid-bell forfeits it),
+  then a shareable result (🟩🟥 grid + P&L).
 - Play money only. There's no real-money wagering or prizes: that would be regulated gambling or
   futures trading.
 
@@ -118,6 +143,7 @@ card's `source` field names the specific dates and events.
 
 ```
 src/
+  trade/       engine.js (positions, P&L, sell-vol, replay, bots), chart.js (canvas), TradeSession, Debrief
   data/        JSON content + index.js loader (the only place content lives)
   cards/       one component per card type, registered in cards/index.js
   components/  Feed (scroll-snap), CardShell, StoryBar (15s reel timer), Hud, Sparkline, Reveal, Choice
