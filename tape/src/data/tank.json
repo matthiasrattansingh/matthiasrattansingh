@@ -1,0 +1,742 @@
+{
+ "_readme": "TANK sessions: you own a tank at Cushing and decide weekly whether to run a cash-and-carry (buy spot, sell a later futures month). 'weekly' is filled by scripts/build-physical.py from real EIA data: the NYMEX WTI curve (contracts 1-4, EIA series RCLC1-RCLC4), the delivery month of each contract (CME expiry rule), and the real weekly EIA prints (Cushing and US commercial crude stocks, week ending the previous Friday). EIA publishes four contracts, so the curve shows four months.",
+ "cards": [
+  {
+   "id": "tk-super-contango-2020",
+   "type": "tank",
+   "category": "physical",
+   "difficulty": 2,
+   "title": "Cushing super-contango, spring 2020",
+   "open": "Lockdowns. Cushing filling. You own a tank.",
+   "location": "Cushing",
+   "start": "2020-03-04",
+   "weeks": 12,
+   "rent_usd_bbl_month": 0.6,
+   "rent_source": "Cushing storage was booked at well above normal rates as tanks filled in March-April 2020; $0.50-$1.00+/bbl/month was reported (Reuters, Bloomberg).",
+   "why": [
+    "As demand collapsed in spring 2020 the front month fell far below later months: the market paid you to store oil.",
+    "Locking that contango with a forward sale earned many times the tank rent. The spread paid more than the tank."
+   ],
+   "concept": "cb-contango",
+   "source": "NYMEX WTI contracts 1-4 settlements (EIA RCLC1-4) and EIA weekly stocks, Mar-May 2020 (real).",
+   "weekly": [
+    {
+     "date": "2020-03-04",
+     "curve": [
+      46.78,
+      46.95,
+      47.11,
+      47.22
+     ],
+     "months": [
+      "2020-04",
+      "2020-05",
+      "2020-06",
+      "2020-07"
+     ],
+     "eia": {
+      "week_ending": "2020-02-28",
+      "cushing_mmbbl": -1.97,
+      "us_mmbbl": 0.78,
+      "cushing_level_mmbbl": 37.2
+     }
+    },
+    {
+     "date": "2020-03-11",
+     "curve": [
+      32.98,
+      33.39,
+      33.86,
+      34.39
+     ],
+     "months": [
+      "2020-04",
+      "2020-05",
+      "2020-06",
+      "2020-07"
+     ],
+     "eia": {
+      "week_ending": "2020-03-06",
+      "cushing_mmbbl": 0.7,
+      "us_mmbbl": 7.66,
+      "cushing_level_mmbbl": 37.9
+     }
+    },
+    {
+     "date": "2020-03-18",
+     "curve": [
+      20.37,
+      20.83,
+      21.93,
+      23.22
+     ],
+     "months": [
+      "2020-04",
+      "2020-05",
+      "2020-06",
+      "2020-07"
+     ],
+     "eia": {
+      "week_ending": "2020-03-13",
+      "cushing_mmbbl": 0.56,
+      "us_mmbbl": 1.95,
+      "cushing_level_mmbbl": 38.4
+     }
+    },
+    {
+     "date": "2020-03-25",
+     "curve": [
+      24.49,
+      27.16,
+      29.19,
+      30.46
+     ],
+     "months": [
+      "2020-05",
+      "2020-06",
+      "2020-07",
+      "2020-08"
+     ],
+     "eia": {
+      "week_ending": "2020-03-20",
+      "cushing_mmbbl": 0.86,
+      "us_mmbbl": 1.62,
+      "cushing_level_mmbbl": 39.3
+     }
+    },
+    {
+     "date": "2020-04-01",
+     "curve": [
+      20.31,
+      23.74,
+      26.42,
+      28.31
+     ],
+     "months": [
+      "2020-05",
+      "2020-06",
+      "2020-07",
+      "2020-08"
+     ],
+     "eia": {
+      "week_ending": "2020-03-27",
+      "cushing_mmbbl": 3.52,
+      "us_mmbbl": 13.83,
+      "cushing_level_mmbbl": 42.8
+     }
+    },
+    {
+     "date": "2020-04-08",
+     "curve": [
+      25.09,
+      30.17,
+      32.92,
+      33.65
+     ],
+     "months": [
+      "2020-05",
+      "2020-06",
+      "2020-07",
+      "2020-08"
+     ],
+     "eia": {
+      "week_ending": "2020-04-03",
+      "cushing_mmbbl": 6.42,
+      "us_mmbbl": 15.18,
+      "cushing_level_mmbbl": 49.2
+     }
+    },
+    {
+     "date": "2020-04-15",
+     "curve": [
+      19.87,
+      26.04,
+      29.96,
+      31.49
+     ],
+     "months": [
+      "2020-05",
+      "2020-06",
+      "2020-07",
+      "2020-08"
+     ],
+     "eia": {
+      "week_ending": "2020-04-10",
+      "cushing_mmbbl": 5.72,
+      "us_mmbbl": 19.25,
+      "cushing_level_mmbbl": 55.0
+     }
+    },
+    {
+     "date": "2020-04-22",
+     "curve": [
+      13.78,
+      20.69,
+      23.76,
+      25.77
+     ],
+     "months": [
+      "2020-06",
+      "2020-07",
+      "2020-08",
+      "2020-09"
+     ],
+     "eia": {
+      "week_ending": "2020-04-17",
+      "cushing_mmbbl": 4.78,
+      "us_mmbbl": 15.02,
+      "cushing_level_mmbbl": 59.7
+     }
+    },
+    {
+     "date": "2020-04-29",
+     "curve": [
+      15.06,
+      19.12,
+      22.19,
+      24.5
+     ],
+     "months": [
+      "2020-06",
+      "2020-07",
+      "2020-08",
+      "2020-09"
+     ],
+     "eia": {
+      "week_ending": "2020-04-24",
+      "cushing_mmbbl": 3.64,
+      "us_mmbbl": 8.99,
+      "cushing_level_mmbbl": 63.4
+     }
+    },
+    {
+     "date": "2020-05-06",
+     "curve": [
+      23.99,
+      25.62,
+      27.04,
+      28.19
+     ],
+     "months": [
+      "2020-06",
+      "2020-07",
+      "2020-08",
+      "2020-09"
+     ],
+     "eia": {
+      "week_ending": "2020-05-01",
+      "cushing_mmbbl": 2.07,
+      "us_mmbbl": 4.59,
+      "cushing_level_mmbbl": 65.4
+     }
+    },
+    {
+     "date": "2020-05-13",
+     "curve": [
+      25.29,
+      25.68,
+      26.8,
+      27.84
+     ],
+     "months": [
+      "2020-06",
+      "2020-07",
+      "2020-08",
+      "2020-09"
+     ],
+     "eia": {
+      "week_ending": "2020-05-08",
+      "cushing_mmbbl": -3.0,
+      "us_mmbbl": -0.74,
+      "cushing_level_mmbbl": 62.4
+     }
+    },
+    {
+     "date": "2020-05-20",
+     "curve": [
+      33.49,
+      33.94,
+      34.38,
+      34.65
+     ],
+     "months": [
+      "2020-06",
+      "2020-07",
+      "2020-08",
+      "2020-09"
+     ],
+     "eia": {
+      "week_ending": "2020-05-15",
+      "cushing_mmbbl": -5.59,
+      "us_mmbbl": -4.98,
+      "cushing_level_mmbbl": 56.9
+     }
+    }
+   ],
+   "financing_pct_year": 0.025,
+   "financing_source": "Fed funds was cut to 0-0.25% in March 2020; inventory finance ~LIBOR/SOFR + 1.5-2.5%."
+  },
+  {
+   "id": "tk-thin-carry-2015",
+   "type": "tank",
+   "category": "physical",
+   "difficulty": 3,
+   "title": "Thin carry, winter 2015-16",
+   "open": "Contango again. Does it cover the tank?",
+   "location": "Cushing",
+   "start": "2015-11-04",
+   "weeks": 10,
+   "why": [
+    "Late 2015 was a glut with a steady contango of roughly $1/bbl per month, not much more than rent plus financing.",
+    "The carry only worked with cheap storage and a careful choice of month. Thin spreads leave little room for roll costs."
+   ],
+   "concept": "cb-calendar-spread",
+   "source": "NYMEX WTI contracts 1-4 settlements (EIA RCLC1-4) and EIA weekly stocks, Nov 2015-Jan 2016 (real).",
+   "weekly": [
+    {
+     "date": "2015-11-04",
+     "curve": [
+      46.32,
+      47.21,
+      47.99,
+      48.69
+     ],
+     "months": [
+      "2015-12",
+      "2016-01",
+      "2016-02",
+      "2016-03"
+     ],
+     "eia": {
+      "week_ending": "2015-10-30",
+      "cushing_mmbbl": -0.21,
+      "us_mmbbl": 2.85,
+      "cushing_level_mmbbl": 53.1
+     }
+    },
+    {
+     "date": "2015-11-11",
+     "curve": [
+      44.21,
+      45.44,
+      46.36,
+      47.13
+     ],
+     "months": [
+      "2015-12",
+      "2016-01",
+      "2016-02",
+      "2016-03"
+     ],
+     "eia": {
+      "week_ending": "2015-11-06",
+      "cushing_mmbbl": 2.24,
+      "us_mmbbl": 3.98,
+      "cushing_level_mmbbl": 55.4
+     }
+    },
+    {
+     "date": "2015-11-18",
+     "curve": [
+      40.75,
+      41.95,
+      43.09,
+      44.03
+     ],
+     "months": [
+      "2015-12",
+      "2016-01",
+      "2016-02",
+      "2016-03"
+     ],
+     "eia": {
+      "week_ending": "2015-11-13",
+      "cushing_mmbbl": 1.5,
+      "us_mmbbl": 0.25,
+      "cushing_level_mmbbl": 56.9
+     }
+    },
+    {
+     "date": "2015-11-25",
+     "curve": [
+      43.04,
+      44.39,
+      45.46,
+      46.35
+     ],
+     "months": [
+      "2016-01",
+      "2016-02",
+      "2016-03",
+      "2016-04"
+     ],
+     "eia": {
+      "week_ending": "2015-11-20",
+      "cushing_mmbbl": 1.74,
+      "us_mmbbl": 0.96,
+      "cushing_level_mmbbl": 58.6
+     }
+    },
+    {
+     "date": "2015-12-02",
+     "curve": [
+      39.94,
+      41.38,
+      42.49,
+      43.42
+     ],
+     "months": [
+      "2016-01",
+      "2016-02",
+      "2016-03",
+      "2016-04"
+     ],
+     "eia": {
+      "week_ending": "2015-11-27",
+      "cushing_mmbbl": 0.43,
+      "us_mmbbl": 1.18,
+      "cushing_level_mmbbl": 59.0
+     }
+    },
+    {
+     "date": "2015-12-09",
+     "curve": [
+      37.16,
+      38.72,
+      39.95,
+      40.91
+     ],
+     "months": [
+      "2016-01",
+      "2016-02",
+      "2016-03",
+      "2016-04"
+     ],
+     "eia": {
+      "week_ending": "2015-12-04",
+      "cushing_mmbbl": 0.42,
+      "us_mmbbl": -3.66,
+      "cushing_level_mmbbl": 59.4
+     }
+    },
+    {
+     "date": "2015-12-16",
+     "curve": [
+      35.52,
+      36.75,
+      37.9,
+      38.85
+     ],
+     "months": [
+      "2016-01",
+      "2016-02",
+      "2016-03",
+      "2016-04"
+     ],
+     "eia": {
+      "week_ending": "2015-12-11",
+      "cushing_mmbbl": 0.61,
+      "us_mmbbl": 4.8,
+      "cushing_level_mmbbl": 60.1
+     }
+    },
+    {
+     "date": "2015-12-23",
+     "curve": [
+      37.5,
+      38.42,
+      39.15,
+      39.8
+     ],
+     "months": [
+      "2016-02",
+      "2016-03",
+      "2016-04",
+      "2016-05"
+     ],
+     "eia": {
+      "week_ending": "2015-12-18",
+      "cushing_mmbbl": 2.04,
+      "us_mmbbl": -5.88,
+      "cushing_level_mmbbl": 62.1
+     }
+    },
+    {
+     "date": "2015-12-30",
+     "curve": [
+      36.6,
+      37.64,
+      38.51,
+      39.27
+     ],
+     "months": [
+      "2016-02",
+      "2016-03",
+      "2016-04",
+      "2016-05"
+     ],
+     "eia": {
+      "week_ending": "2015-12-25",
+      "cushing_mmbbl": 0.89,
+      "us_mmbbl": 2.63,
+      "cushing_level_mmbbl": 63.0
+     }
+    },
+    {
+     "date": "2016-01-06",
+     "curve": [
+      33.97,
+      35.2,
+      36.31,
+      37.3
+     ],
+     "months": [
+      "2016-02",
+      "2016-03",
+      "2016-04",
+      "2016-05"
+     ],
+     "eia": {
+      "week_ending": "2016-01-01",
+      "cushing_mmbbl": 0.92,
+      "us_mmbbl": -4.15,
+      "cushing_level_mmbbl": 63.9
+     }
+    }
+   ],
+   "financing_pct_year": 0.02,
+   "financing_source": "Fed funds was 0-0.25% until the 16 Dec 2015 hike to 0.25-0.50%; inventory finance ~LIBOR + 1.5-2%."
+  },
+  {
+   "id": "tk-backwardation-2021",
+   "type": "tank",
+   "category": "physical",
+   "difficulty": 2,
+   "title": "Backwardation, autumn 2021",
+   "open": "Cushing near tank bottoms. Store or sell?",
+   "location": "Cushing",
+   "start": "2021-10-06",
+   "weeks": 10,
+   "why": [
+    "In autumn 2021 Cushing stocks fell toward operational lows and the curve was steeply backwardated: later months were cheaper.",
+    "A cash-and-carry locked in a loss before rent. The tank paid only if you sold inventory into the tight prompt market."
+   ],
+   "concept": "cb-backwardation",
+   "source": "NYMEX WTI contracts 1-4 settlements (EIA RCLC1-4) and EIA weekly stocks, Oct-Dec 2021 (real).",
+   "weekly": [
+    {
+     "date": "2021-10-06",
+     "curve": [
+      77.43,
+      77.06,
+      76.59,
+      76.04
+     ],
+     "months": [
+      "2021-11",
+      "2021-12",
+      "2022-01",
+      "2022-02"
+     ],
+     "eia": {
+      "week_ending": "2021-10-01",
+      "cushing_mmbbl": 1.55,
+      "us_mmbbl": 2.35,
+      "cushing_level_mmbbl": 35.5
+     }
+    },
+    {
+     "date": "2021-10-13",
+     "curve": [
+      80.44,
+      79.82,
+      79.12,
+      78.38
+     ],
+     "months": [
+      "2021-11",
+      "2021-12",
+      "2022-01",
+      "2022-02"
+     ],
+     "eia": {
+      "week_ending": "2021-10-08",
+      "cushing_mmbbl": -1.97,
+      "us_mmbbl": 6.09,
+      "cushing_level_mmbbl": 33.6
+     }
+    },
+    {
+     "date": "2021-10-20",
+     "curve": [
+      83.87,
+      83.42,
+      82.38,
+      81.29
+     ],
+     "months": [
+      "2021-11",
+      "2021-12",
+      "2022-01",
+      "2022-02"
+     ],
+     "eia": {
+      "week_ending": "2021-10-15",
+      "cushing_mmbbl": -2.32,
+      "us_mmbbl": -0.43,
+      "cushing_level_mmbbl": 31.2
+     }
+    },
+    {
+     "date": "2021-10-27",
+     "curve": [
+      82.66,
+      81.48,
+      80.09,
+      78.84
+     ],
+     "months": [
+      "2021-12",
+      "2022-01",
+      "2022-02",
+      "2022-03"
+     ],
+     "eia": {
+      "week_ending": "2021-10-22",
+      "cushing_mmbbl": -3.9,
+      "us_mmbbl": 4.27,
+      "cushing_level_mmbbl": 27.3
+     }
+    },
+    {
+     "date": "2021-11-03",
+     "curve": [
+      80.86,
+      79.57,
+      78.21,
+      76.79
+     ],
+     "months": [
+      "2021-12",
+      "2022-01",
+      "2022-02",
+      "2022-03"
+     ],
+     "eia": {
+      "week_ending": "2021-10-29",
+      "cushing_mmbbl": -0.92,
+      "us_mmbbl": 3.29,
+      "cushing_level_mmbbl": 26.4
+     }
+    },
+    {
+     "date": "2021-11-10",
+     "curve": [
+      81.34,
+      80.06,
+      78.74,
+      77.5
+     ],
+     "months": [
+      "2021-12",
+      "2022-01",
+      "2022-02",
+      "2022-03"
+     ],
+     "eia": {
+      "week_ending": "2021-11-05",
+      "cushing_mmbbl": -0.03,
+      "us_mmbbl": 1.0,
+      "cushing_level_mmbbl": 26.4
+     }
+    },
+    {
+     "date": "2021-11-17",
+     "curve": [
+      78.36,
+      77.55,
+      76.56,
+      75.53
+     ],
+     "months": [
+      "2021-12",
+      "2022-01",
+      "2022-02",
+      "2022-03"
+     ],
+     "eia": {
+      "week_ending": "2021-11-12",
+      "cushing_mmbbl": 0.22,
+      "us_mmbbl": -2.1,
+      "cushing_level_mmbbl": 26.6
+     }
+    },
+    {
+     "date": "2021-11-24",
+     "curve": [
+      78.39,
+      77.81,
+      77.15,
+      76.51
+     ],
+     "months": [
+      "2022-01",
+      "2022-02",
+      "2022-03",
+      "2022-04"
+     ],
+     "eia": {
+      "week_ending": "2021-11-19",
+      "cushing_mmbbl": 0.79,
+      "us_mmbbl": 1.02,
+      "cushing_level_mmbbl": 27.4
+     }
+    },
+    {
+     "date": "2021-12-01",
+     "curve": [
+      65.57,
+      65.37,
+      65.11,
+      64.83
+     ],
+     "months": [
+      "2022-01",
+      "2022-02",
+      "2022-03",
+      "2022-04"
+     ],
+     "eia": {
+      "week_ending": "2021-11-26",
+      "cushing_mmbbl": 1.16,
+      "us_mmbbl": -0.91,
+      "cushing_level_mmbbl": 28.5
+     }
+    },
+    {
+     "date": "2021-12-08",
+     "curve": [
+      72.36,
+      72.18,
+      71.9,
+      71.64
+     ],
+     "months": [
+      "2022-01",
+      "2022-02",
+      "2022-03",
+      "2022-04"
+     ],
+     "eia": {
+      "week_ending": "2021-12-03",
+      "cushing_mmbbl": 2.37,
+      "us_mmbbl": -0.24,
+      "cushing_level_mmbbl": 30.9
+     }
+    }
+   ],
+   "financing_pct_year": 0.02,
+   "financing_source": "Fed funds 0-0.25% through 2021; inventory finance ~SOFR + 1.5-2%."
+  }
+ ]
+}

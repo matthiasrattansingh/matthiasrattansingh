@@ -8,3 +8,5 @@ data/
 !.env.example
 coverage/
 .DS_Store
+# TAPE ships its card and economics data with the app
+!tape/src/data/

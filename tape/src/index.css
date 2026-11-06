@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  --color-up: #22e584;
+  --color-down: #ff4d5e;
+  --color-amber: #ffb000;
+  --color-ink: #0a0a0a;
+  --color-panel: #111214;
+  --color-line: #24262b;
+  --color-dim: #8b8f98;
+}
+
+html, body, #root { height: 100%; background: #000; color: #e9ebee; }
+body { margin: 0; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+
+/* Numbers always line up. */
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.feed { scrollbar-width: none; }
+.feed::-webkit-scrollbar { display: none; }
+
+@keyframes pop { 0% { transform: scale(.96); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+.pop { animation: pop .18s ease-out; }
+
+/* Outcome line draws itself across the chart on reveal. */
+.draw-on { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 0.9s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* Win glow / loss shake on the P&L panel. */
+@keyframes glow { 0% { box-shadow: 0 0 0 0 rgba(34,229,132,.55) } 100% { box-shadow: 0 0 0 18px rgba(34,229,132,0) } }
+@keyframes shake { 10%, 90% { transform: translateX(-1px) } 20%, 80% { transform: translateX(3px) } 30%, 50%, 70% { transform: translateX(-5px) } 40%, 60% { transform: translateX(5px) } }
+.win-glow { animation: glow 0.9s ease-out 0.6s 2; }
+.loss-shake { animation: shake 0.5s ease-in-out 0.7s; }
+
+@keyframes rise { 0% { transform: translateY(8px); opacity: 0 } 100% { transform: none; opacity: 1 } }
+.rise { animation: rise .35s ease-out both; }
+
+/* TRADE mode */
+.timer-ring { stroke-dashoffset: 0; animation-name: ring; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes ring { to { stroke-dashoffset: var(--len); } }
+.news-drop { animation: drop .35s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes drop { from { transform: translateY(-140%); opacity: 0 } to { transform: none; opacity: 1 } }
+.flash-pnl { animation: flash 1.1s ease-out forwards; text-shadow: 0 2px 18px rgba(0,0,0,.9); }
+@keyframes flash { 0% { transform: scale(.7); opacity: 0 } 15% { transform: scale(1.08); opacity: 1 } 60% { opacity: 1 } 100% { transform: translateY(-24px); opacity: 0 } }
+.margin-pulse { animation: mpulse .8s ease-in-out infinite; }
+@keyframes mpulse { 50% { opacity: .35 } }

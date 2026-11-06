@@ -1,0 +1,604 @@
+{
+ "cards": [
+  {
+   "id": "cb-crack-spread",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Crack spread",
+   "lines": [
+    "What a refiner earns for 'cracking' crude into products.",
+    "Product price minus crude price, both in $/bbl.",
+    "Gasoline at $2.50/gal = $105/bbl. Crude at $80 \u2192 crack = $25/bbl.",
+    "Wide cracks \u2192 refiners run hard \u2192 more crude demand."
+   ],
+   "question": {
+    "prompt": "ULSD is $3.00/gal and Brent is $90. What's the diesel crack?",
+    "choices": [
+     "$36/bbl",
+     "$2.10/bbl",
+     "$126/bbl"
+    ],
+    "answer": 0,
+    "explain": "$3.00 \u00d7 42 gal = $126/bbl. $126 \u2212 $90 = $36/bbl."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-321",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "3-2-1 crack",
+   "lines": [
+    "A rough US refinery margin: 3 bbl of crude \u2192 2 gasoline + 1 diesel.",
+    "(2\u00d7RBOB + 1\u00d7ULSD \u2212 3\u00d7WTI) \u00f7 3, all in $/bbl.",
+    "It roughly matches a typical Gulf Coast refinery's output.",
+    "Traders use it to hedge or bet on refining margins."
+   ],
+   "question": {
+    "prompt": "In a 3-2-1, which product gets double weight?",
+    "choices": [
+     "Gasoline",
+     "Diesel",
+     "Jet fuel"
+    ],
+    "answer": 0,
+    "explain": "Two barrels of gasoline for each barrel of diesel. US refineries are gasoline-heavy."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-backwardation",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Backwardation",
+   "lines": [
+    "Prompt oil costs MORE than oil for later delivery.",
+    "Example: Dec Brent $85, Jun Brent $80.",
+    "It means the market is tight. People pay up to have barrels now.",
+    "Storage makes no money, so tanks get drained."
+   ],
+   "question": {
+    "prompt": "Inventories are drawing fast. What curve shape do you expect?",
+    "choices": [
+     "Backwardation",
+     "Contango",
+     "Flat"
+    ],
+    "answer": 0,
+    "explain": "Scarce prompt barrels put a premium on 'now', so the front trades over the back."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-contango",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Contango",
+   "lines": [
+    "Prompt oil costs LESS than oil for later delivery.",
+    "Example: Dec WTI $70, Jun WTI $74.",
+    "That means a glut. Buy now, store, sell forward, and keep the spread.",
+    "Deep contango = storage filling up."
+   ],
+   "question": {
+    "prompt": "Front WTI $60, 6-month-out $63, storage costs $0.30/bbl/month. Profitable carry?",
+    "choices": [
+     "Yes, ~$1.20/bbl",
+     "No, you lose ~$1.20",
+     "Breakeven"
+    ],
+    "answer": 0,
+    "explain": "$3 spread \u2212 6 \u00d7 $0.30 storage = $1.20/bbl profit (before financing). That's cash-and-carry."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-calendar-spread",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Calendar spread",
+   "lines": [
+    "The price difference between two delivery months of the same contract.",
+    "Often quoted M1\u2212M2 (front minus second month).",
+    "Positive = backwardation. Negative = contango.",
+    "The purest read on near-term supply and demand."
+   ],
+   "question": {
+    "prompt": "Brent Dec $82.40, Jan $81.90. The Dec/Jan spread is\u2026",
+    "choices": [
+     "+$0.50, backwardated",
+     "\u2212$0.50, contango",
+     "+$0.50, contango"
+    ],
+    "answer": 0,
+    "explain": "Front minus next: 82.40 \u2212 81.90 = +0.50, so the front is premium (backwardation)."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-storage-build-draw",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Storage build vs draw",
+   "lines": [
+    "Each Wednesday the EIA reports weekly US inventory changes.",
+    "Build = stocks rose (usually bearish). Draw = stocks fell (usually bullish).",
+    "What matters is the number vs EXPECTATIONS, not the raw number.",
+    "And why: imports, exports or refinery runs."
+   ],
+   "question": {
+    "prompt": "Consensus: 3M bbl draw. EIA prints a 1M draw. First reaction?",
+    "choices": [
+     "Bearish: smaller draw than expected",
+     "Bullish: any draw is bullish",
+     "No reaction"
+    ],
+    "answer": 0,
+    "explain": "Markets trade the surprise. A 1M draw vs 3M expected is effectively a 2M bearish miss."
+   },
+   "source": "EIA Weekly Petroleum Status Report, released Wednesdays 10:30 ET."
+  },
+  {
+   "id": "cb-api-vs-eia",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "API vs EIA",
+   "lines": [
+    "API (industry group) publishes estimates Tuesday at 4:30pm ET.",
+    "EIA (government) publishes official data Wednesday 10:30am ET.",
+    "API often sets up the trade, and EIA confirms or reverses it.",
+    "Holiday weeks shift both by a day."
+   ],
+   "question": {
+    "prompt": "Which report is the official US government data?",
+    "choices": [
+     "EIA on Wednesday",
+     "API on Tuesday",
+     "CFTC on Friday"
+    ],
+    "answer": 0,
+    "explain": "API is a private survey; the EIA's Weekly Petroleum Status Report is the official number."
+   },
+   "source": "API Weekly Statistical Bulletin; EIA WPSR."
+  },
+  {
+   "id": "cb-cushing",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Cushing, Oklahoma",
+   "lines": [
+    "The delivery point for NYMEX WTI futures.",
+    "A tank-farm hub with roughly 75-80M bbl of working capacity.",
+    "Cushing stocks drive WTI's front spreads.",
+    "Near 'tank bottoms' \u2192 backwardation. Near full \u2192 super-contango."
+   ],
+   "question": {
+    "prompt": "Why did WTI go negative but Brent didn't in April 2020?",
+    "choices": [
+     "WTI delivers physically at landlocked Cushing, which was filling",
+     "Brent has a price floor",
+     "WTI is a lower-quality crude"
+    ],
+    "answer": 0,
+    "explain": "Brent is seaborne and cash-settled against a forward market, so it can flow to ships. May WTI holders had to take barrels at a nearly full inland hub."
+   },
+   "source": "EIA Cushing working storage capacity reports."
+  },
+  {
+   "id": "cb-shut-ins",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Shut-ins",
+   "lines": [
+    "Production deliberately stopped: storms, outages, low prices or politics.",
+    "Gulf of Mexico hurricanes are the classic case: platforms evacuate.",
+    "Shut-ins are temporary, and output returns when the cause clears.",
+    "Watch the restart timeline, not just the size of the outage."
+   ],
+   "question": {
+    "prompt": "A hurricane shuts 1.5 mb/d of Gulf crude AND 2 mb/d of refining. Crude price impact?",
+    "choices": [
+     "Could be flat or bearish: demand lost exceeds supply lost",
+     "Strongly bullish",
+     "Only gasoline moves"
+    ],
+    "answer": 0,
+    "explain": "Refineries are the crude buyers. If more refining shuts than production, crude backs up (see Harvey 2017)."
+   },
+   "source": "BSEE Gulf of Mexico shut-in statistics."
+  },
+  {
+   "id": "cb-freight",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Freight rates",
+   "lines": [
+    "The cost to ship oil by tanker, quoted in Worldscale points or $/tonne.",
+    "VLCC (2M bbl) on the Gulf\u2192China route (TD3C) is the crude benchmark.",
+    "High freight widens price gaps between regions.",
+    "War, sanctions and rerouting (e.g. avoiding the Red Sea) push freight up."
+   ],
+   "question": {
+    "prompt": "Freight from the US Gulf to Asia doubles. US crude (WTI) vs Brent likely\u2026",
+    "choices": [
+     "Widens: WTI must discount to still export",
+     "Narrows",
+     "Unaffected"
+    ],
+    "answer": 0,
+    "explain": "US barrels have to cover the higher shipping cost to compete abroad, so WTI weakens relative to Brent."
+   },
+   "source": "Baltic Exchange tanker routes (TD3C, TD25)."
+  },
+  {
+   "id": "cb-basis",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Basis",
+   "lines": [
+    "The price of a physical barrel at a location vs the benchmark futures.",
+    "Example: Midland WTI at +$1.00 to Cushing; Mars at \u2212$2.50 to WTI.",
+    "It reflects local supply, pipeline space and quality.",
+    "Futures can be calm while basis blows out."
+   ],
+   "question": {
+    "prompt": "A Permian pipeline goes down. What happens to Midland basis vs Cushing?",
+    "choices": [
+     "Weakens (more negative)",
+     "Strengthens",
+     "Unchanged"
+    ],
+    "answer": 0,
+    "explain": "Barrels get trapped near Midland, so local buyers can pay less vs Cushing."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-brent-wti",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Brent\u2212WTI spread",
+   "lines": [
+    "Brent = seaborne North Sea benchmark. WTI = US inland (Cushing).",
+    "The spread is mostly logistics: the cost to move US crude to the water and across the ocean.",
+    "It's normally ~$3-6 in Brent's favour since the 2015 export-ban repeal.",
+    "US export capacity sets the floor."
+   ],
+   "question": {
+    "prompt": "US Gulf export terminals are congested. Brent\u2212WTI tends to\u2026",
+    "choices": [
+     "Widen",
+     "Narrow",
+     "Flip negative"
+    ],
+    "answer": 0,
+    "explain": "If US barrels can't get out, they back up at home and WTI discounts more to Brent."
+   },
+   "source": "ICE Brent / NYMEX WTI."
+  },
+  {
+   "id": "cb-sweet-sour",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Sweet vs sour",
+   "lines": [
+    "Sweet = low sulfur (<0.5%). Sour = high sulfur.",
+    "Sour crude needs more processing to remove the sulfur.",
+    "So sour normally trades at a discount to sweet.",
+    "OPEC cuts usually remove sour barrels, which narrows that discount."
+   ],
+   "question": {
+    "prompt": "OPEC+ cuts 1 mb/d of medium-sour supply. The sweet-sour spread\u2026",
+    "choices": [
+     "Narrows: sour gets scarcer",
+     "Widens",
+     "No change"
+    ],
+    "answer": 0,
+    "explain": "Less sour supply means sour barrels get bid up relative to sweet."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-api-gravity",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "API gravity",
+   "lines": [
+    "A measure of how light a crude is. Higher = lighter.",
+    "WTI ~40\u00b0. Brent ~38\u00b0. Heavy Canadian ~20\u00b0.",
+    "Light crude yields more gasoline and naphtha.",
+    "Heavy crude yields more residual fuel and needs complex refineries."
+   ],
+   "question": {
+    "prompt": "Which crude yields more gasoline per barrel?",
+    "choices": [
+     "A 40\u00b0 API crude",
+     "A 20\u00b0 API crude",
+     "Same yield"
+    ],
+    "answer": 0,
+    "explain": "Lighter (higher API) crude has more light ends: gasoline and naphtha."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-rvp",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Summer vs winter gasoline",
+   "lines": [
+    "RVP measures how easily gasoline evaporates.",
+    "Summer gasoline must have low RVP (less smog), which costs more to make.",
+    "Winter-grade allows cheap butane to be blended in.",
+    "So RBOB futures drop at the summer-to-winter grade roll."
+   ],
+   "question": {
+    "prompt": "Why does the RBOB crack usually fall in September?",
+    "choices": [
+     "Switch to cheaper winter-grade plus lower driving demand",
+     "Hurricanes always end",
+     "Crude prices always fall"
+    ],
+    "answer": 0,
+    "explain": "Winter spec lets refiners blend more cheap butane, and demand fades after Labor Day."
+   },
+   "source": "EPA RVP regulations; NYMEX RBOB contract specs."
+  },
+  {
+   "id": "cb-refinery-utilization",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Refinery utilization",
+   "lines": [
+    "The share of refining capacity running. The US is typically 85-95%.",
+    "It's in the weekly EIA report.",
+    "High runs = strong crude demand and more product supply.",
+    "Spring and autumn 'turnarounds' (maintenance) cut runs."
+   ],
+   "question": {
+    "prompt": "Refinery runs drop from 92% to 80% for maintenance. Crude stocks likely\u2026",
+    "choices": [
+     "Build",
+     "Draw",
+     "Unchanged"
+    ],
+    "answer": 0,
+    "explain": "Fewer refineries buying crude \u2192 crude piles up in tanks while product stocks fall."
+   },
+   "source": "EIA WPSR, refinery operable utilization."
+  },
+  {
+   "id": "cb-spr",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Strategic Petroleum Reserve",
+   "lines": [
+    "The US government's emergency crude stockpile in Gulf Coast salt caverns.",
+    "Releases add supply (bearish), and refills add demand (bullish).",
+    "2022 saw a record 180M bbl release after the invasion of Ukraine.",
+    "The EIA reports commercial stocks separately from the SPR."
+   ],
+   "question": {
+    "prompt": "The DOE announces a 30M bbl SPR purchase over 6 months. Effect?",
+    "choices": [
+     "Mildly bullish: added demand",
+     "Bearish",
+     "Neutral"
+    ],
+    "answer": 0,
+    "explain": "Buying for the SPR takes barrels off the market: ~165 kb/d here, small but supportive."
+   },
+   "source": "US DOE Office of Petroleum Reserves."
+  },
+  {
+   "id": "cb-spare-capacity",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "OPEC+ spare capacity",
+   "lines": [
+    "Output that can be brought online within ~30-90 days and held there.",
+    "Mostly in Saudi Arabia and the UAE.",
+    "Low spare capacity = less buffer, so outages spike prices more.",
+    "It's the market's shock absorber."
+   ],
+   "question": {
+    "prompt": "Spare capacity is ~1 mb/d and a 2 mb/d outage hits. Expect\u2026",
+    "choices": [
+     "A big price spike: no buffer",
+     "A small move",
+     "A price drop"
+    ],
+    "answer": 0,
+    "explain": "With not enough spare capacity to replace the loss, price has to rise to cut demand instead."
+   },
+   "source": "IEA Oil Market Report; EIA STEO."
+  },
+  {
+   "id": "cb-floating-storage",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 3,
+   "title": "Floating storage",
+   "lines": [
+    "Using tankers as tanks: loading crude and parking them at sea.",
+    "It only pays when contango beats tanker charter cost.",
+    "A sign of a serious glut, as seen in 2009 and 2020.",
+    "When contango narrows, ships discharge and add supply."
+   ],
+   "question": {
+    "prompt": "Contango is $1/bbl/month. A VLCC (2M bbl) costs $60k/day. Floating storage pays?",
+    "choices": [
+     "Yes: $2M/month vs ~$1.8M/month",
+     "No: it loses money",
+     "Breakeven exactly"
+    ],
+    "answer": 0,
+    "explain": "$1 \u00d7 2M bbl = $2M per month of carry vs $60k \u00d7 30 = $1.8M charter, a thin profit before finance and insurance."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-roll-yield",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Roll yield",
+   "lines": [
+    "Long futures positions must 'roll': sell the expiring month, buy the next.",
+    "In backwardation you sell high and buy lower, a positive roll.",
+    "In contango you sell low and buy higher, so you lose on every roll.",
+    "That's why oil ETFs bled in 2020."
+   ],
+   "question": {
+    "prompt": "You hold long oil via futures in steep contango. Spot price unchanged for a year. Your P&L?",
+    "choices": [
+     "Negative",
+     "Zero",
+     "Positive"
+    ],
+    "answer": 0,
+    "explain": "Every roll buys the more expensive next month, which then converges down toward spot."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-expiry",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Futures expiry & physical delivery",
+   "lines": [
+    "NYMEX WTI expires 3 business days before the 25th of the prior month.",
+    "Holders at expiry must make or take physical delivery.",
+    "Most speculators roll or close out days before.",
+    "Expiry days can squeeze if prompt supply is short."
+   ],
+   "question": {
+    "prompt": "Why do ULSD and WTI sometimes spike or crash on expiry day?",
+    "choices": [
+     "Positions must match physical supply at the delivery point",
+     "Exchanges reset prices",
+     "Volume is always zero"
+    ],
+    "answer": 0,
+    "explain": "On expiry, paper must turn into barrels or gallons. If local supply is tight or full, price does the clearing."
+   },
+   "source": "CME NYMEX contract rules (CL, HO)."
+  },
+  {
+   "id": "cb-diesel-vs-gasoline",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Diesel vs gasoline",
+   "lines": [
+    "Diesel (ULSD, heating oil) is driven by trucking, farming, industry and heating.",
+    "Gasoline is driven by consumers driving, and peaks in summer.",
+    "Diesel cracks often peak in winter, gasoline cracks in spring and summer.",
+    "Europe is short diesel; the US is long gasoline capacity."
+   ],
+   "question": {
+    "prompt": "A cold winter in the US Northeast most directly lifts\u2026",
+    "choices": [
+     "The diesel / heating-oil crack",
+     "The gasoline crack",
+     "Henry Hub only"
+    ],
+    "answer": 0,
+    "explain": "NYMEX 'HO' was literally heating oil, and the Northeast still burns distillate for heat."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-netback",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Netback",
+   "lines": [
+    "What a producer actually receives at the wellhead or port.",
+    "Netback = delivered price \u2212 freight \u2212 fees \u2212 quality adjustments.",
+    "Traders compare netbacks to pick the best market for a cargo.",
+    "Arbitrage flows go where netbacks are highest."
+   ],
+   "question": {
+    "prompt": "Cargo sells for $84 delivered in Asia, freight $3.50, fees $0.50. Netback?",
+    "choices": [
+     "$80",
+     "$88",
+     "$84"
+    ],
+    "answer": 0,
+    "explain": "$84 \u2212 $3.50 \u2212 $0.50 = $80/bbl back at origin."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-risk-premium",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 2,
+   "title": "Geopolitical risk premium",
+   "lines": [
+    "Extra price added for supply that MIGHT be lost, not that is lost.",
+    "It builds into threats and fades when barrels keep flowing.",
+    "'Buy the rumor, sell the fact' is common in oil.",
+    "Watch actual flows: tanker tracking and exports."
+   ],
+   "question": {
+    "prompt": "A feared attack happens but oil infrastructure is untouched. Typical reaction?",
+    "choices": [
+     "Price falls as the premium unwinds",
+     "Price spikes further",
+     "No change"
+    ],
+    "answer": 0,
+    "explain": "The worst case didn't happen, so the insurance priced in gets sold (Oct 2024, Jun 2025)."
+   },
+   "source": "Standard industry definition."
+  },
+  {
+   "id": "cb-hormuz",
+   "type": "concept",
+   "category": "concepts",
+   "difficulty": 1,
+   "title": "Strait of Hormuz",
+   "lines": [
+    "A narrow channel between Iran and Oman.",
+    "About 20 mb/d (~20% of world oil use) passes through.",
+    "Only limited pipeline bypasses exist (Saudi East-West, UAE Habshan-Fujairah).",
+    "It's the single biggest chokepoint risk in oil."
+   ],
+   "question": {
+    "prompt": "Roughly what share of global oil consumption transits Hormuz?",
+    "choices": [
+     "~20%",
+     "~5%",
+     "~50%"
+    ],
+    "answer": 0,
+    "explain": "EIA estimates ~20 mb/d, about one-fifth of global consumption."
+   },
+   "source": "EIA World Oil Transit Chokepoints."
+  }
+ ]
+}

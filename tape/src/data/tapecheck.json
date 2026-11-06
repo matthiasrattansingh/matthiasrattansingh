@@ -1,0 +1,145 @@
+{
+ "_readme": "Instruments for TAPE CHECK. Add headlines below: a headline shows on a card when its symbol matches and its date is the latest bar's date (or the day before). Keep each to one line.",
+ "instruments": [
+  {
+   "id": "tc-wti",
+   "type": "tapecheck",
+   "category": "crude",
+   "difficulty": 1,
+   "symbol": "CL=F",
+   "name": "WTI",
+   "contract": "NYMEX WTI crude",
+   "unit": "$/bbl",
+   "decimals": 2,
+   "driver": "Cushing stocks, US output, and macro risk appetite. WTI is the US benchmark, delivered inland at Cushing.",
+   "fallback": {
+    "asOf": "2026-11-05",
+    "price": 91.38,
+    "prevClose": 88.12,
+    "series": [
+     102.0,
+     104.12,
+     96.46,
+     96.09,
+     88.12,
+     91.38
+    ]
+   },
+   "source": "Live: Yahoo Finance chart API (query1.finance.yahoo.com/v8/finance/chart). Fallback snapshot captured 2026-11-05."
+  },
+  {
+   "id": "tc-brent",
+   "type": "tapecheck",
+   "category": "crude",
+   "difficulty": 1,
+   "symbol": "BZ=F",
+   "name": "Brent",
+   "contract": "ICE Brent crude",
+   "unit": "$/bbl",
+   "decimals": 2,
+   "driver": "OPEC+ policy, Middle East and Russia supply risk, and Asian demand. Brent prices about two-thirds of world crude.",
+   "fallback": {
+    "asOf": "2026-11-05",
+    "price": 99.39,
+    "prevClose": 94.62,
+    "series": [
+     114.88,
+     117.64,
+     104.77,
+     103.6,
+     94.62,
+     99.39
+    ]
+   },
+   "source": "Live: Yahoo Finance chart API (query1.finance.yahoo.com/v8/finance/chart). Fallback snapshot captured 2026-11-05."
+  },
+  {
+   "id": "tc-rbob",
+   "type": "tapecheck",
+   "category": "products",
+   "difficulty": 1,
+   "symbol": "RB=F",
+   "name": "RBOB",
+   "contract": "NYMEX RBOB gasoline",
+   "unit": "$/gal",
+   "decimals": 4,
+   "driver": "US driving demand, refinery outages and seasonal grade switches. \u00d742 converts $/gal to $/bbl for the crack.",
+   "fallback": {
+    "asOf": "2026-11-05",
+    "price": 2.7721,
+    "prevClose": 2.7286,
+    "series": [
+     3.185,
+     3.312,
+     2.9001,
+     2.9355,
+     2.7286,
+     2.7721
+    ]
+   },
+   "source": "Live: Yahoo Finance chart API (query1.finance.yahoo.com/v8/finance/chart). Fallback snapshot captured 2026-11-05."
+  },
+  {
+   "id": "tc-ulsd",
+   "type": "tapecheck",
+   "category": "products",
+   "difficulty": 1,
+   "symbol": "HO=F",
+   "name": "ULSD",
+   "contract": "NYMEX NY Harbor ULSD",
+   "unit": "$/gal",
+   "decimals": 4,
+   "driver": "Distillate stocks, trucking and industrial demand, winter heating, and Europe's diesel balance.",
+   "fallback": {
+    "asOf": "2026-11-05",
+    "price": 4.3749,
+    "prevClose": 4.2055,
+    "series": [
+     4.736,
+     4.7905,
+     4.4216,
+     4.5306,
+     4.2055,
+     4.3749
+    ]
+   },
+   "source": "Live: Yahoo Finance chart API (query1.finance.yahoo.com/v8/finance/chart). Fallback snapshot captured 2026-11-05."
+  },
+  {
+   "id": "tc-henry-hub",
+   "type": "tapecheck",
+   "category": "products",
+   "difficulty": 1,
+   "symbol": "NG=F",
+   "name": "Henry Hub",
+   "contract": "NYMEX Henry Hub natural gas",
+   "unit": "$/MMBtu",
+   "decimals": 3,
+   "driver": "Weather (heating and cooling degree days), storage vs the 5-year average, and LNG export feedgas.",
+   "fallback": {
+    "asOf": "2026-11-05",
+    "price": 2.962,
+    "prevClose": 2.959,
+    "series": [
+     2.952,
+     2.898,
+     2.856,
+     2.895,
+     2.959,
+     2.962
+    ]
+   },
+   "source": "Live: Yahoo Finance chart API (query1.finance.yahoo.com/v8/finance/chart). Fallback snapshot captured 2026-11-05."
+  }
+ ],
+ "headlines": [
+  {
+   "symbols": [
+    "CL=F",
+    "BZ=F"
+   ],
+   "date": "YYYY-MM-DD",
+   "text": "Example only: replace with a real headline, e.g. 'EIA: crude stocks fell 4.2M bbl vs 1.5M expected draw.'"
+  }
+ ]
+}

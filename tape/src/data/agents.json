@@ -1,0 +1,61 @@
+{
+ "_readme": "Personality agents: the four desk rivals. 'physical' drives their play in cargo, tank and two-book sessions. Every rule reads only public state up to the current step (prices, basis by port, events so far); none of them can see future days.",
+ "agents": [
+  {
+   "id": "mo",
+   "name": "Momentum Mo",
+   "emoji": "🏄",
+   "color": "#38bdf8",
+   "style": "Rides the trend. Never hedges physical: no momentum in a hedge.",
+   "physical": {
+    "port_choice_method": "max_recent_price_gain",
+    "demurrage_tolerance_days": 1,
+    "sell_timing": "price_trend_follow",
+    "hedge_ratio_at_load": { "mode": "fixed", "ratio": 0 },
+    "storage_behavior": { "mode": "never", "note": "No momentum in a tank." }
+   }
+  },
+  {
+   "id": "carla",
+   "name": "Contrarian Carla",
+   "emoji": "🦊",
+   "color": "#fb923c",
+   "style": "Fades moves. Hedges half once the market goes against her.",
+   "physical": {
+    "port_choice_method": "max_discount_adjusted_for_wait",
+    "demurrage_tolerance_days": 2,
+    "sell_timing": "sell_early_into_strength",
+    "hedge_ratio_at_load": { "mode": "after_adverse_move", "ratio": 0.5 },
+    "storage_behavior": { "mode": "counter_cyclical", "margin_of_safety_usd_bbl_month": 0.05, "note": "Fills when the spread has narrowed (hated) but still clears costs." }
+   }
+  },
+  {
+   "id": "quinn",
+   "name": "Quant Quinn",
+   "emoji": "🤖",
+   "color": "#a78bfa",
+   "style": "The model. Hedges 80% the moment the exposure lands.",
+   "physical": {
+    "port_choice_method": "max_netback",
+    "demurrage_tolerance_days": 1,
+    "sell_timing": "netback_threshold",
+    "hedge_ratio_at_load": { "mode": "fixed", "ratio": 0.8 },
+    "storage_behavior": { "mode": "carry_when_math_clears", "margin_of_safety_usd_bbl_month": 0.1, "note": "Carries whenever spread > rent + financing + margin of safety." }
+   }
+  },
+  {
+   "id": "dan",
+   "name": "Degen Dan",
+   "emoji": "🎰",
+   "color": "#f43f5e",
+   "style": "Coin flips, max size. Hedges, usually the wrong way.",
+   "physical": {
+    "port_choice_method": "max_headline_price",
+    "demurrage_tolerance_days": 5,
+    "sell_timing": "yolo_hold",
+    "hedge_ratio_at_load": { "mode": "random", "min": -1, "max": 1, "wrong_way_bias": 0.7 },
+    "storage_behavior": { "mode": "coin_flip_max", "note": "Fills the tank at max size on a coin flip and pays the rent bleed publicly." }
+   }
+  }
+ ]
+}

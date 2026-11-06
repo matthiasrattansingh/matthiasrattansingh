@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/yf/v8/finance/chart/:symbol", "destination": "/api/chart?symbol=:symbol" }
+  ]
+}

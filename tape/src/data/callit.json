@@ -1,0 +1,7830 @@
+{
+ "cards": [
+  {
+   "id": "ci-wti-negative-2020",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "May WTI expires Tuesday. Cushing storage is nearly full.",
+   "setup": [
+    "Lockdowns have cut US fuel demand ~30%. Cushing, the delivery hub, is filling fast.",
+    "The May contract settled $18.27. Longs must sell or take physical barrels by Tuesday."
+   ],
+   "decision": {
+    "date": "2020-04-17",
+    "price": 18.27
+   },
+   "outcome": {
+    "date": "2020-04-20",
+    "price": -37.63
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    25.22,
+    22.43,
+    23.36,
+    24.01,
+    24.49,
+    22.6,
+    21.51,
+    20.09,
+    20.48,
+    20.31,
+    25.32,
+    28.34,
+    26.08,
+    23.63,
+    25.09,
+    22.76,
+    22.41,
+    20.11,
+    19.87,
+    19.87,
+    18.27
+   ],
+   "after": [
+    -37.63
+   ],
+   "why": [
+    "Holders of May WTI had nowhere to store barrels, so they paid buyers to take them.",
+    "May WTI settled at -$37.63, the first negative price ever. June WTI stayed near $20."
+   ],
+   "source": "NYMEX CL front-month settlements, 17-20 Apr 2020 (CME). May contract expired 21 Apr. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      17.73,
+      17.85,
+      15.81,
+      16.1,
+      "20 Apr · 1/14"
+     ],
+     [
+      16.1,
+      16.1,
+      15.18,
+      15.69,
+      "20 Apr · 2/14"
+     ],
+     [
+      15.69,
+      17.85,
+      15.09,
+      17.85,
+      "20 Apr · 3/14"
+     ],
+     [
+      17.85,
+      17.85,
+      9.64,
+      11.42,
+      "20 Apr · 4/14"
+     ],
+     [
+      11.42,
+      12.56,
+      0.44,
+      1.24,
+      "20 Apr · 5/14"
+     ],
+     [
+      1.24,
+      1.53,
+      -2.41,
+      -1.88,
+      "20 Apr · 6/14"
+     ],
+     [
+      -1.88,
+      -1.44,
+      -13.19,
+      -11.99,
+      "20 Apr · 7/14"
+     ],
+     [
+      -11.99,
+      -10.28,
+      -18.37,
+      -17.4,
+      "20 Apr · 8/14"
+     ],
+     [
+      -17.4,
+      -14.98,
+      -26.98,
+      -26.78,
+      "20 Apr · 9/14"
+     ],
+     [
+      -26.78,
+      -24.94,
+      -35.4,
+      -34.49,
+      "20 Apr · 10/14"
+     ],
+     [
+      -34.49,
+      -34.44,
+      -40.32,
+      -40.32,
+      "20 Apr · 11/14"
+     ],
+     [
+      -40.32,
+      -37.92,
+      -40.32,
+      -38.57,
+      "20 Apr · 12/14"
+     ],
+     [
+      -38.57,
+      -38.03,
+      -38.57,
+      -38.57,
+      "20 Apr · 13/14"
+     ],
+     [
+      -38.57,
+      -37.1,
+      -39.0,
+      -37.63,
+      "20 Apr · 14/14"
+     ]
+    ],
+    "days": [
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20",
+     "2020-04-20"
+    ],
+    "open": "May WTI expires Tue. Cushing nearly full.",
+    "news": [
+     {
+      "text": "Cushing nearly full; May longs scramble",
+      "major": false,
+      "at": 2
+     },
+     {
+      "text": "May WTI under $10, first since 1986",
+      "major": true,
+      "at": 5
+     },
+     {
+      "text": "May WTI goes NEGATIVE. First ever.",
+      "major": true,
+      "at": 6
+     }
+    ],
+    "concept": "cb-cushing",
+    "physical": {
+     "side": "LONG",
+     "bbl": 250000,
+     "who": "Producer",
+     "desc": "LONG 250k bbl WTI at Cushing, May delivery",
+     "events": [],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-opec-talks-mar2020",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "OPEC proposes an extra 1.5 mb/d cut, pending Russia's sign-off.",
+   "setup": [
+    "COVID is spreading beyond China and jet fuel demand is collapsing.",
+    "OPEC+ meets in Vienna tomorrow. Russia has not agreed to the deeper cut."
+   ],
+   "decision": {
+    "date": "2020-03-05",
+    "price": 49.99
+   },
+   "outcome": {
+    "date": "2020-03-06",
+    "price": 45.27
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    55.28,
+    54.93,
+    54.47,
+    53.27,
+    54.01,
+    55.79,
+    56.34,
+    57.32,
+    57.75,
+    59.12,
+    59.31,
+    58.5,
+    56.3,
+    54.95,
+    53.43,
+    52.18,
+    50.52,
+    51.9,
+    51.86,
+    51.13,
+    49.99
+   ],
+   "after": [
+    45.27
+   ],
+   "why": [
+    "Russia refused the deeper cut and the OPEC+ pact fell apart with no deal at all.",
+    "Brent fell about 9% in a day, its worst session since 2008."
+   ],
+   "source": "ICE Brent front-month settlements, 5-6 Mar 2020; OPEC+ meeting 6 Mar 2020. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      50.12,
+      50.32,
+      50.08,
+      50.27,
+      "6 Mar · 1/14"
+     ],
+     [
+      50.27,
+      50.27,
+      50.21,
+      50.25,
+      "6 Mar · 2/14"
+     ],
+     [
+      50.25,
+      50.43,
+      50.17,
+      50.43,
+      "6 Mar · 3/14"
+     ],
+     [
+      50.43,
+      50.43,
+      49.5,
+      49.66,
+      "6 Mar · 4/14"
+     ],
+     [
+      49.66,
+      49.8,
+      49.1,
+      49.15,
+      "6 Mar · 5/14"
+     ],
+     [
+      49.15,
+      49.19,
+      48.23,
+      48.24,
+      "6 Mar · 6/14"
+     ],
+     [
+      48.24,
+      48.4,
+      47.65,
+      47.68,
+      "6 Mar · 7/14"
+     ],
+     [
+      47.68,
+      47.73,
+      47.02,
+      47.04,
+      "6 Mar · 8/14"
+     ],
+     [
+      47.04,
+      47.11,
+      46.19,
+      46.36,
+      "6 Mar · 9/14"
+     ],
+     [
+      46.36,
+      46.43,
+      45.72,
+      45.82,
+      "6 Mar · 10/14"
+     ],
+     [
+      45.82,
+      46.03,
+      45.16,
+      45.16,
+      "6 Mar · 11/14"
+     ],
+     [
+      45.16,
+      45.38,
+      45.16,
+      45.32,
+      "6 Mar · 12/14"
+     ],
+     [
+      45.32,
+      45.43,
+      45.32,
+      45.32,
+      "6 Mar · 13/14"
+     ],
+     [
+      45.32,
+      45.37,
+      45.19,
+      45.27,
+      "6 Mar · 14/14"
+     ]
+    ],
+    "days": [
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06",
+     "2020-03-06"
+    ],
+    "open": "OPEC+ meets in Vienna. Russia undecided.",
+    "news": [
+     {
+      "text": "Russia rejects OPEC's deeper cut",
+      "major": true,
+      "at": 3
+     },
+     {
+      "text": "OPEC+ talks end with no deal at all",
+      "major": true,
+      "at": 8
+     }
+    ],
+    "concept": "cb-spare-capacity"
+   }
+  },
+  {
+   "id": "ci-price-war-2020",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Weekend: Saudi Aramco slashes April selling prices by $6-8/bbl.",
+   "setup": [
+    "The OPEC+ deal collapsed Friday. Riyadh signals it will open the taps.",
+    "Demand is already falling with COVID. Brent settled $45.27 Friday."
+   ],
+   "decision": {
+    "date": "2020-03-06",
+    "price": 45.27
+   },
+   "outcome": {
+    "date": "2020-03-09",
+    "price": 34.36
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    54.93,
+    54.47,
+    53.27,
+    54.01,
+    55.79,
+    56.34,
+    57.32,
+    57.75,
+    59.12,
+    59.31,
+    58.5,
+    56.3,
+    54.95,
+    53.43,
+    52.18,
+    50.52,
+    51.9,
+    51.86,
+    51.13,
+    49.99,
+    45.27
+   ],
+   "after": [
+    34.36
+   ],
+   "why": [
+    "A price war on top of a demand shock: more supply into a shrinking market.",
+    "Brent fell 24% on Monday, the biggest one-day drop since the 1991 Gulf War."
+   ],
+   "source": "ICE Brent settlements 6 & 9 Mar 2020; Aramco OSP cuts announced 7 Mar 2020. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      39.24,
+      39.24,
+      38.15,
+      38.16,
+      "9 Mar · 1/14"
+     ],
+     [
+      38.16,
+      38.31,
+      37.35,
+      37.48,
+      "9 Mar · 2/14"
+     ],
+     [
+      37.48,
+      37.55,
+      36.51,
+      36.55,
+      "9 Mar · 3/14"
+     ],
+     [
+      36.55,
+      36.6,
+      35.38,
+      35.49,
+      "9 Mar · 4/14"
+     ],
+     [
+      35.49,
+      35.5,
+      34.55,
+      34.56,
+      "9 Mar · 5/14"
+     ],
+     [
+      34.56,
+      34.62,
+      33.93,
+      34.06,
+      "9 Mar · 6/14"
+     ],
+     [
+      34.06,
+      34.14,
+      32.45,
+      32.73,
+      "9 Mar · 7/14"
+     ],
+     [
+      32.73,
+      32.76,
+      31.91,
+      31.96,
+      "9 Mar · 8/14"
+     ],
+     [
+      31.96,
+      32.19,
+      31.25,
+      31.25,
+      "9 Mar · 9/14"
+     ],
+     [
+      31.25,
+      31.62,
+      31.25,
+      31.61,
+      "9 Mar · 10/14"
+     ],
+     [
+      31.61,
+      32.92,
+      31.55,
+      32.88,
+      "9 Mar · 11/14"
+     ],
+     [
+      32.88,
+      33.12,
+      32.85,
+      33.06,
+      "9 Mar · 12/14"
+     ],
+     [
+      33.06,
+      33.67,
+      32.98,
+      33.61,
+      "9 Mar · 13/14"
+     ],
+     [
+      33.61,
+      34.39,
+      33.58,
+      34.36,
+      "9 Mar · 14/14"
+     ]
+    ],
+    "days": [
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09",
+     "2020-03-09"
+    ],
+    "open": "Weekend: Aramco slashes April prices",
+    "news": [
+     {
+      "text": "Saudis to flood market: price war on",
+      "major": true,
+      "at": 0
+     },
+     {
+      "text": "US stocks halted by circuit breaker",
+      "major": true,
+      "at": 5
+     }
+    ],
+    "concept": "cb-contango",
+    "physical": {
+     "side": "LONG",
+     "bbl": 250000,
+     "who": "Producer",
+     "desc": "LONG 250k bbl Midland, sold month-ahead",
+     "events": [
+      {
+       "at": 6,
+       "usd": -1.0,
+       "text": "Midland basis slips; Permian tanks fill"
+      }
+     ],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-trump-tweet-2020",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "Trump: expects Saudi and Russia to cut 10M bbl/d, 'maybe substantially more'.",
+   "setup": [
+    "WTI is near 18-year lows with storage filling worldwide.",
+    "Nothing is signed. Prices are Wednesday's close. The tweet lands Thursday."
+   ],
+   "decision": {
+    "date": "2020-04-01",
+    "price": 20.31
+   },
+   "outcome": {
+    "date": "2020-04-02",
+    "price": 25.32
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    46.78,
+    45.9,
+    41.28,
+    31.13,
+    34.36,
+    32.98,
+    31.5,
+    31.73,
+    28.7,
+    26.95,
+    20.37,
+    25.22,
+    22.43,
+    23.36,
+    24.01,
+    24.49,
+    22.6,
+    21.51,
+    20.09,
+    20.48,
+    20.31
+   ],
+   "after": [
+    25.32
+   ],
+   "why": [
+    "Shorts scrambled to cover on the mere prospect of a record cut.",
+    "WTI jumped about 25%, its biggest one-day gain on record at the time."
+   ],
+   "source": "NYMEX CL settlements 1-2 Apr 2020; tweet 2 Apr 2020. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      21.22,
+      21.3,
+      20.77,
+      20.96,
+      "2 Apr · 1/14"
+     ],
+     [
+      20.96,
+      21.07,
+      20.96,
+      21.06,
+      "2 Apr · 2/14"
+     ],
+     [
+      21.06,
+      21.24,
+      20.96,
+      20.96,
+      "2 Apr · 3/14"
+     ],
+     [
+      20.96,
+      21.04,
+      20.76,
+      20.76,
+      "2 Apr · 4/14"
+     ],
+     [
+      20.76,
+      21.74,
+      20.76,
+      21.6,
+      "2 Apr · 5/14"
+     ],
+     [
+      21.6,
+      22.42,
+      21.58,
+      22.37,
+      "2 Apr · 6/14"
+     ],
+     [
+      22.37,
+      22.88,
+      22.33,
+      22.87,
+      "2 Apr · 7/14"
+     ],
+     [
+      22.87,
+      24.09,
+      22.78,
+      23.91,
+      "2 Apr · 8/14"
+     ],
+     [
+      23.91,
+      25.11,
+      23.75,
+      24.98,
+      "2 Apr · 9/14"
+     ],
+     [
+      24.98,
+      25.57,
+      24.97,
+      25.48,
+      "2 Apr · 10/14"
+     ],
+     [
+      25.48,
+      26.71,
+      25.36,
+      26.61,
+      "2 Apr · 11/14"
+     ],
+     [
+      26.61,
+      27.39,
+      26.56,
+      27.39,
+      "2 Apr · 12/14"
+     ],
+     [
+      27.39,
+      27.39,
+      25.88,
+      25.97,
+      "2 Apr · 13/14"
+     ],
+     [
+      25.97,
+      26.22,
+      25.08,
+      25.32,
+      "2 Apr · 14/14"
+     ]
+    ],
+    "days": [
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02",
+     "2020-04-02"
+    ],
+    "open": "WTI near 18-year lows; storage filling",
+    "news": [
+     {
+      "text": "Trump expects Saudi/Russia 10M bbl/d cut",
+      "major": true,
+      "at": 5
+     },
+     {
+      "text": "Kremlin denies Putin-MBS call",
+      "major": false,
+      "at": 9
+     }
+    ],
+    "concept": "cb-floating-storage"
+   }
+  },
+  {
+   "id": "ci-opec-historic-cut-2020",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "OPEC+ agrees a record 9.7 mb/d output cut over Easter weekend.",
+   "setup": [
+    "The largest cut in history, roughly 10% of world supply.",
+    "But demand is estimated to be down 20-30 mb/d in April."
+   ],
+   "decision": {
+    "date": "2020-04-09",
+    "price": 31.48
+   },
+   "outcome": {
+    "date": "2020-04-13",
+    "price": 31.74
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    33.22,
+    33.85,
+    30.05,
+    28.73,
+    24.88,
+    28.47,
+    26.98,
+    27.03,
+    27.15,
+    27.39,
+    26.34,
+    24.93,
+    22.76,
+    22.74,
+    24.74,
+    29.94,
+    34.11,
+    33.05,
+    31.87,
+    32.84,
+    31.48
+   ],
+   "after": [
+    31.74
+   ],
+   "why": [
+    "The cut was big but smaller than the demand hole, and it did not start until May.",
+    "Brent barely moved (+0.8%). Big headlines that are already priced in can still be too small."
+   ],
+   "source": "ICE Brent settlements 9 & 13 Apr 2020 (Good Friday closed); deal finalized 12 Apr 2020. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      33.0,
+      33.06,
+      32.99,
+      33.0,
+      "13 Apr · 1/14"
+     ],
+     [
+      33.0,
+      33.06,
+      32.99,
+      33.04,
+      "13 Apr · 2/14"
+     ],
+     [
+      33.04,
+      33.23,
+      33.01,
+      33.23,
+      "13 Apr · 3/14"
+     ],
+     [
+      33.23,
+      33.23,
+      32.91,
+      32.94,
+      "13 Apr · 4/14"
+     ],
+     [
+      32.94,
+      32.95,
+      32.55,
+      32.57,
+      "13 Apr · 5/14"
+     ],
+     [
+      32.57,
+      32.57,
+      32.2,
+      32.26,
+      "13 Apr · 6/14"
+     ],
+     [
+      32.26,
+      32.31,
+      31.99,
+      32.02,
+      "13 Apr · 7/14"
+     ],
+     [
+      32.02,
+      32.02,
+      31.5,
+      31.56,
+      "13 Apr · 8/14"
+     ],
+     [
+      31.56,
+      31.57,
+      31.18,
+      31.18,
+      "13 Apr · 9/14"
+     ],
+     [
+      31.18,
+      31.2,
+      30.91,
+      30.93,
+      "13 Apr · 10/14"
+     ],
+     [
+      30.93,
+      30.95,
+      30.64,
+      30.64,
+      "13 Apr · 11/14"
+     ],
+     [
+      30.64,
+      31.08,
+      30.64,
+      31.06,
+      "13 Apr · 12/14"
+     ],
+     [
+      31.06,
+      31.61,
+      31.03,
+      31.55,
+      "13 Apr · 13/14"
+     ],
+     [
+      31.55,
+      31.75,
+      31.52,
+      31.74,
+      "13 Apr · 14/14"
+     ]
+    ],
+    "days": [
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13",
+     "2020-04-13"
+    ],
+    "open": "OPEC+ agrees record 9.7 mb/d cut",
+    "news": [
+     {
+      "text": "Deal sealed Sunday after Mexico holdout",
+      "major": false,
+      "at": 0
+     },
+     {
+      "text": "Analysts: cut small vs demand loss",
+      "major": false,
+      "at": 6
+     }
+    ],
+    "concept": "cb-storage-build-draw"
+   }
+  },
+  {
+   "id": "ci-vaccine-2020",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Europe is back in lockdown. A Pfizer vaccine trial readout is due any day.",
+   "setup": [
+    "Brent is under $40 on second-wave demand fears.",
+    "Oil is one of the most COVID-sensitive assets: jet fuel and gasoline demand."
+   ],
+   "decision": {
+    "date": "2020-11-06",
+    "price": 39.45
+   },
+   "outcome": {
+    "date": "2020-11-09",
+    "price": 42.4
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    42.85,
+    41.72,
+    42.45,
+    43.32,
+    43.16,
+    42.93,
+    42.62,
+    43.16,
+    41.73,
+    42.46,
+    41.77,
+    40.46,
+    41.2,
+    39.12,
+    37.65,
+    37.46,
+    38.97,
+    39.71,
+    41.23,
+    40.93,
+    39.45
+   ],
+   "after": [
+    42.4
+   ],
+   "why": [
+    "Pfizer reported its vaccine was 90% effective, and the market priced in reopening.",
+    "Brent rallied about 7.5% Monday. Demand expectations moved faster than demand itself."
+   ],
+   "source": "ICE Brent settlements 6 & 9 Nov 2020; Pfizer/BioNTech release 9 Nov 2020. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      39.7,
+      40.56,
+      39.7,
+      40.56,
+      "9 Nov · 1/14"
+     ],
+     [
+      40.56,
+      41.65,
+      40.53,
+      41.57,
+      "9 Nov · 2/14"
+     ],
+     [
+      41.57,
+      42.63,
+      41.48,
+      42.55,
+      "9 Nov · 3/14"
+     ],
+     [
+      42.55,
+      43.49,
+      42.51,
+      43.49,
+      "9 Nov · 4/14"
+     ],
+     [
+      43.49,
+      43.49,
+      42.12,
+      42.2,
+      "9 Nov · 5/14"
+     ],
+     [
+      42.2,
+      42.32,
+      40.6,
+      40.78,
+      "9 Nov · 6/14"
+     ],
+     [
+      40.78,
+      40.8,
+      39.61,
+      39.61,
+      "9 Nov · 7/14"
+     ],
+     [
+      39.61,
+      40.28,
+      39.61,
+      40.1,
+      "9 Nov · 8/14"
+     ],
+     [
+      40.1,
+      40.47,
+      40.09,
+      40.35,
+      "9 Nov · 9/14"
+     ],
+     [
+      40.35,
+      40.82,
+      40.34,
+      40.77,
+      "9 Nov · 10/14"
+     ],
+     [
+      40.77,
+      41.2,
+      40.71,
+      41.14,
+      "9 Nov · 11/14"
+     ],
+     [
+      41.14,
+      41.95,
+      41.04,
+      41.84,
+      "9 Nov · 12/14"
+     ],
+     [
+      41.84,
+      42.03,
+      41.79,
+      41.98,
+      "9 Nov · 13/14"
+     ],
+     [
+      41.98,
+      42.5,
+      41.96,
+      42.4,
+      "9 Nov · 14/14"
+     ]
+    ],
+    "days": [
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09",
+     "2020-11-09"
+    ],
+    "open": "Europe locked down; vaccine data due",
+    "news": [
+     {
+      "text": "Pfizer: vaccine 90% effective in trial",
+      "major": true,
+      "at": 4
+     }
+    ],
+    "concept": "cb-calendar-spread"
+   }
+  },
+  {
+   "id": "ci-backwardation-flip-2020",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Brent's front timespreads have flipped from contango to backwardation.",
+   "setup": [
+    "Since March, prompt barrels traded below later months (contango). Now they trade above.",
+    "Backwardation means buyers want oil now: inventories are drawing."
+   ],
+   "decision": {
+    "date": "2020-12-01",
+    "price": 47.42
+   },
+   "outcome": {
+    "date": "2020-12-31",
+    "price": 51.8
+   },
+   "horizon": "1 month",
+   "flatBandPct": 1.5,
+   "series": [
+    38.97,
+    39.71,
+    41.23,
+    40.93,
+    39.45,
+    42.4,
+    43.61,
+    43.8,
+    43.53,
+    42.78,
+    43.82,
+    43.75,
+    44.34,
+    44.2,
+    44.96,
+    46.06,
+    47.86,
+    48.61,
+    48.18,
+    47.59,
+    47.42
+   ],
+   "after": [
+    48.25,
+    48.71,
+    49.25,
+    48.79,
+    48.84,
+    48.86,
+    50.25,
+    49.97,
+    50.29,
+    50.76,
+    51.08,
+    51.5,
+    52.26,
+    50.91,
+    50.08,
+    51.2,
+    51.29,
+    50.86,
+    51.09,
+    51.34,
+    51.8
+   ],
+   "why": [
+    "The curve flip signaled the glut was clearing as OPEC+ cuts and vaccines hit.",
+    "Brent climbed about 9% into year-end. A shift in structure often comes before the flat-price move."
+   ],
+   "source": "ICE Brent front-month settlements Dec 2020; flip in prompt spreads per market reports late Nov-Dec 2020. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "multi-day",
+    "simulated": false,
+    "label": "1-2 day candles · real OHLC",
+    "candles": [
+     [
+      47.14,
+      48.93,
+      46.77,
+      48.71,
+      "2 Dec–3 Dec"
+     ],
+     [
+      48.82,
+      49.86,
+      48.77,
+      49.25,
+      "4 Dec–4 Dec"
+     ],
+     [
+      49.23,
+      49.43,
+      48.39,
+      48.79,
+      "7 Dec–7 Dec"
+     ],
+     [
+      48.68,
+      49.54,
+      48.11,
+      48.86,
+      "8 Dec–9 Dec"
+     ],
+     [
+      48.98,
+      51.07,
+      48.86,
+      49.97,
+      "10 Dec–11 Dec"
+     ],
+     [
+      50.06,
+      50.8,
+      49.18,
+      50.29,
+      "14 Dec–14 Dec"
+     ],
+     [
+      50.33,
+      50.88,
+      49.79,
+      50.76,
+      "15 Dec–15 Dec"
+     ],
+     [
+      50.72,
+      51.88,
+      50.36,
+      51.5,
+      "16 Dec–17 Dec"
+     ],
+     [
+      51.45,
+      52.47,
+      49.21,
+      50.91,
+      "18 Dec–21 Dec"
+     ],
+     [
+      50.9,
+      50.93,
+      49.56,
+      50.08,
+      "22 Dec–22 Dec"
+     ],
+     [
+      49.8,
+      51.59,
+      49.18,
+      51.2,
+      "23 Dec–23 Dec"
+     ],
+     [
+      51.1,
+      52.02,
+      50.52,
+      50.86,
+      "24 Dec–28 Dec"
+     ],
+     [
+      51.06,
+      51.63,
+      50.87,
+      51.34,
+      "29 Dec–30 Dec"
+     ],
+     [
+      51.51,
+      51.91,
+      50.9,
+      51.8,
+      "31 Dec–31 Dec"
+     ]
+    ],
+    "days": [
+     "2020-12-02",
+     "2020-12-04",
+     "2020-12-07",
+     "2020-12-08",
+     "2020-12-10",
+     "2020-12-14",
+     "2020-12-15",
+     "2020-12-16",
+     "2020-12-18",
+     "2020-12-22",
+     "2020-12-23",
+     "2020-12-24",
+     "2020-12-29",
+     "2020-12-31"
+    ],
+    "open": "Brent spreads flip into backwardation",
+    "news": [
+     {
+      "text": "OPEC+ agrees smaller Jan output hike",
+      "major": false,
+      "day": "2020-12-03",
+      "at": 1
+     },
+     {
+      "text": "FDA authorizes first US vaccine",
+      "major": true,
+      "day": "2020-12-11",
+      "at": 5
+     },
+     {
+      "text": "New UK variant; Europe bans UK travel",
+      "major": true,
+      "day": "2020-12-21",
+      "at": 9
+     }
+    ],
+    "concept": "cb-backwardation"
+   }
+  },
+  {
+   "id": "ci-saudi-lollipop-2021",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "OPEC+ talks deadlocked: Russia wants higher output, Riyadh wants restraint.",
+   "setup": [
+    "The meeting continues tomorrow. Brent is just above $51.",
+    "Saudi Arabia has hinted it could act alone."
+   ],
+   "decision": {
+    "date": "2021-01-04",
+    "price": 51.09
+   },
+   "outcome": {
+    "date": "2021-01-05",
+    "price": 53.6
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    48.71,
+    49.25,
+    48.79,
+    48.84,
+    48.86,
+    50.25,
+    49.97,
+    50.29,
+    50.76,
+    51.08,
+    51.5,
+    52.26,
+    50.91,
+    50.08,
+    51.2,
+    51.29,
+    50.86,
+    51.09,
+    51.34,
+    51.8,
+    51.09
+   ],
+   "after": [
+    53.6
+   ],
+   "why": [
+    "Saudi Arabia surprised with a voluntary 1 mb/d cut for Feb-Mar while others held flat.",
+    "Brent jumped about 5%. A unilateral cut from the swing producer is pure supply removal."
+   ],
+   "source": "ICE Brent settlements 4-5 Jan 2021; Saudi voluntary cut announced 5 Jan 2021. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      50.74,
+      50.8,
+      50.72,
+      50.75,
+      "5 Jan · 1/14"
+     ],
+     [
+      50.75,
+      50.9,
+      50.72,
+      50.79,
+      "5 Jan · 2/14"
+     ],
+     [
+      50.79,
+      50.92,
+      50.62,
+      50.62,
+      "5 Jan · 3/14"
+     ],
+     [
+      50.62,
+      51.24,
+      50.62,
+      51.21,
+      "5 Jan · 4/14"
+     ],
+     [
+      51.21,
+      51.57,
+      51.13,
+      51.5,
+      "5 Jan · 5/14"
+     ],
+     [
+      51.5,
+      52.36,
+      51.37,
+      52.3,
+      "5 Jan · 6/14"
+     ],
+     [
+      52.3,
+      52.92,
+      52.28,
+      52.83,
+      "5 Jan · 7/14"
+     ],
+     [
+      52.83,
+      53.25,
+      52.74,
+      53.23,
+      "5 Jan · 8/14"
+     ],
+     [
+      53.23,
+      53.88,
+      53.21,
+      53.88,
+      "5 Jan · 9/14"
+     ],
+     [
+      53.88,
+      53.88,
+      53.61,
+      53.68,
+      "5 Jan · 10/14"
+     ],
+     [
+      53.68,
+      53.78,
+      53.58,
+      53.71,
+      "5 Jan · 11/14"
+     ],
+     [
+      53.71,
+      53.75,
+      53.58,
+      53.58,
+      "5 Jan · 12/14"
+     ],
+     [
+      53.58,
+      53.78,
+      53.56,
+      53.78,
+      "5 Jan · 13/14"
+     ],
+     [
+      53.78,
+      53.87,
+      53.47,
+      53.6,
+      "5 Jan · 14/14"
+     ]
+    ],
+    "days": [
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05",
+     "2021-01-05"
+    ],
+    "open": "OPEC+ deadlocked; talks resume today",
+    "news": [
+     {
+      "text": "Saudis pledge extra 1 mb/d cut alone",
+      "major": true,
+      "at": 7
+     }
+    ],
+    "concept": "cb-spare-capacity"
+   }
+  },
+  {
+   "id": "ci-omicron-2021",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Thanksgiving week. The US just announced a 50M bbl SPR release.",
+   "setup": [
+    "Brent is around $82, close to multi-year highs.",
+    "Holiday trading is thin. Scientists in South Africa flag a new variant."
+   ],
+   "decision": {
+    "date": "2021-11-24",
+    "price": 82.25
+   },
+   "outcome": {
+    "date": "2021-11-26",
+    "price": 72.72
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    84.58,
+    84.32,
+    84.38,
+    84.71,
+    84.72,
+    81.99,
+    80.54,
+    82.74,
+    83.43,
+    84.78,
+    82.64,
+    82.87,
+    82.17,
+    82.05,
+    82.43,
+    80.28,
+    81.24,
+    78.89,
+    79.7,
+    82.31,
+    82.25
+   ],
+   "after": [
+    72.72
+   ],
+   "why": [
+    "The WHO named Omicron on Black Friday. Thin liquidity plus travel-ban fears hit hard.",
+    "Brent fell about 11.6%, its biggest drop since April 2020."
+   ],
+   "source": "ICE Brent settlements 24 & 26 Nov 2021; WHO designation 26 Nov 2021. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      82.27,
+      82.51,
+      78.39,
+      78.72,
+      "26 Nov · 1/14"
+     ],
+     [
+      78.72,
+      79.11,
+      75.59,
+      75.64,
+      "26 Nov · 2/14"
+     ],
+     [
+      75.64,
+      75.74,
+      72.11,
+      72.11,
+      "26 Nov · 3/14"
+     ],
+     [
+      72.11,
+      73.77,
+      72.11,
+      73.7,
+      "26 Nov · 4/14"
+     ],
+     [
+      73.7,
+      75.11,
+      73.32,
+      75.08,
+      "26 Nov · 5/14"
+     ],
+     [
+      75.08,
+      76.5,
+      75.01,
+      76.44,
+      "26 Nov · 6/14"
+     ],
+     [
+      76.44,
+      77.82,
+      76.13,
+      77.74,
+      "26 Nov · 7/14"
+     ],
+     [
+      77.74,
+      79.71,
+      77.34,
+      79.13,
+      "26 Nov · 8/14"
+     ],
+     [
+      79.13,
+      80.94,
+      79.07,
+      80.82,
+      "26 Nov · 9/14"
+     ],
+     [
+      80.82,
+      82.56,
+      80.59,
+      82.56,
+      "26 Nov · 10/14"
+     ],
+     [
+      82.56,
+      82.56,
+      79.89,
+      79.91,
+      "26 Nov · 11/14"
+     ],
+     [
+      79.91,
+      80.23,
+      76.93,
+      77.01,
+      "26 Nov · 12/14"
+     ],
+     [
+      77.01,
+      77.12,
+      74.82,
+      75.07,
+      "26 Nov · 13/14"
+     ],
+     [
+      75.07,
+      75.09,
+      72.42,
+      72.72,
+      "26 Nov · 14/14"
+     ]
+    ],
+    "days": [
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26",
+     "2021-11-26"
+    ],
+    "open": "Thanksgiving week. New variant flagged.",
+    "news": [
+     {
+      "text": "UK bans flights from southern Africa",
+      "major": false,
+      "at": 1
+     },
+     {
+      "text": "WHO names new variant: Omicron",
+      "major": true,
+      "at": 4
+     }
+    ],
+    "concept": "cb-spr"
+   }
+  },
+  {
+   "id": "ci-russia-invasion-2022",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Russian troops are massing on Ukraine's border. Putin recognizes two breakaway regions.",
+   "setup": [
+    "Russia exports ~7-8 mb/d of crude and products. Brent is just under $97.",
+    "Spare capacity is thin and global inventories are already low."
+   ],
+   "decision": {
+    "date": "2022-02-23",
+    "price": 96.84
+   },
+   "outcome": {
+    "date": "2022-03-08",
+    "price": 127.98
+   },
+   "horizon": "2 weeks",
+   "flatBandPct": 1.5,
+   "series": [
+    88.2,
+    89.96,
+    89.34,
+    90.03,
+    91.21,
+    89.16,
+    89.47,
+    91.11,
+    93.27,
+    92.69,
+    90.78,
+    91.55,
+    91.41,
+    94.44,
+    96.48,
+    93.28,
+    94.81,
+    92.97,
+    93.54,
+    96.84,
+    96.84
+   ],
+   "after": [
+    99.08,
+    97.93,
+    100.99,
+    104.97,
+    112.93,
+    110.46,
+    118.11,
+    123.21,
+    127.98
+   ],
+   "why": [
+    "The invasion, sanctions and self-sanctioning by buyers took Russian barrels out of the market.",
+    "Brent settled near $128 two weeks later, about $31 higher."
+   ],
+   "source": "ICE Brent settlements 23 Feb & 8 Mar 2022; invasion began 24 Feb 2022. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Daily, busiest days split · path simulated, OHLC real",
+    "candles": [
+     [
+      97.56,
+      105.75,
+      97.49,
+      99.08,
+      "24 Feb"
+     ],
+     [
+      99.65,
+      101.99,
+      96.0,
+      97.93,
+      "25 Feb"
+     ],
+     [
+      100.48,
+      104.48,
+      99.9,
+      100.99,
+      "28 Feb"
+     ],
+     [
+      98.11,
+      107.6,
+      97.99,
+      107.6,
+      "1 Mar · 1/2"
+     ],
+     [
+      107.6,
+      107.6,
+      104.94,
+      104.97,
+      "1 Mar · 2/2"
+     ],
+     [
+      107.54,
+      115.05,
+      106.49,
+      112.93,
+      "2 Mar"
+     ],
+     [
+      114.25,
+      119.77,
+      113.98,
+      119.77,
+      "3 Mar · 1/2"
+     ],
+     [
+      119.77,
+      119.77,
+      110.25,
+      110.46,
+      "3 Mar · 2/2"
+     ],
+     [
+      110.58,
+      110.73,
+      109.61,
+      109.61,
+      "4 Mar · 1/2"
+     ],
+     [
+      109.61,
+      118.14,
+      109.61,
+      118.11,
+      "4 Mar · 2/2"
+     ],
+     [
+      121.24,
+      121.33,
+      119.07,
+      119.07,
+      "7 Mar · 1/2"
+     ],
+     [
+      119.07,
+      123.54,
+      119.07,
+      123.21,
+      "7 Mar · 2/2"
+     ],
+     [
+      124.25,
+      124.27,
+      121.37,
+      121.37,
+      "8 Mar · 1/2"
+     ],
+     [
+      121.37,
+      128.35,
+      121.37,
+      127.98,
+      "8 Mar · 2/2"
+     ]
+    ],
+    "days": [
+     "2022-02-24",
+     "2022-02-25",
+     "2022-02-28",
+     "2022-03-01",
+     "2022-03-01",
+     "2022-03-02",
+     "2022-03-03",
+     "2022-03-03",
+     "2022-03-04",
+     "2022-03-04",
+     "2022-03-07",
+     "2022-03-07",
+     "2022-03-08",
+     "2022-03-08"
+    ],
+    "open": "Russian troops massed on Ukraine border",
+    "news": [
+     {
+      "text": "Russia invades Ukraine",
+      "major": true,
+      "day": "2022-02-24",
+      "at": 0
+     },
+     {
+      "text": "West freezes Russia central bank assets",
+      "major": true,
+      "day": "2022-02-28",
+      "at": 2
+     },
+     {
+      "text": "OPEC+ sticks to small output hike",
+      "major": false,
+      "day": "2022-03-02",
+      "at": 5
+     },
+     {
+      "text": "US bans imports of Russian oil",
+      "major": true,
+      "day": "2022-03-08",
+      "at": 12
+     }
+    ],
+    "concept": "cb-risk-premium",
+    "physical": {
+     "side": "SHORT",
+     "bbl": 250000,
+     "who": "EU refiner",
+     "desc": "SHORT 250k bbl crude for next month",
+     "events": [
+      {
+       "at": 1,
+       "usd": 1.5,
+       "text": "Urals shunned; other crude bid up"
+      }
+     ],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-brent-peak-2022",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "The US bans Russian oil imports. Brent settles at a 14-year high.",
+   "setup": [
+    "Brent settled $127.98, up about $30 in two weeks.",
+    "Volatility is extreme and margin calls are forcing traders out."
+   ],
+   "decision": {
+    "date": "2022-03-08",
+    "price": 127.98
+   },
+   "outcome": {
+    "date": "2022-03-09",
+    "price": 111.14
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    92.69,
+    90.78,
+    91.55,
+    91.41,
+    94.44,
+    96.48,
+    93.28,
+    94.81,
+    92.97,
+    93.54,
+    96.84,
+    96.84,
+    99.08,
+    97.93,
+    100.99,
+    104.97,
+    112.93,
+    110.46,
+    118.11,
+    123.21,
+    127.98
+   ],
+   "after": [
+    111.14
+   ],
+   "why": [
+    "The UAE said it would push OPEC+ to pump more, and long positions rushed for the exit.",
+    "Brent fell 13% in one day. After a parabolic move, a small supply headline can flip it."
+   ],
+   "source": "ICE Brent settlements 8-9 Mar 2022; UAE ambassador comments 9 Mar 2022. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      129.57,
+      130.34,
+      121.71,
+      122.06,
+      "9 Mar · 1/14"
+     ],
+     [
+      122.06,
+      122.57,
+      114.27,
+      114.84,
+      "9 Mar · 2/14"
+     ],
+     [
+      114.84,
+      114.86,
+      108.0,
+      108.0,
+      "9 Mar · 3/14"
+     ],
+     [
+      108.0,
+      113.43,
+      108.0,
+      112.62,
+      "9 Mar · 4/14"
+     ],
+     [
+      112.62,
+      117.0,
+      111.82,
+      116.49,
+      "9 Mar · 5/14"
+     ],
+     [
+      116.49,
+      122.12,
+      115.98,
+      121.66,
+      "9 Mar · 6/14"
+     ],
+     [
+      121.66,
+      125.69,
+      121.57,
+      125.2,
+      "9 Mar · 7/14"
+     ],
+     [
+      125.2,
+      131.63,
+      125.12,
+      131.63,
+      "9 Mar · 8/14"
+     ],
+     [
+      131.63,
+      131.63,
+      128.37,
+      128.51,
+      "9 Mar · 9/14"
+     ],
+     [
+      128.51,
+      128.95,
+      125.03,
+      125.08,
+      "9 Mar · 10/14"
+     ],
+     [
+      125.08,
+      125.69,
+      122.03,
+      122.58,
+      "9 Mar · 11/14"
+     ],
+     [
+      122.58,
+      123.12,
+      117.95,
+      118.05,
+      "9 Mar · 12/14"
+     ],
+     [
+      118.05,
+      118.39,
+      112.83,
+      114.02,
+      "9 Mar · 13/14"
+     ],
+     [
+      114.02,
+      115.27,
+      110.92,
+      111.14,
+      "9 Mar · 14/14"
+     ]
+    ],
+    "days": [
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09",
+     "2022-03-09"
+    ],
+    "open": "US bans Russian oil. Brent at 14-yr high",
+    "news": [
+     {
+      "text": "UAE: we favor OPEC output increases",
+      "major": true,
+      "at": 5
+     }
+    ],
+    "concept": "cb-backwardation"
+   }
+  },
+  {
+   "id": "ci-diesel-invasion-2022",
+   "type": "callit",
+   "category": "products",
+   "difficulty": 2,
+   "instrument": "ULSD",
+   "contract": "NYMEX NY Harbor ULSD, front month",
+   "unit": "$/gal",
+   "headline": "Russia supplies roughly half of Europe's diesel imports.",
+   "setup": [
+    "NY Harbor ULSD is $2.83/gal. Distillate stocks on both sides of the Atlantic are low.",
+    "Russian troops are at the Ukrainian border."
+   ],
+   "decision": {
+    "date": "2022-02-23",
+    "price": 2.8292
+   },
+   "outcome": {
+    "date": "2022-03-08",
+    "price": 4.4373
+   },
+   "horizon": "2 weeks",
+   "flatBandPct": 1.5,
+   "series": [
+    2.6691,
+    2.744,
+    2.7945,
+    2.7855,
+    2.7592,
+    2.7412,
+    2.7689,
+    2.8395,
+    2.8751,
+    2.8554,
+    2.7926,
+    2.8249,
+    2.8272,
+    2.9109,
+    2.9618,
+    2.8595,
+    2.8575,
+    2.7862,
+    2.7815,
+    2.8188,
+    2.8292
+   ],
+   "after": [
+    2.8969,
+    2.8495,
+    3.0134,
+    3.1511,
+    3.4947,
+    3.5034,
+    3.7763,
+    3.9215,
+    4.4373
+   ],
+   "why": [
+    "Diesel is the product Europe can't easily replace. Buyers shunned Russian cargoes after the invasion.",
+    "ULSD rose about $1.61/gal (~$67/bbl) in two weeks, outrunning crude."
+   ],
+   "source": "NYMEX HO (NY Harbor ULSD) front-month settlements 23 Feb & 8 Mar 2022. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Daily, busiest days split · path simulated, OHLC real",
+    "candles": [
+     [
+      2.8428,
+      3.0474,
+      2.8427,
+      2.8969,
+      "24 Feb"
+     ],
+     [
+      2.9081,
+      2.9699,
+      2.8045,
+      2.8495,
+      "25 Feb"
+     ],
+     [
+      2.971,
+      3.0196,
+      2.9434,
+      3.0134,
+      "28 Feb"
+     ],
+     [
+      2.931,
+      3.2233,
+      2.9299,
+      3.1511,
+      "1 Mar"
+     ],
+     [
+      3.225,
+      3.6072,
+      3.2249,
+      3.6072,
+      "2 Mar · 1/2"
+     ],
+     [
+      3.6072,
+      3.6072,
+      3.4909,
+      3.4947,
+      "2 Mar · 2/2"
+     ],
+     [
+      3.5405,
+      3.5547,
+      3.3845,
+      3.3845,
+      "3 Mar · 1/2"
+     ],
+     [
+      3.3845,
+      3.518,
+      3.3845,
+      3.5034,
+      "3 Mar · 2/2"
+     ],
+     [
+      3.5077,
+      3.513,
+      3.453,
+      3.453,
+      "4 Mar · 1/2"
+     ],
+     [
+      3.453,
+      3.7773,
+      3.453,
+      3.7763,
+      "4 Mar · 2/2"
+     ],
+     [
+      3.8325,
+      4.2373,
+      3.8252,
+      4.2373,
+      "7 Mar · 1/2"
+     ],
+     [
+      4.2373,
+      4.2373,
+      3.9208,
+      3.9215,
+      "7 Mar · 2/2"
+     ],
+     [
+      3.9738,
+      4.5275,
+      3.9498,
+      4.5275,
+      "8 Mar · 1/2"
+     ],
+     [
+      4.5275,
+      4.5275,
+      4.4022,
+      4.4373,
+      "8 Mar · 2/2"
+     ]
+    ],
+    "days": [
+     "2022-02-24",
+     "2022-02-25",
+     "2022-02-28",
+     "2022-03-01",
+     "2022-03-02",
+     "2022-03-02",
+     "2022-03-03",
+     "2022-03-03",
+     "2022-03-04",
+     "2022-03-04",
+     "2022-03-07",
+     "2022-03-07",
+     "2022-03-08",
+     "2022-03-08"
+    ],
+    "open": "Russia: ~half of EU diesel imports",
+    "news": [
+     {
+      "text": "Russia invades Ukraine",
+      "major": true,
+      "day": "2022-02-24",
+      "at": 0
+     },
+     {
+      "text": "Traders shun Russian diesel cargoes",
+      "major": false,
+      "day": "2022-03-03",
+      "at": 6
+     },
+     {
+      "text": "US bans imports of Russian oil",
+      "major": true,
+      "day": "2022-03-08",
+      "at": 12
+     }
+    ],
+    "concept": "cb-crack-spread"
+   }
+  },
+  {
+   "id": "ci-diesel-squeeze-apr2022",
+   "type": "callit",
+   "category": "products",
+   "difficulty": 3,
+   "instrument": "ULSD",
+   "contract": "NYMEX NY Harbor ULSD, front month",
+   "unit": "$/gal",
+   "headline": "New York Harbor diesel stocks are at multi-decade lows for the season.",
+   "setup": [
+    "The May ULSD contract expires Friday. Shorts need physical barrels in New York.",
+    "East Coast refinery capacity has shrunk and Europe is bidding for US cargoes."
+   ],
+   "decision": {
+    "date": "2022-04-25",
+    "price": 4.0909
+   },
+   "outcome": {
+    "date": "2022-04-28",
+    "price": 5.1354
+   },
+   "horizon": "3 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    4.1146,
+    3.7834,
+    3.7161,
+    3.8085,
+    3.6912,
+    3.424,
+    3.5461,
+    3.4682,
+    3.3452,
+    3.2678,
+    3.3176,
+    3.2677,
+    3.4644,
+    3.7184,
+    3.8548,
+    3.8908,
+    3.8619,
+    3.9731,
+    3.9008,
+    3.9386,
+    4.0909
+   ],
+   "after": [
+    4.4679,
+    4.6743,
+    5.1354
+   ],
+   "why": [
+    "A classic expiry squeeze: little physical supply against the contract, so shorts paid up.",
+    "May ULSD rose ~$1.04/gal (~$44/bbl) in three days, and the diesel crack topped $100/bbl."
+   ],
+   "source": "NYMEX HO May-22 contract settlements 25 & 28 Apr 2022; EIA weekly distillate stocks, PADD 1B. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      4.1271,
+      4.13,
+      4.1044,
+      4.1044,
+      "26 Apr · 1/5"
+     ],
+     [
+      4.1044,
+      4.2862,
+      4.1044,
+      4.2631,
+      "26 Apr · 2/5"
+     ],
+     [
+      4.2631,
+      4.4214,
+      4.2441,
+      4.4162,
+      "26 Apr · 3/5"
+     ],
+     [
+      4.4162,
+      4.5714,
+      4.4159,
+      4.5714,
+      "26 Apr · 4/5"
+     ],
+     [
+      4.5714,
+      4.5714,
+      4.4656,
+      4.4679,
+      "26 Apr · 5/5"
+     ],
+     [
+      4.45,
+      4.7099,
+      4.4494,
+      4.7099,
+      "27 Apr · 1/5"
+     ],
+     [
+      4.7099,
+      4.7099,
+      4.5252,
+      4.5264,
+      "27 Apr · 2/5"
+     ],
+     [
+      4.5264,
+      4.53,
+      4.345,
+      4.345,
+      "27 Apr · 3/5"
+     ],
+     [
+      4.345,
+      4.5042,
+      4.345,
+      4.495,
+      "27 Apr · 4/5"
+     ],
+     [
+      4.495,
+      4.6844,
+      4.4904,
+      4.6743,
+      "27 Apr · 5/5"
+     ],
+     [
+      4.6825,
+      4.6835,
+      4.6635,
+      4.6635,
+      "28 Apr · 1/5"
+     ],
+     [
+      4.6635,
+      4.879,
+      4.6635,
+      4.8761,
+      "28 Apr · 2/5"
+     ],
+     [
+      4.8761,
+      5.0549,
+      4.8733,
+      5.0465,
+      "28 Apr · 3/5"
+     ],
+     [
+      5.0465,
+      5.2215,
+      5.0393,
+      5.2215,
+      "28 Apr · 4/5"
+     ],
+     [
+      5.2215,
+      5.2215,
+      5.1339,
+      5.1354,
+      "28 Apr · 5/5"
+     ]
+    ],
+    "days": [
+     "2022-04-26",
+     "2022-04-26",
+     "2022-04-26",
+     "2022-04-26",
+     "2022-04-26",
+     "2022-04-27",
+     "2022-04-27",
+     "2022-04-27",
+     "2022-04-27",
+     "2022-04-27",
+     "2022-04-28",
+     "2022-04-28",
+     "2022-04-28",
+     "2022-04-28",
+     "2022-04-28"
+    ],
+    "open": "NY Harbor diesel stocks at decades-low",
+    "news": [
+     {
+      "text": "May ULSD expires Friday",
+      "major": false,
+      "day": "2022-04-26",
+      "at": 0
+     },
+     {
+      "text": "Russia cuts gas to Poland, Bulgaria",
+      "major": true,
+      "day": "2022-04-27",
+      "at": 5
+     }
+    ],
+    "concept": "cb-expiry",
+    "physical": {
+     "side": "SHORT",
+     "bbl": 250000,
+     "who": "Distributor",
+     "desc": "SHORT 250k bbl ULSD owed in NY Harbor",
+     "events": [
+      {
+       "at": 5,
+       "usd": 3.0,
+       "text": "NY Harbor barge premium spikes"
+      }
+     ],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-diesel-squeeze-oct2022",
+   "type": "callit",
+   "category": "products",
+   "difficulty": 3,
+   "instrument": "ULSD",
+   "contract": "NYMEX NY Harbor ULSD, front month",
+   "unit": "$/gal",
+   "headline": "US distillate stocks are the lowest for the time of year since 1951.",
+   "setup": [
+    "Winter heating demand is near. French refinery strikes are cutting European output.",
+    "November ULSD is $3.76/gal heading into its end-of-month expiry."
+   ],
+   "decision": {
+    "date": "2022-10-20",
+    "price": 3.7568
+   },
+   "outcome": {
+    "date": "2022-10-28",
+    "price": 4.5498
+   },
+   "horizon": "6 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    3.4115,
+    3.2371,
+    3.1291,
+    3.2599,
+    3.4494,
+    3.4146,
+    3.369,
+    3.3691,
+    3.5358,
+    3.6869,
+    3.8649,
+    4.0187,
+    3.9147,
+    3.9308,
+    3.9328,
+    4.0948,
+    3.9802,
+    4.0852,
+    3.9935,
+    3.9043,
+    3.7568
+   ],
+   "after": [
+    3.8323,
+    3.9201,
+    3.9672,
+    4.1201,
+    4.3339,
+    4.5498
+   ],
+   "why": [
+    "Low stocks, strikes and expiry combined into another squeeze on prompt diesel.",
+    "ULSD rose ~$0.79/gal (~$33/bbl) in six sessions, then dropped hard at the roll."
+   ],
+   "source": "NYMEX HO Nov-22 contract settlements 20-28 Oct 2022; EIA weekly distillate stocks Oct 2022. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      3.7579,
+      3.7584,
+      3.6608,
+      3.6608,
+      "21 Oct · 1/2"
+     ],
+     [
+      3.6608,
+      3.8364,
+      3.6608,
+      3.8323,
+      "21 Oct · 2/2"
+     ],
+     [
+      3.8394,
+      3.845,
+      3.8,
+      3.8,
+      "24 Oct · 1/2"
+     ],
+     [
+      3.8,
+      3.9256,
+      3.8,
+      3.9201,
+      "24 Oct · 2/2"
+     ],
+     [
+      3.9592,
+      3.9599,
+      3.876,
+      3.876,
+      "25 Oct · 1/2"
+     ],
+     [
+      3.876,
+      3.9673,
+      3.876,
+      3.9672,
+      "25 Oct · 2/2"
+     ],
+     [
+      3.9532,
+      3.9582,
+      3.9315,
+      3.9315,
+      "26 Oct · 1/2"
+     ],
+     [
+      3.9315,
+      4.1287,
+      3.9315,
+      4.1201,
+      "26 Oct · 2/2"
+     ],
+     [
+      4.1746,
+      4.3561,
+      4.1659,
+      4.3561,
+      "27 Oct · 1/2"
+     ],
+     [
+      4.3561,
+      4.3561,
+      4.3328,
+      4.3339,
+      "27 Oct · 2/2"
+     ],
+     [
+      4.36,
+      4.368,
+      4.33,
+      4.33,
+      "28 Oct · 1/2"
+     ],
+     [
+      4.33,
+      4.5557,
+      4.33,
+      4.5498,
+      "28 Oct · 2/2"
+     ]
+    ],
+    "days": [
+     "2022-10-21",
+     "2022-10-21",
+     "2022-10-24",
+     "2022-10-24",
+     "2022-10-25",
+     "2022-10-25",
+     "2022-10-26",
+     "2022-10-26",
+     "2022-10-27",
+     "2022-10-27",
+     "2022-10-28",
+     "2022-10-28"
+    ],
+    "open": "Diesel stocks: lowest for Oct since 1951",
+    "news": [
+     {
+      "text": "French refinery strikes drag on",
+      "major": false,
+      "day": "2022-10-21",
+      "at": 0
+     },
+     {
+      "text": "Nov ULSD expiry approaches",
+      "major": false,
+      "day": "2022-10-27",
+      "at": 8
+     }
+    ],
+    "concept": "cb-diesel-vs-gasoline"
+   }
+  },
+  {
+   "id": "ci-svb-2023",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Silicon Valley Bank fails, the biggest US bank failure since 2008.",
+   "setup": [
+    "Brent is around $83. Funds hold large long positions on China reopening.",
+    "Credit stress raises recession odds and pushes risk-off selling across assets."
+   ],
+   "decision": {
+    "date": "2023-03-10",
+    "price": 82.78
+   },
+   "outcome": {
+    "date": "2023-03-17",
+    "price": 72.97
+   },
+   "horizon": "1 week",
+   "flatBandPct": 1.5,
+   "series": [
+    84.5,
+    86.39,
+    86.61,
+    85.58,
+    85.38,
+    85.14,
+    83.0,
+    83.05,
+    80.6,
+    82.21,
+    83.16,
+    82.45,
+    83.89,
+    84.31,
+    84.75,
+    85.83,
+    86.18,
+    83.29,
+    82.66,
+    81.59,
+    82.78
+   ],
+   "after": [
+    80.77,
+    77.45,
+    73.69,
+    74.7,
+    72.97
+   ],
+   "why": [
+    "Contagion spread to Credit Suisse midweek, and macro funds cut their oil length.",
+    "Brent fell nearly $10 (12%) in a week to a 15-month low."
+   ],
+   "source": "ICE Brent settlements 10 & 17 Mar 2023; SVB closed 10 Mar, Credit Suisse stress 15 Mar 2023. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      82.54,
+      83.47,
+      82.52,
+      83.47,
+      "13 Mar · 1/3"
+     ],
+     [
+      83.47,
+      83.47,
+      78.34,
+      78.34,
+      "13 Mar · 2/3"
+     ],
+     [
+      78.34,
+      80.86,
+      78.34,
+      80.77,
+      "13 Mar · 3/3"
+     ],
+     [
+      80.69,
+      80.88,
+      80.62,
+      80.88,
+      "14 Mar · 1/3"
+     ],
+     [
+      80.88,
+      80.88,
+      76.88,
+      76.88,
+      "14 Mar · 2/3"
+     ],
+     [
+      76.88,
+      77.52,
+      76.88,
+      77.45,
+      "14 Mar · 3/3"
+     ],
+     [
+      77.57,
+      78.71,
+      77.49,
+      78.71,
+      "15 Mar · 1/3"
+     ],
+     [
+      78.71,
+      78.71,
+      71.63,
+      71.63,
+      "15 Mar · 2/3"
+     ],
+     [
+      71.63,
+      73.72,
+      71.63,
+      73.69,
+      "15 Mar · 3/3"
+     ],
+     [
+      74.35,
+      75.52,
+      74.28,
+      75.52,
+      "16 Mar · 1/3"
+     ],
+     [
+      75.52,
+      75.52,
+      71.86,
+      71.86,
+      "16 Mar · 2/3"
+     ],
+     [
+      71.86,
+      74.75,
+      71.86,
+      74.7,
+      "16 Mar · 3/3"
+     ],
+     [
+      74.55,
+      75.9,
+      74.37,
+      75.9,
+      "17 Mar · 1/3"
+     ],
+     [
+      75.9,
+      75.9,
+      71.35,
+      71.35,
+      "17 Mar · 2/3"
+     ],
+     [
+      71.35,
+      72.99,
+      71.35,
+      72.97,
+      "17 Mar · 3/3"
+     ]
+    ],
+    "days": [
+     "2023-03-13",
+     "2023-03-13",
+     "2023-03-13",
+     "2023-03-14",
+     "2023-03-14",
+     "2023-03-14",
+     "2023-03-15",
+     "2023-03-15",
+     "2023-03-15",
+     "2023-03-16",
+     "2023-03-16",
+     "2023-03-16",
+     "2023-03-17",
+     "2023-03-17",
+     "2023-03-17"
+    ],
+    "open": "SVB fails: biggest US bank failure since '08",
+    "news": [
+     {
+      "text": "US backstops all SVB deposits",
+      "major": false,
+      "day": "2023-03-13",
+      "at": 0
+     },
+     {
+      "text": "Credit Suisse shares crash",
+      "major": true,
+      "day": "2023-03-15",
+      "at": 6
+     },
+     {
+      "text": "SNB gives Credit Suisse a $54bn lifeline",
+      "major": false,
+      "day": "2023-03-16",
+      "at": 9
+     }
+    ],
+    "concept": "cb-risk-premium"
+   }
+  },
+  {
+   "id": "ci-opec-surprise-cut-2023",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Sunday: Saudi Arabia and other OPEC+ members announce surprise cuts of ~1.16 mb/d.",
+   "setup": [
+    "No cut was expected. Brent closed Friday at $79.77 after the banking-stress selloff.",
+    "Cuts start in May and run through year-end."
+   ],
+   "decision": {
+    "date": "2023-03-31",
+    "price": 79.77
+   },
+   "outcome": {
+    "date": "2023-04-03",
+    "price": 84.93
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    85.83,
+    86.18,
+    83.29,
+    82.66,
+    81.59,
+    82.78,
+    80.77,
+    77.45,
+    73.69,
+    74.7,
+    72.97,
+    73.79,
+    75.32,
+    76.69,
+    75.91,
+    74.99,
+    78.12,
+    78.65,
+    78.28,
+    79.27,
+    79.77
+   ],
+   "after": [
+    84.93
+   ],
+   "why": [
+    "A surprise supply cut from the group with spare capacity is a direct bullish shock.",
+    "Brent gapped up and settled about 6.5% higher on Monday."
+   ],
+   "source": "ICE Brent settlements 31 Mar & 3 Apr 2023; OPEC+ voluntary cuts announced 2 Apr 2023. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      83.29,
+      83.63,
+      83.29,
+      83.59,
+      "3 Apr · 1/14"
+     ],
+     [
+      83.59,
+      84.06,
+      83.54,
+      83.95,
+      "3 Apr · 2/14"
+     ],
+     [
+      83.95,
+      84.13,
+      83.91,
+      84.1,
+      "3 Apr · 3/14"
+     ],
+     [
+      84.1,
+      84.4,
+      83.94,
+      84.38,
+      "3 Apr · 4/14"
+     ],
+     [
+      84.38,
+      84.66,
+      84.37,
+      84.66,
+      "3 Apr · 5/14"
+     ],
+     [
+      84.66,
+      84.86,
+      84.65,
+      84.82,
+      "3 Apr · 6/14"
+     ],
+     [
+      84.82,
+      85.07,
+      84.81,
+      85.07,
+      "3 Apr · 7/14"
+     ],
+     [
+      85.07,
+      85.49,
+      84.9,
+      85.47,
+      "3 Apr · 8/14"
+     ],
+     [
+      85.47,
+      85.87,
+      85.43,
+      85.76,
+      "3 Apr · 9/14"
+     ],
+     [
+      85.76,
+      86.08,
+      85.74,
+      86.02,
+      "3 Apr · 10/14"
+     ],
+     [
+      86.02,
+      86.24,
+      86.0,
+      86.24,
+      "3 Apr · 11/14"
+     ],
+     [
+      86.24,
+      86.24,
+      85.86,
+      85.89,
+      "3 Apr · 12/14"
+     ],
+     [
+      85.89,
+      85.98,
+      85.33,
+      85.33,
+      "3 Apr · 13/14"
+     ],
+     [
+      85.33,
+      85.36,
+      84.85,
+      84.93,
+      "3 Apr · 14/14"
+     ]
+    ],
+    "days": [
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03",
+     "2023-04-03"
+    ],
+    "open": "Sunday: OPEC+ surprise cut ~1.16 mb/d",
+    "news": [
+     {
+      "text": "Saudi cuts 500 kb/d; Iraq, UAE join",
+      "major": true,
+      "at": 0
+     }
+    ],
+    "concept": "cb-sweet-sour",
+    "physical": {
+     "side": "SHORT",
+     "bbl": 250000,
+     "who": "Refiner",
+     "desc": "SHORT 250k bbl medium-sour feedstock",
+     "events": [
+      {
+       "at": 2,
+       "usd": 0.8,
+       "text": "Sour grades tighten after the cut"
+      }
+     ],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-saudi-cut-jun2023",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Sunday: Saudi Arabia pledges an extra 1 mb/d unilateral cut for July.",
+   "setup": [
+    "Brent is near $76. China's recovery is disappointing and recession fears linger.",
+    "The cut is for one month only, extendable."
+   ],
+   "decision": {
+    "date": "2023-06-02",
+    "price": 76.13
+   },
+   "outcome": {
+    "date": "2023-06-05",
+    "price": 76.71
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    72.5,
+    75.3,
+    77.01,
+    77.44,
+    76.41,
+    74.98,
+    74.17,
+    75.23,
+    74.91,
+    76.96,
+    75.86,
+    75.58,
+    75.99,
+    76.84,
+    78.36,
+    76.26,
+    76.95,
+    73.54,
+    72.66,
+    74.28,
+    76.13
+   ],
+   "after": [
+    76.71
+   ],
+   "why": [
+    "The market doubted demand and saw it as a short-term cut, so the rally faded intraday.",
+    "Brent settled up just 0.8%. A supply headline isn't bullish if traders think demand is the problem."
+   ],
+   "source": "ICE Brent settlements 2 & 5 Jun 2023; Saudi announcement 4 Jun 2023. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      77.5,
+      77.51,
+      76.3,
+      76.3,
+      "5 Jun · 1/14"
+     ],
+     [
+      76.3,
+      76.64,
+      76.3,
+      76.63,
+      "5 Jun · 2/14"
+     ],
+     [
+      76.63,
+      76.86,
+      76.54,
+      76.73,
+      "5 Jun · 3/14"
+     ],
+     [
+      76.73,
+      77.05,
+      76.67,
+      77.04,
+      "5 Jun · 4/14"
+     ],
+     [
+      77.04,
+      77.33,
+      77.03,
+      77.3,
+      "5 Jun · 5/14"
+     ],
+     [
+      77.3,
+      77.63,
+      77.27,
+      77.63,
+      "5 Jun · 6/14"
+     ],
+     [
+      77.63,
+      77.92,
+      77.56,
+      77.9,
+      "5 Jun · 7/14"
+     ],
+     [
+      77.9,
+      78.15,
+      77.85,
+      78.13,
+      "5 Jun · 8/14"
+     ],
+     [
+      78.13,
+      78.4,
+      78.12,
+      78.39,
+      "5 Jun · 9/14"
+     ],
+     [
+      78.39,
+      78.72,
+      78.36,
+      78.72,
+      "5 Jun · 10/14"
+     ],
+     [
+      78.72,
+      78.72,
+      78.17,
+      78.2,
+      "5 Jun · 11/14"
+     ],
+     [
+      78.2,
+      78.26,
+      77.8,
+      77.86,
+      "5 Jun · 12/14"
+     ],
+     [
+      77.86,
+      77.89,
+      76.99,
+      77.04,
+      "5 Jun · 13/14"
+     ],
+     [
+      77.04,
+      77.08,
+      76.69,
+      76.71,
+      "5 Jun · 14/14"
+     ]
+    ],
+    "days": [
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05",
+     "2023-06-05"
+    ],
+    "open": "Saudi pledges extra 1 mb/d cut for July",
+    "news": [
+     {
+      "text": "Cut is one month only, 'extendable'",
+      "major": false,
+      "at": 3
+     },
+     {
+      "text": "US services PMI misses forecast",
+      "major": false,
+      "at": 8
+     }
+    ],
+    "concept": "cb-spare-capacity"
+   }
+  },
+  {
+   "id": "ci-hamas-attack-2023",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Saturday: Hamas launches a surprise attack on Israel.",
+   "setup": [
+    "Brent closed Friday at $84.58 after a sharp two-day drop.",
+    "Neither Israel nor Gaza produces much oil, but Iran and the Gulf are close by."
+   ],
+   "decision": {
+    "date": "2023-10-06",
+    "price": 84.58
+   },
+   "outcome": {
+    "date": "2023-10-09",
+    "price": 88.15
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    90.65,
+    90.64,
+    92.06,
+    91.88,
+    93.7,
+    93.93,
+    94.43,
+    94.34,
+    93.53,
+    93.3,
+    93.27,
+    93.29,
+    93.96,
+    96.55,
+    95.38,
+    95.31,
+    90.71,
+    90.92,
+    85.81,
+    84.07,
+    84.58
+   ],
+   "after": [
+    88.15
+   ],
+   "why": [
+    "The market added a geopolitical risk premium for wider escalation involving Iran.",
+    "Brent rose about 4% on Monday, then gave back part of it as supply stayed intact."
+   ],
+   "source": "ICE Brent settlements 6 & 9 Oct 2023. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      86.35,
+      86.97,
+      86.32,
+      86.96,
+      "9 Oct · 1/14"
+     ],
+     [
+      86.96,
+      87.64,
+      86.85,
+      87.59,
+      "9 Oct · 2/14"
+     ],
+     [
+      87.59,
+      88.46,
+      87.49,
+      88.44,
+      "9 Oct · 3/14"
+     ],
+     [
+      88.44,
+      89.0,
+      88.39,
+      89.0,
+      "9 Oct · 4/14"
+     ],
+     [
+      89.0,
+      89.0,
+      88.26,
+      88.35,
+      "9 Oct · 5/14"
+     ],
+     [
+      88.35,
+      88.37,
+      87.96,
+      88.05,
+      "9 Oct · 6/14"
+     ],
+     [
+      88.05,
+      88.12,
+      87.13,
+      87.14,
+      "9 Oct · 7/14"
+     ],
+     [
+      87.14,
+      87.16,
+      86.49,
+      86.54,
+      "9 Oct · 8/14"
+     ],
+     [
+      86.54,
+      86.56,
+      86.07,
+      86.07,
+      "9 Oct · 9/14"
+     ],
+     [
+      86.07,
+      86.56,
+      86.07,
+      86.49,
+      "9 Oct · 10/14"
+     ],
+     [
+      86.49,
+      87.01,
+      86.42,
+      86.99,
+      "9 Oct · 11/14"
+     ],
+     [
+      86.99,
+      87.24,
+      86.91,
+      87.17,
+      "9 Oct · 12/14"
+     ],
+     [
+      87.17,
+      87.87,
+      87.13,
+      87.79,
+      "9 Oct · 13/14"
+     ],
+     [
+      87.79,
+      88.23,
+      87.74,
+      88.15,
+      "9 Oct · 14/14"
+     ]
+    ],
+    "days": [
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09",
+     "2023-10-09"
+    ],
+    "open": "Hamas launches surprise attack on Israel",
+    "news": [
+     {
+      "text": "Israel declares war; Gaza strikes begin",
+      "major": true,
+      "at": 0
+     },
+     {
+      "text": "Oil flows from the Gulf unaffected",
+      "major": false,
+      "at": 7
+     }
+    ],
+    "concept": "cb-hormuz"
+   }
+  },
+  {
+   "id": "ci-israel-iran-oct2024",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Saturday: Israel strikes Iran. Military targets only; oil and nuclear sites spared.",
+   "setup": [
+    "Brent had rallied on fears Israel would hit Iran's export terminals.",
+    "Brent settled Friday at $76.05 with a risk premium built in."
+   ],
+   "decision": {
+    "date": "2024-10-25",
+    "price": 76.05
+   },
+   "outcome": {
+    "date": "2024-10-28",
+    "price": 71.42
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    71.98,
+    71.77,
+    73.56,
+    73.9,
+    77.62,
+    78.05,
+    80.93,
+    77.18,
+    76.58,
+    79.4,
+    79.04,
+    77.46,
+    74.25,
+    74.22,
+    74.45,
+    73.06,
+    74.29,
+    76.04,
+    74.96,
+    74.38,
+    76.05
+   ],
+   "after": [
+    71.42
+   ],
+   "why": [
+    "Restraint removed the worst-case supply scenario, so the premium came out.",
+    "Brent fell about 6% Monday. Trade the gap between priced-in fear and what actually happened."
+   ],
+   "source": "ICE Brent settlements 25 & 28 Oct 2024; Israeli strikes 26 Oct 2024. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      74.0,
+      74.0,
+      73.59,
+      73.65,
+      "28 Oct · 1/14"
+     ],
+     [
+      73.65,
+      73.68,
+      73.04,
+      73.13,
+      "28 Oct · 2/14"
+     ],
+     [
+      73.13,
+      73.14,
+      73.06,
+      73.11,
+      "28 Oct · 3/14"
+     ],
+     [
+      73.11,
+      73.15,
+      72.55,
+      72.57,
+      "28 Oct · 4/14"
+     ],
+     [
+      72.57,
+      72.6,
+      72.37,
+      72.42,
+      "28 Oct · 5/14"
+     ],
+     [
+      72.42,
+      72.49,
+      71.77,
+      71.77,
+      "28 Oct · 6/14"
+     ],
+     [
+      71.77,
+      71.8,
+      71.49,
+      71.5,
+      "28 Oct · 7/14"
+     ],
+     [
+      71.5,
+      71.55,
+      71.17,
+      71.17,
+      "28 Oct · 8/14"
+     ],
+     [
+      71.17,
+      71.26,
+      71.17,
+      71.26,
+      "28 Oct · 9/14"
+     ],
+     [
+      71.26,
+      71.35,
+      71.25,
+      71.25,
+      "28 Oct · 10/14"
+     ],
+     [
+      71.25,
+      71.32,
+      71.25,
+      71.27,
+      "28 Oct · 11/14"
+     ],
+     [
+      71.27,
+      71.34,
+      71.27,
+      71.33,
+      "28 Oct · 12/14"
+     ],
+     [
+      71.33,
+      71.57,
+      71.29,
+      71.5,
+      "28 Oct · 13/14"
+     ],
+     [
+      71.5,
+      71.56,
+      71.41,
+      71.42,
+      "28 Oct · 14/14"
+     ]
+    ],
+    "days": [
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28",
+     "2024-10-28"
+    ],
+    "open": "Israel strikes Iran, spares oil sites",
+    "news": [
+     {
+      "text": "Iran plays down damage from strikes",
+      "major": false,
+      "at": 0
+     }
+    ],
+    "concept": "cb-risk-premium"
+   }
+  },
+  {
+   "id": "ci-israel-strikes-iran-2025",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "The US pulls some staff from the Middle East. Reports say Israel may strike Iran.",
+   "setup": [
+    "Brent is near $69. Iran exports ~1.5 mb/d of crude.",
+    "About 20% of world oil moves through the Strait of Hormuz, next to Iran."
+   ],
+   "decision": {
+    "date": "2025-06-12",
+    "price": 69.36
+   },
+   "outcome": {
+    "date": "2025-06-13",
+    "price": 74.23
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    66.09,
+    64.53,
+    65.41,
+    65.54,
+    65.38,
+    64.91,
+    64.44,
+    64.78,
+    64.09,
+    64.9,
+    64.15,
+    63.9,
+    64.63,
+    65.63,
+    64.86,
+    65.34,
+    66.47,
+    67.04,
+    66.87,
+    69.77,
+    69.36
+   ],
+   "after": [
+    74.23
+   ],
+   "why": [
+    "Israel struck Iran's nuclear and military sites overnight. Hormuz risk was priced in fast.",
+    "Brent jumped 7% on the day after spiking more than 10% intraday."
+   ],
+   "source": "ICE Brent settlements 12-13 Jun 2025. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      70.27,
+      70.42,
+      70.23,
+      70.3,
+      "13 Jun · 1/14"
+     ],
+     [
+      70.3,
+      70.37,
+      70.18,
+      70.18,
+      "13 Jun · 2/14"
+     ],
+     [
+      70.18,
+      70.35,
+      70.18,
+      70.18,
+      "13 Jun · 3/14"
+     ],
+     [
+      70.18,
+      70.27,
+      69.92,
+      69.92,
+      "13 Jun · 4/14"
+     ],
+     [
+      69.92,
+      71.09,
+      69.92,
+      71.02,
+      "13 Jun · 5/14"
+     ],
+     [
+      71.02,
+      71.78,
+      71.0,
+      71.69,
+      "13 Jun · 6/14"
+     ],
+     [
+      71.69,
+      73.15,
+      71.68,
+      73.1,
+      "13 Jun · 7/14"
+     ],
+     [
+      73.1,
+      74.14,
+      73.05,
+      73.9,
+      "13 Jun · 8/14"
+     ],
+     [
+      73.9,
+      74.71,
+      73.83,
+      74.34,
+      "13 Jun · 9/14"
+     ],
+     [
+      74.34,
+      75.65,
+      74.06,
+      75.45,
+      "13 Jun · 10/14"
+     ],
+     [
+      75.45,
+      76.96,
+      75.27,
+      76.78,
+      "13 Jun · 11/14"
+     ],
+     [
+      76.78,
+      77.96,
+      76.68,
+      77.71,
+      "13 Jun · 12/14"
+     ],
+     [
+      77.71,
+      78.53,
+      77.48,
+      78.53,
+      "13 Jun · 13/14"
+     ],
+     [
+      78.53,
+      78.53,
+      74.15,
+      74.23,
+      "13 Jun · 14/14"
+     ]
+    ],
+    "days": [
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13",
+     "2025-06-13"
+    ],
+    "open": "US pulls staff; Israel strike on Iran feared",
+    "news": [
+     {
+      "text": "Israel strikes Iran nuclear sites",
+      "major": true,
+      "at": 0
+     },
+     {
+      "text": "Iran launches drones at Israel",
+      "major": true,
+      "at": 6
+     }
+    ],
+    "concept": "cb-hormuz"
+   }
+  },
+  {
+   "id": "ci-iran-sell-the-news-2025",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Weekend: the US bombs three Iranian nuclear sites. Markets reopen Sunday night.",
+   "setup": [
+    "Brent closed Friday at $77.01, up ~$10 in two weeks on war risk.",
+    "Will Iran retaliate against oil flows through Hormuz?"
+   ],
+   "decision": {
+    "date": "2025-06-20",
+    "price": 77.01
+   },
+   "outcome": {
+    "date": "2025-06-23",
+    "price": 71.48
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    64.91,
+    64.44,
+    64.78,
+    64.09,
+    64.9,
+    64.15,
+    63.9,
+    64.63,
+    65.63,
+    64.86,
+    65.34,
+    66.47,
+    67.04,
+    66.87,
+    69.77,
+    69.36,
+    74.23,
+    73.23,
+    76.45,
+    76.7,
+    77.01
+   ],
+   "after": [
+    71.48
+   ],
+   "why": [
+    "Iran's response was a telegraphed missile strike on a US base, with no oil targets.",
+    "Brent opened higher, then fell 7%. The risk premium was already in the price."
+   ],
+   "source": "ICE Brent settlements 20 & 23 Jun 2025 (19 Jun holiday); US strikes 22 Jun 2025. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      80.01,
+      80.13,
+      79.75,
+      79.89,
+      "23 Jun · 1/14"
+     ],
+     [
+      79.89,
+      80.51,
+      79.81,
+      80.48,
+      "23 Jun · 2/14"
+     ],
+     [
+      80.48,
+      81.04,
+      80.21,
+      81.04,
+      "23 Jun · 3/14"
+     ],
+     [
+      81.04,
+      81.4,
+      80.99,
+      81.4,
+      "23 Jun · 4/14"
+     ],
+     [
+      81.4,
+      81.4,
+      77.89,
+      77.99,
+      "23 Jun · 5/14"
+     ],
+     [
+      77.99,
+      78.12,
+      72.28,
+      72.77,
+      "23 Jun · 6/14"
+     ],
+     [
+      72.77,
+      73.03,
+      69.54,
+      69.54,
+      "23 Jun · 7/14"
+     ],
+     [
+      69.54,
+      70.21,
+      69.54,
+      70.04,
+      "23 Jun · 8/14"
+     ],
+     [
+      70.04,
+      70.49,
+      69.9,
+      70.18,
+      "23 Jun · 9/14"
+     ],
+     [
+      70.18,
+      70.19,
+      69.9,
+      69.9,
+      "23 Jun · 10/14"
+     ],
+     [
+      69.9,
+      71.12,
+      69.9,
+      70.83,
+      "23 Jun · 11/14"
+     ],
+     [
+      70.83,
+      71.11,
+      70.74,
+      70.84,
+      "23 Jun · 12/14"
+     ],
+     [
+      70.84,
+      71.53,
+      70.75,
+      71.24,
+      "23 Jun · 13/14"
+     ],
+     [
+      71.24,
+      71.52,
+      71.04,
+      71.48,
+      "23 Jun · 14/14"
+     ]
+    ],
+    "days": [
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23",
+     "2025-06-23"
+    ],
+    "open": "US bombs three Iranian nuclear sites",
+    "news": [
+     {
+      "text": "Iran parliament backs closing Hormuz",
+      "major": true,
+      "at": 0
+     },
+     {
+      "text": "Iran fires missiles at US base in Qatar",
+      "major": true,
+      "at": 9
+     },
+     {
+      "text": "Iran's strike telegraphed; no casualties",
+      "major": false,
+      "at": 12
+     }
+    ],
+    "concept": "cb-risk-premium"
+   }
+  },
+  {
+   "id": "ci-liberation-day-2025",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "After the close: the US announces sweeping 'Liberation Day' tariffs.",
+   "setup": [
+    "Brent settled $74.95. Tariffs raise global recession risk.",
+    "OPEC+ is due to set May output Thursday and was expected to add a modest 135 kb/d."
+   ],
+   "decision": {
+    "date": "2025-04-02",
+    "price": 74.95
+   },
+   "outcome": {
+    "date": "2025-04-04",
+    "price": 65.58
+   },
+   "horizon": "2 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    69.3,
+    69.46,
+    70.36,
+    69.28,
+    69.56,
+    70.95,
+    69.88,
+    70.58,
+    71.07,
+    70.56,
+    70.78,
+    72.0,
+    72.16,
+    73.0,
+    73.02,
+    73.79,
+    74.03,
+    73.63,
+    74.74,
+    74.49,
+    74.95
+   ],
+   "after": [
+    70.14,
+    65.58
+   ],
+   "why": [
+    "Recession fears, plus OPEC+ tripling its May hike to 411 kb/d, hit both demand and supply.",
+    "Brent fell about $9.40 (12.5%) in two sessions."
+   ],
+   "source": "ICE Brent settlements 2-4 Apr 2025; OPEC+ eight-country decision 3 Apr 2025. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      73.59,
+      73.62,
+      73.42,
+      73.46,
+      "3 Apr · 1/7"
+     ],
+     [
+      73.46,
+      73.62,
+      73.45,
+      73.62,
+      "3 Apr · 2/7"
+     ],
+     [
+      73.62,
+      73.62,
+      71.3,
+      71.37,
+      "3 Apr · 3/7"
+     ],
+     [
+      71.37,
+      71.42,
+      69.47,
+      69.47,
+      "3 Apr · 4/7"
+     ],
+     [
+      69.47,
+      69.72,
+      69.47,
+      69.71,
+      "3 Apr · 5/7"
+     ],
+     [
+      69.71,
+      69.76,
+      69.62,
+      69.62,
+      "3 Apr · 6/7"
+     ],
+     [
+      69.62,
+      70.29,
+      69.59,
+      70.14,
+      "3 Apr · 7/7"
+     ],
+     [
+      69.81,
+      70.05,
+      69.54,
+      70.05,
+      "4 Apr · 1/7"
+     ],
+     [
+      70.05,
+      70.05,
+      68.42,
+      68.58,
+      "4 Apr · 2/7"
+     ],
+     [
+      68.58,
+      68.6,
+      67.35,
+      67.4,
+      "4 Apr · 3/7"
+     ],
+     [
+      67.4,
+      67.55,
+      66.21,
+      66.34,
+      "4 Apr · 4/7"
+     ],
+     [
+      66.34,
+      66.49,
+      65.29,
+      65.29,
+      "4 Apr · 5/7"
+     ],
+     [
+      65.29,
+      65.48,
+      64.01,
+      64.01,
+      "4 Apr · 6/7"
+     ],
+     [
+      64.01,
+      65.64,
+      64.01,
+      65.58,
+      "4 Apr · 7/7"
+     ]
+    ],
+    "days": [
+     "2025-04-03",
+     "2025-04-03",
+     "2025-04-03",
+     "2025-04-03",
+     "2025-04-03",
+     "2025-04-03",
+     "2025-04-03",
+     "2025-04-04",
+     "2025-04-04",
+     "2025-04-04",
+     "2025-04-04",
+     "2025-04-04",
+     "2025-04-04",
+     "2025-04-04"
+    ],
+    "open": "After close: sweeping US tariffs announced",
+    "news": [
+     {
+      "text": "OPEC+ triples May hike to 411 kb/d",
+      "major": true,
+      "day": "2025-04-03",
+      "at": 0
+     },
+     {
+      "text": "China hits back with 34% tariffs",
+      "major": true,
+      "day": "2025-04-04",
+      "at": 7
+     }
+    ],
+    "concept": "cb-calendar-spread"
+   }
+  },
+  {
+   "id": "ci-abqaiq-2019",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Saturday: drones and missiles hit Saudi Aramco's Abqaiq processing plant.",
+   "setup": [
+    "About 5.7 mb/d, half of Saudi output, is offline. Brent closed Friday at $60.22.",
+    "That is the largest sudden supply loss in history."
+   ],
+   "decision": {
+    "date": "2019-09-13",
+    "price": 60.22
+   },
+   "outcome": {
+    "date": "2019-09-16",
+    "price": 69.02
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    58.23,
+    58.64,
+    59.74,
+    60.03,
+    60.3,
+    59.92,
+    59.34,
+    58.7,
+    59.51,
+    60.49,
+    61.08,
+    60.43,
+    58.26,
+    60.7,
+    60.95,
+    61.54,
+    62.59,
+    62.38,
+    60.81,
+    60.38,
+    60.22
+   ],
+   "after": [
+    69.02
+   ],
+   "why": [
+    "Traders priced the outage first and asked questions later.",
+    "Brent jumped about 14.6%, its biggest one-day gain on record at the time."
+   ],
+   "source": "ICE Brent settlements 13 & 16 Sep 2019; Abqaiq/Khurais attack 14 Sep 2019. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      67.0,
+      69.15,
+      66.88,
+      69.06,
+      "16 Sep · 1/14"
+     ],
+     [
+      69.06,
+      71.0,
+      68.96,
+      71.0,
+      "16 Sep · 2/14"
+     ],
+     [
+      71.0,
+      71.0,
+      70.02,
+      70.05,
+      "16 Sep · 3/14"
+     ],
+     [
+      70.05,
+      70.09,
+      69.08,
+      69.22,
+      "16 Sep · 4/14"
+     ],
+     [
+      69.22,
+      69.27,
+      67.64,
+      67.78,
+      "16 Sep · 5/14"
+     ],
+     [
+      67.78,
+      67.86,
+      66.76,
+      66.81,
+      "16 Sep · 6/14"
+     ],
+     [
+      66.81,
+      66.95,
+      65.84,
+      65.91,
+      "16 Sep · 7/14"
+     ],
+     [
+      65.91,
+      66.03,
+      64.78,
+      64.78,
+      "16 Sep · 8/14"
+     ],
+     [
+      64.78,
+      65.25,
+      64.78,
+      65.21,
+      "16 Sep · 9/14"
+     ],
+     [
+      65.21,
+      66.1,
+      65.11,
+      66.09,
+      "16 Sep · 10/14"
+     ],
+     [
+      66.09,
+      66.96,
+      66.07,
+      66.78,
+      "16 Sep · 11/14"
+     ],
+     [
+      66.78,
+      67.97,
+      66.56,
+      67.83,
+      "16 Sep · 12/14"
+     ],
+     [
+      67.83,
+      68.29,
+      67.82,
+      68.25,
+      "16 Sep · 13/14"
+     ],
+     [
+      68.25,
+      69.02,
+      68.24,
+      69.02,
+      "16 Sep · 14/14"
+     ]
+    ],
+    "days": [
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16",
+     "2019-09-16"
+    ],
+    "open": "Drones hit Saudi Abqaiq oil plant",
+    "news": [
+     {
+      "text": "5.7 mb/d of Saudi output offline",
+      "major": true,
+      "at": 0
+     },
+     {
+      "text": "Trump OKs SPR release if needed",
+      "major": false,
+      "at": 5
+     }
+    ],
+    "concept": "cb-spare-capacity",
+    "physical": {
+     "side": "SHORT",
+     "bbl": 250000,
+     "who": "Refiner",
+     "desc": "SHORT 250k bbl crude to buy next month",
+     "events": [],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-abqaiq-restore-2019",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Saudi energy minister to brief the press on Abqaiq repairs.",
+   "setup": [
+    "Brent settled $69.02, up $8.80 today on the attack.",
+    "Aramco can supply customers from storage while it repairs the plant."
+   ],
+   "decision": {
+    "date": "2019-09-16",
+    "price": 69.02
+   },
+   "outcome": {
+    "date": "2019-09-17",
+    "price": 64.55
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    58.64,
+    59.74,
+    60.03,
+    60.3,
+    59.92,
+    59.34,
+    58.7,
+    59.51,
+    60.49,
+    61.08,
+    60.43,
+    58.26,
+    60.7,
+    60.95,
+    61.54,
+    62.59,
+    62.38,
+    60.81,
+    60.38,
+    60.22,
+    69.02
+   ],
+   "after": [
+    64.55
+   ],
+   "why": [
+    "Riyadh said output would be fully restored by month-end, much faster than feared.",
+    "Brent gave back about $4.50 (6.5%). Spikes on outages fade once restart timing is known."
+   ],
+   "source": "ICE Brent settlements 16-17 Sep 2019; Saudi Energy Ministry briefing 17 Sep 2019. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      68.17,
+      68.73,
+      68.06,
+      68.67,
+      "17 Sep · 1/14"
+     ],
+     [
+      68.67,
+      69.08,
+      68.54,
+      69.08,
+      "17 Sep · 2/14"
+     ],
+     [
+      69.08,
+      69.25,
+      68.97,
+      69.25,
+      "17 Sep · 3/14"
+     ],
+     [
+      69.25,
+      69.25,
+      68.46,
+      68.48,
+      "17 Sep · 4/14"
+     ],
+     [
+      68.48,
+      68.58,
+      68.07,
+      68.08,
+      "17 Sep · 5/14"
+     ],
+     [
+      68.08,
+      68.13,
+      66.84,
+      66.93,
+      "17 Sep · 6/14"
+     ],
+     [
+      66.93,
+      66.96,
+      66.67,
+      66.76,
+      "17 Sep · 7/14"
+     ],
+     [
+      66.76,
+      66.8,
+      65.7,
+      65.8,
+      "17 Sep · 8/14"
+     ],
+     [
+      65.8,
+      65.93,
+      64.92,
+      65.06,
+      "17 Sep · 9/14"
+     ],
+     [
+      65.06,
+      65.15,
+      64.2,
+      64.29,
+      "17 Sep · 10/14"
+     ],
+     [
+      64.29,
+      64.4,
+      63.56,
+      63.56,
+      "17 Sep · 11/14"
+     ],
+     [
+      63.56,
+      64.54,
+      63.56,
+      64.38,
+      "17 Sep · 12/14"
+     ],
+     [
+      64.38,
+      64.39,
+      63.92,
+      64.02,
+      "17 Sep · 13/14"
+     ],
+     [
+      64.02,
+      64.59,
+      63.97,
+      64.55,
+      "17 Sep · 14/14"
+     ]
+    ],
+    "days": [
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17",
+     "2019-09-17"
+    ],
+    "open": "Saudi minister to brief on repairs",
+    "news": [
+     {
+      "text": "Saudi: output fully back by month-end",
+      "major": true,
+      "at": 4
+     }
+    ],
+    "concept": "cb-shut-ins"
+   }
+  },
+  {
+   "id": "ci-opec-thanksgiving-2014",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "OPEC meets in Vienna on Thanksgiving Day. Shale output is booming.",
+   "setup": [
+    "Brent has fallen from $115 in June to under $78. Many expect OPEC to cut.",
+    "Saudi Arabia is worried about losing market share to US shale."
+   ],
+   "decision": {
+    "date": "2014-11-26",
+    "price": 77.75
+   },
+   "outcome": {
+    "date": "2014-11-28",
+    "price": 70.15
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    87.12,
+    86.24,
+    85.86,
+    84.78,
+    82.82,
+    82.95,
+    82.86,
+    83.39,
+    82.34,
+    81.67,
+    80.38,
+    77.92,
+    77.74,
+    79.31,
+    78.47,
+    78.1,
+    79.33,
+    80.36,
+    79.68,
+    78.33,
+    77.75
+   ],
+   "after": [
+    70.15
+   ],
+   "why": [
+    "OPEC kept its 30 mb/d ceiling unchanged, letting price do the work against shale.",
+    "Brent fell about 10% to $70. This was the start of the 2014-16 oil crash."
+   ],
+   "source": "ICE Brent settlements 26 & 28 Nov 2014; OPEC 166th meeting 27 Nov 2014. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      77.03,
+      77.16,
+      74.03,
+      74.23,
+      "28 Nov · 1/14"
+     ],
+     [
+      74.23,
+      74.26,
+      71.78,
+      71.96,
+      "28 Nov · 2/14"
+     ],
+     [
+      71.96,
+      72.02,
+      69.83,
+      69.83,
+      "28 Nov · 3/14"
+     ],
+     [
+      69.83,
+      71.42,
+      69.83,
+      71.34,
+      "28 Nov · 4/14"
+     ],
+     [
+      71.34,
+      73.68,
+      71.34,
+      73.53,
+      "28 Nov · 5/14"
+     ],
+     [
+      73.53,
+      75.89,
+      73.45,
+      75.82,
+      "28 Nov · 6/14"
+     ],
+     [
+      75.82,
+      77.39,
+      75.75,
+      77.39,
+      "28 Nov · 7/14"
+     ],
+     [
+      77.39,
+      77.39,
+      76.17,
+      76.2,
+      "28 Nov · 8/14"
+     ],
+     [
+      76.2,
+      76.28,
+      75.26,
+      75.38,
+      "28 Nov · 9/14"
+     ],
+     [
+      75.38,
+      75.59,
+      74.34,
+      74.38,
+      "28 Nov · 10/14"
+     ],
+     [
+      74.38,
+      74.46,
+      73.32,
+      73.36,
+      "28 Nov · 11/14"
+     ],
+     [
+      73.36,
+      73.51,
+      71.84,
+      71.91,
+      "28 Nov · 12/14"
+     ],
+     [
+      71.91,
+      72.1,
+      71.2,
+      71.49,
+      "28 Nov · 13/14"
+     ],
+     [
+      71.49,
+      71.51,
+      70.06,
+      70.15,
+      "28 Nov · 14/14"
+     ]
+    ],
+    "days": [
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28",
+     "2014-11-28"
+    ],
+    "open": "OPEC meets Thanksgiving. Cut expected?",
+    "news": [
+     {
+      "text": "OPEC keeps 30 mb/d ceiling, no cut",
+      "major": true,
+      "at": 0
+     }
+    ],
+    "concept": "cb-contango"
+   }
+  },
+  {
+   "id": "ci-opec-vienna-2016",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "OPEC meets tomorrow. Iran and Iraq are resisting quota limits.",
+   "setup": [
+    "Brent has fallen 4% today on doubts a deal will happen.",
+    "OPEC hasn't cut output since 2008."
+   ],
+   "decision": {
+    "date": "2016-11-29",
+    "price": 46.38
+   },
+   "outcome": {
+    "date": "2016-11-30",
+    "price": 50.47
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    49.71,
+    48.3,
+    48.33,
+    46.86,
+    46.35,
+    45.58,
+    46.15,
+    46.04,
+    46.36,
+    45.84,
+    44.43,
+    46.95,
+    46.63,
+    46.49,
+    46.86,
+    48.9,
+    49.12,
+    48.95,
+    47.24,
+    48.24,
+    46.38
+   ],
+   "after": [
+    50.47
+   ],
+   "why": [
+    "OPEC agreed its first cut in 8 years (1.2 mb/d), and non-OPEC producers later joined.",
+    "Brent jumped about 8.8%. Doubts before the meeting set up a short squeeze."
+   ],
+   "source": "ICE Brent settlements 29-30 Nov 2016; OPEC 171st meeting 30 Nov 2016. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      46.76,
+      47.0,
+      46.75,
+      46.86,
+      "30 Nov · 1/14"
+     ],
+     [
+      46.86,
+      46.93,
+      46.86,
+      46.86,
+      "30 Nov · 2/14"
+     ],
+     [
+      46.86,
+      47.09,
+      46.86,
+      46.99,
+      "30 Nov · 3/14"
+     ],
+     [
+      46.99,
+      47.03,
+      46.75,
+      46.75,
+      "30 Nov · 4/14"
+     ],
+     [
+      46.75,
+      47.19,
+      46.75,
+      47.09,
+      "30 Nov · 5/14"
+     ],
+     [
+      47.09,
+      47.53,
+      47.07,
+      47.48,
+      "30 Nov · 6/14"
+     ],
+     [
+      47.48,
+      47.89,
+      47.46,
+      47.81,
+      "30 Nov · 7/14"
+     ],
+     [
+      47.81,
+      48.41,
+      47.79,
+      48.36,
+      "30 Nov · 8/14"
+     ],
+     [
+      48.36,
+      48.71,
+      48.32,
+      48.7,
+      "30 Nov · 9/14"
+     ],
+     [
+      48.7,
+      49.01,
+      48.69,
+      48.97,
+      "30 Nov · 10/14"
+     ],
+     [
+      48.97,
+      49.34,
+      48.9,
+      49.19,
+      "30 Nov · 11/14"
+     ],
+     [
+      49.19,
+      49.86,
+      49.18,
+      49.66,
+      "30 Nov · 12/14"
+     ],
+     [
+      49.66,
+      50.06,
+      49.52,
+      49.99,
+      "30 Nov · 13/14"
+     ],
+     [
+      49.99,
+      50.47,
+      49.98,
+      50.47,
+      "30 Nov · 14/14"
+     ]
+    ],
+    "days": [
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30",
+     "2016-11-30"
+    ],
+    "open": "OPEC meets tomorrow; deal in doubt",
+    "news": [
+     {
+      "text": "OPEC agrees first cut in 8 years",
+      "major": true,
+      "at": 5
+     }
+    ],
+    "concept": "cb-sweet-sour"
+   }
+  },
+  {
+   "id": "ci-brent-bottom-2016",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "IEA: the market 'could drown in oversupply' as Iran sanctions are lifted.",
+   "setup": [
+    "Brent settled $27.88, a 12-year low. Hedge funds are heavily short.",
+    "Iran plans to add 500 kb/d. A cold snap is forecast for the US East Coast."
+   ],
+   "decision": {
+    "date": "2016-01-20",
+    "price": 27.88
+   },
+   "outcome": {
+    "date": "2016-01-22",
+    "price": 32.18
+   },
+   "horizon": "2 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    36.88,
+    36.35,
+    36.11,
+    37.36,
+    37.89,
+    36.62,
+    37.79,
+    36.46,
+    37.28,
+    37.22,
+    36.42,
+    34.23,
+    33.75,
+    33.55,
+    31.55,
+    30.86,
+    30.31,
+    31.03,
+    31.01,
+    28.76,
+    27.88
+   ],
+   "after": [
+    29.25,
+    32.18
+   ],
+   "why": [
+    "With everyone short, cold weather plus ECB stimulus hints set off short covering.",
+    "Brent rallied about 15% in two days. Crowded positioning is a risk in itself."
+   ],
+   "source": "ICE Brent settlements 20-22 Jan 2016; IEA Oil Market Report 19 Jan 2016. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      27.95,
+      28.01,
+      27.62,
+      27.63,
+      "21 Jan · 1/7"
+     ],
+     [
+      27.63,
+      27.63,
+      27.3,
+      27.3,
+      "21 Jan · 2/7"
+     ],
+     [
+      27.3,
+      28.14,
+      27.3,
+      28.13,
+      "21 Jan · 3/7"
+     ],
+     [
+      28.13,
+      28.93,
+      28.02,
+      28.92,
+      "21 Jan · 4/7"
+     ],
+     [
+      28.92,
+      29.83,
+      28.88,
+      29.83,
+      "21 Jan · 5/7"
+     ],
+     [
+      29.83,
+      29.83,
+      29.42,
+      29.47,
+      "21 Jan · 6/7"
+     ],
+     [
+      29.47,
+      29.49,
+      29.24,
+      29.25,
+      "21 Jan · 7/7"
+     ],
+     [
+      29.68,
+      31.23,
+      29.66,
+      31.11,
+      "22 Jan · 1/7"
+     ],
+     [
+      31.11,
+      32.29,
+      31.09,
+      32.29,
+      "22 Jan · 2/7"
+     ],
+     [
+      32.29,
+      32.29,
+      29.3,
+      29.3,
+      "22 Jan · 3/7"
+     ],
+     [
+      29.3,
+      29.99,
+      29.3,
+      29.95,
+      "22 Jan · 4/7"
+     ],
+     [
+      29.95,
+      30.84,
+      29.92,
+      30.79,
+      "22 Jan · 5/7"
+     ],
+     [
+      30.79,
+      31.49,
+      30.69,
+      31.46,
+      "22 Jan · 6/7"
+     ],
+     [
+      31.46,
+      32.2,
+      31.45,
+      32.18,
+      "22 Jan · 7/7"
+     ]
+    ],
+    "days": [
+     "2016-01-21",
+     "2016-01-21",
+     "2016-01-21",
+     "2016-01-21",
+     "2016-01-21",
+     "2016-01-21",
+     "2016-01-21",
+     "2016-01-22",
+     "2016-01-22",
+     "2016-01-22",
+     "2016-01-22",
+     "2016-01-22",
+     "2016-01-22",
+     "2016-01-22"
+    ],
+    "open": "IEA: market could 'drown in oversupply'",
+    "news": [
+     {
+      "text": "Draghi hints at more ECB stimulus",
+      "major": false,
+      "day": "2016-01-21",
+      "at": 0
+     },
+     {
+      "text": "Blizzard set to hit US East Coast",
+      "major": false,
+      "day": "2016-01-22",
+      "at": 7
+     }
+    ],
+    "concept": "cb-floating-storage"
+   }
+  },
+  {
+   "id": "ci-wti-peak-2008",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "WTI trades at a record $147.27 intraday. Iran tensions are elevated.",
+   "setup": [
+    "WTI settled $145.08. US gasoline demand is falling as pump prices top $4/gal.",
+    "Fed chair Bernanke testifies to Congress next week on a weakening economy."
+   ],
+   "decision": {
+    "date": "2008-07-11",
+    "price": 145.08
+   },
+   "outcome": {
+    "date": "2008-07-18",
+    "price": 128.88
+   },
+   "horizon": "1 week",
+   "flatBandPct": 1.5,
+   "series": [
+    136.74,
+    134.86,
+    134.61,
+    134.01,
+    136.68,
+    131.93,
+    134.62,
+    136.74,
+    137.0,
+    134.55,
+    139.64,
+    140.21,
+    140.0,
+    140.97,
+    143.57,
+    145.29,
+    141.37,
+    136.04,
+    136.05,
+    141.65,
+    145.08
+   ],
+   "after": [
+    145.18,
+    138.74,
+    134.6,
+    129.29,
+    128.88
+   ],
+   "why": [
+    "Demand destruction and a darkening economy outweighed the geopolitical headlines.",
+    "WTI fell about $16 (11%) in a week. The record close ($145.29, 3 Jul) still stands."
+   ],
+   "source": "NYMEX CL settlements 11 & 18 Jul 2008. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      144.69,
+      144.74,
+      142.49,
+      142.49,
+      "14 Jul · 1/3"
+     ],
+     [
+      142.49,
+      146.37,
+      142.49,
+      146.37,
+      "14 Jul · 2/3"
+     ],
+     [
+      146.37,
+      146.37,
+      145.09,
+      145.18,
+      "14 Jul · 3/3"
+     ],
+     [
+      145.19,
+      146.73,
+      145.1,
+      146.73,
+      "15 Jul · 1/3"
+     ],
+     [
+      146.73,
+      146.73,
+      135.92,
+      135.92,
+      "15 Jul · 2/3"
+     ],
+     [
+      135.92,
+      139.16,
+      135.92,
+      138.74,
+      "15 Jul · 3/3"
+     ],
+     [
+      138.77,
+      139.3,
+      138.68,
+      139.3,
+      "16 Jul · 1/3"
+     ],
+     [
+      139.3,
+      139.3,
+      132.1,
+      132.1,
+      "16 Jul · 2/3"
+     ],
+     [
+      132.1,
+      134.72,
+      132.1,
+      134.6,
+      "16 Jul · 3/3"
+     ],
+     [
+      135.11,
+      136.75,
+      135.06,
+      136.75,
+      "17 Jul · 1/3"
+     ],
+     [
+      136.75,
+      136.75,
+      129.0,
+      129.0,
+      "17 Jul · 2/3"
+     ],
+     [
+      129.0,
+      129.48,
+      129.0,
+      129.29,
+      "17 Jul · 3/3"
+     ],
+     [
+      129.56,
+      132.04,
+      129.49,
+      132.04,
+      "18 Jul · 1/3"
+     ],
+     [
+      132.04,
+      132.04,
+      128.23,
+      128.23,
+      "18 Jul · 2/3"
+     ],
+     [
+      128.23,
+      128.89,
+      128.23,
+      128.88,
+      "18 Jul · 3/3"
+     ]
+    ],
+    "days": [
+     "2008-07-14",
+     "2008-07-14",
+     "2008-07-14",
+     "2008-07-15",
+     "2008-07-15",
+     "2008-07-15",
+     "2008-07-16",
+     "2008-07-16",
+     "2008-07-16",
+     "2008-07-17",
+     "2008-07-17",
+     "2008-07-17",
+     "2008-07-18",
+     "2008-07-18",
+     "2008-07-18"
+    ],
+    "open": "WTI hits record $147.27 intraday",
+    "news": [
+     {
+      "text": "Pump prices top $4; driving falls",
+      "major": false,
+      "day": "2008-07-14",
+      "at": 0
+     },
+     {
+      "text": "Bernanke warns on economy, inflation",
+      "major": true,
+      "day": "2008-07-15",
+      "at": 3
+     }
+    ],
+    "concept": "cb-roll-yield"
+   }
+  },
+  {
+   "id": "ci-iran-deal-exit-2018",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "Brent",
+   "contract": "ICE Brent crude, front month",
+   "unit": "$/bbl",
+   "headline": "Trump announces the US will leave the Iran nuclear deal and reimpose sanctions.",
+   "setup": [
+    "Iran exports ~2.5 mb/d. Brent settled $74.85 just before the announcement.",
+    "Sanctions take effect after a 90-180 day wind-down."
+   ],
+   "decision": {
+    "date": "2018-05-08",
+    "price": 74.85
+   },
+   "outcome": {
+    "date": "2018-05-09",
+    "price": 77.21
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    71.04,
+    72.06,
+    72.02,
+    72.58,
+    71.42,
+    71.58,
+    73.48,
+    73.78,
+    74.06,
+    74.71,
+    73.86,
+    74.0,
+    74.74,
+    74.64,
+    75.17,
+    75.17,
+    73.36,
+    73.62,
+    74.87,
+    76.17,
+    74.85
+   ],
+   "after": [
+    77.21
+   ],
+   "why": [
+    "Losing Iranian barrels tightened forward balances, and the market priced it in quickly.",
+    "Brent rose about 3.2% the next day to a 3.5-year high."
+   ],
+   "source": "ICE Brent settlements 8-9 May 2018; announcement 8 May 2018. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      75.86,
+      76.33,
+      75.86,
+      76.32,
+      "9 May · 1/14"
+     ],
+     [
+      76.32,
+      76.83,
+      76.24,
+      76.82,
+      "9 May · 2/14"
+     ],
+     [
+      76.82,
+      77.41,
+      76.79,
+      77.41,
+      "9 May · 3/14"
+     ],
+     [
+      77.41,
+      77.41,
+      77.2,
+      77.24,
+      "9 May · 4/14"
+     ],
+     [
+      77.24,
+      77.28,
+      76.93,
+      76.96,
+      "9 May · 5/14"
+     ],
+     [
+      76.96,
+      76.99,
+      76.69,
+      76.74,
+      "9 May · 6/14"
+     ],
+     [
+      76.74,
+      76.8,
+      76.55,
+      76.56,
+      "9 May · 7/14"
+     ],
+     [
+      76.56,
+      76.6,
+      76.26,
+      76.28,
+      "9 May · 8/14"
+     ],
+     [
+      76.28,
+      76.29,
+      76.1,
+      76.1,
+      "9 May · 9/14"
+     ],
+     [
+      76.1,
+      76.12,
+      75.86,
+      75.86,
+      "9 May · 10/14"
+     ],
+     [
+      75.86,
+      76.24,
+      75.86,
+      76.2,
+      "9 May · 11/14"
+     ],
+     [
+      76.2,
+      76.72,
+      76.18,
+      76.68,
+      "9 May · 12/14"
+     ],
+     [
+      76.68,
+      76.84,
+      76.63,
+      76.78,
+      "9 May · 13/14"
+     ],
+     [
+      76.78,
+      77.25,
+      76.76,
+      77.21,
+      "9 May · 14/14"
+     ]
+    ],
+    "days": [
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09",
+     "2018-05-09"
+    ],
+    "open": "Trump exits Iran deal, sanctions return",
+    "news": [
+     {
+      "text": "Iran exports ~2.5 mb/d at risk",
+      "major": false,
+      "at": 3
+     }
+    ],
+    "concept": "cb-brent-wti"
+   }
+  },
+  {
+   "id": "ci-eia-draw-2016",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "EIA weekly report tomorrow. Hurricane Hermine disrupted Gulf Coast tanker traffic.",
+   "setup": [
+    "Fewer import tankers reached the Gulf Coast last week. WTI is $45.50.",
+    "Analysts expect a small change in crude stocks."
+   ],
+   "decision": {
+    "date": "2016-09-07",
+    "price": 45.5
+   },
+   "outcome": {
+    "date": "2016-09-08",
+    "price": 47.62
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    42.77,
+    41.71,
+    43.49,
+    44.49,
+    45.74,
+    46.58,
+    46.79,
+    48.22,
+    48.52,
+    47.05,
+    48.1,
+    46.77,
+    47.33,
+    47.64,
+    46.98,
+    46.35,
+    44.7,
+    43.16,
+    44.44,
+    44.83,
+    45.5
+   ],
+   "after": [
+    47.62
+   ],
+   "why": [
+    "EIA reported a 14.5M bbl crude draw, the biggest weekly draw since 1999.",
+    "WTI rose ~4.7%. Big draws can come from imports, not demand, and the market gave some back the next day."
+   ],
+   "source": "NYMEX CL settlements 7-8 Sep 2016; EIA WPSR week ending 2 Sep 2016 (released 8 Sep, Labor Day delay). Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      46.12,
+      46.13,
+      45.77,
+      45.77,
+      "8 Sep · 1/14"
+     ],
+     [
+      45.77,
+      46.09,
+      45.77,
+      46.05,
+      "8 Sep · 2/14"
+     ],
+     [
+      46.05,
+      46.36,
+      46.03,
+      46.32,
+      "8 Sep · 3/14"
+     ],
+     [
+      46.32,
+      46.57,
+      46.29,
+      46.53,
+      "8 Sep · 4/14"
+     ],
+     [
+      46.53,
+      46.82,
+      46.53,
+      46.77,
+      "8 Sep · 5/14"
+     ],
+     [
+      46.77,
+      47.02,
+      46.75,
+      47.01,
+      "8 Sep · 6/14"
+     ],
+     [
+      47.01,
+      47.29,
+      47.01,
+      47.28,
+      "8 Sep · 7/14"
+     ],
+     [
+      47.28,
+      47.44,
+      47.27,
+      47.44,
+      "8 Sep · 8/14"
+     ],
+     [
+      47.44,
+      47.75,
+      47.4,
+      47.75,
+      "8 Sep · 9/14"
+     ],
+     [
+      47.75,
+      47.75,
+      47.69,
+      47.69,
+      "8 Sep · 10/14"
+     ],
+     [
+      47.69,
+      47.69,
+      47.5,
+      47.54,
+      "8 Sep · 11/14"
+     ],
+     [
+      47.54,
+      47.69,
+      47.51,
+      47.63,
+      "8 Sep · 12/14"
+     ],
+     [
+      47.63,
+      47.69,
+      47.61,
+      47.65,
+      "8 Sep · 13/14"
+     ],
+     [
+      47.65,
+      47.66,
+      47.59,
+      47.62,
+      "8 Sep · 14/14"
+     ]
+    ],
+    "days": [
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08",
+     "2016-09-08"
+    ],
+    "open": "EIA due. Hermine disrupted Gulf imports",
+    "news": [
+     {
+      "text": "EIA: crude stocks fall 14.5M bbl",
+      "major": true,
+      "at": 3
+     }
+    ],
+    "concept": "cb-storage-build-draw"
+   }
+  },
+  {
+   "id": "ci-eia-build-2016",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "EIA weekly report tomorrow. Imports jumped and doubts are growing over OPEC's deal.",
+   "setup": [
+    "WTI has slid from $51 to $46.67 in two weeks.",
+    "The market expects a modest crude build."
+   ],
+   "decision": {
+    "date": "2016-11-01",
+    "price": 46.67
+   },
+   "outcome": {
+    "date": "2016-11-02",
+    "price": 45.34
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    48.81,
+    48.69,
+    49.83,
+    50.44,
+    49.81,
+    50.79,
+    50.18,
+    50.44,
+    50.35,
+    49.94,
+    50.29,
+    51.6,
+    50.43,
+    50.85,
+    50.52,
+    49.96,
+    49.18,
+    49.72,
+    48.7,
+    46.86,
+    46.67
+   ],
+   "after": [
+    45.34
+   ],
+   "why": [
+    "EIA reported a 14.4M bbl build, the biggest weekly build on record at the time.",
+    "WTI fell ~2.8% to $45.34. A big surprise in the same direction as the trend adds to it."
+   ],
+   "source": "NYMEX CL settlements 1-2 Nov 2016; EIA WPSR week ending 28 Oct 2016. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      46.32,
+      46.42,
+      46.26,
+      46.42,
+      "2 Nov · 1/14"
+     ],
+     [
+      46.42,
+      46.42,
+      46.36,
+      46.42,
+      "2 Nov · 2/14"
+     ],
+     [
+      46.42,
+      46.47,
+      46.39,
+      46.47,
+      "2 Nov · 3/14"
+     ],
+     [
+      46.47,
+      46.47,
+      46.26,
+      46.28,
+      "2 Nov · 4/14"
+     ],
+     [
+      46.28,
+      46.28,
+      46.02,
+      46.06,
+      "2 Nov · 5/14"
+     ],
+     [
+      46.06,
+      46.06,
+      45.82,
+      45.82,
+      "2 Nov · 6/14"
+     ],
+     [
+      45.82,
+      45.84,
+      45.68,
+      45.72,
+      "2 Nov · 7/14"
+     ],
+     [
+      45.72,
+      45.75,
+      45.56,
+      45.57,
+      "2 Nov · 8/14"
+     ],
+     [
+      45.57,
+      45.58,
+      45.32,
+      45.32,
+      "2 Nov · 9/14"
+     ],
+     [
+      45.32,
+      45.35,
+      45.07,
+      45.09,
+      "2 Nov · 10/14"
+     ],
+     [
+      45.09,
+      45.1,
+      44.96,
+      44.96,
+      "2 Nov · 11/14"
+     ],
+     [
+      44.96,
+      45.13,
+      44.96,
+      45.12,
+      "2 Nov · 12/14"
+     ],
+     [
+      45.12,
+      45.28,
+      45.1,
+      45.27,
+      "2 Nov · 13/14"
+     ],
+     [
+      45.27,
+      45.35,
+      45.25,
+      45.34,
+      "2 Nov · 14/14"
+     ]
+    ],
+    "days": [
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02",
+     "2016-11-02"
+    ],
+    "open": "EIA due. Imports jumped last week",
+    "news": [
+     {
+      "text": "EIA: crude stocks rise 14.4M bbl",
+      "major": true,
+      "at": 3
+     }
+    ],
+    "concept": "cb-api-vs-eia"
+   }
+  },
+  {
+   "id": "ci-eia-build-freeze-2021",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "EIA weekly report tomorrow, the first full week after the Texas deep freeze.",
+   "setup": [
+    "Winter Storm Uri knocked out Gulf Coast refineries. OPEC+ meets Thursday.",
+    "WTI is $59.75, down three days in a row."
+   ],
+   "decision": {
+    "date": "2021-03-02",
+    "price": 59.75
+   },
+   "outcome": {
+    "date": "2021-03-03",
+    "price": 61.28
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    53.55,
+    54.76,
+    55.69,
+    56.23,
+    56.85,
+    57.97,
+    58.36,
+    58.68,
+    58.24,
+    59.47,
+    60.05,
+    61.14,
+    60.52,
+    59.24,
+    61.49,
+    61.67,
+    63.22,
+    63.53,
+    61.5,
+    60.64,
+    59.75
+   ],
+   "after": [
+    61.28
+   ],
+   "why": [
+    "EIA showed a record 21.6M bbl crude build, but only because refineries couldn't run. Gasoline drew 13.6M.",
+    "WTI rose 2.6%. Read why stocks moved, not just how much."
+   ],
+   "source": "NYMEX CL settlements 2-3 Mar 2021; EIA WPSR week ending 26 Feb 2021 (refinery utilization 56%). Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      59.55,
+      59.6,
+      59.24,
+      59.24,
+      "3 Mar · 1/14"
+     ],
+     [
+      59.24,
+      59.56,
+      59.24,
+      59.5,
+      "3 Mar · 2/14"
+     ],
+     [
+      59.5,
+      60.01,
+      59.46,
+      59.95,
+      "3 Mar · 3/14"
+     ],
+     [
+      59.95,
+      60.14,
+      59.93,
+      60.12,
+      "3 Mar · 4/14"
+     ],
+     [
+      60.12,
+      60.46,
+      60.11,
+      60.39,
+      "3 Mar · 5/14"
+     ],
+     [
+      60.39,
+      60.84,
+      60.37,
+      60.78,
+      "3 Mar · 6/14"
+     ],
+     [
+      60.78,
+      61.03,
+      60.74,
+      60.98,
+      "3 Mar · 7/14"
+     ],
+     [
+      60.98,
+      61.42,
+      60.97,
+      61.32,
+      "3 Mar · 8/14"
+     ],
+     [
+      61.32,
+      61.64,
+      61.29,
+      61.6,
+      "3 Mar · 9/14"
+     ],
+     [
+      61.6,
+      61.99,
+      61.6,
+      61.99,
+      "3 Mar · 10/14"
+     ],
+     [
+      61.99,
+      61.99,
+      61.77,
+      61.81,
+      "3 Mar · 11/14"
+     ],
+     [
+      61.81,
+      61.86,
+      61.47,
+      61.48,
+      "3 Mar · 12/14"
+     ],
+     [
+      61.48,
+      61.53,
+      61.42,
+      61.52,
+      "3 Mar · 13/14"
+     ],
+     [
+      61.52,
+      61.55,
+      61.25,
+      61.28,
+      "3 Mar · 14/14"
+     ]
+    ],
+    "days": [
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03",
+     "2021-03-03"
+    ],
+    "open": "EIA due: first week after Texas freeze",
+    "news": [
+     {
+      "text": "EIA: crude +21.6M bbl, a record build",
+      "major": true,
+      "at": 3
+     },
+     {
+      "text": "Gasoline −13.6M bbl; refining at 56%",
+      "major": false,
+      "at": 4
+     },
+     {
+      "text": "OPEC+ said to weigh keeping cuts",
+      "major": false,
+      "at": 9
+     }
+    ],
+    "concept": "cb-refinery-utilization"
+   }
+  },
+  {
+   "id": "ci-eia-build-feb2023",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "EIA weekly report tomorrow. Crude stocks have built for seven straight weeks.",
+   "setup": [
+    "WTI is $79. The IEA's monthly report out tomorrow is expected to lift demand forecasts.",
+    "The EIA's 'adjustment' plug has been unusually large in recent weeks."
+   ],
+   "decision": {
+    "date": "2023-02-14",
+    "price": 79.06
+   },
+   "outcome": {
+    "date": "2023-02-15",
+    "price": 78.59
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    80.18,
+    79.48,
+    80.33,
+    81.31,
+    81.62,
+    80.13,
+    80.15,
+    81.01,
+    79.68,
+    77.9,
+    78.87,
+    76.41,
+    75.88,
+    73.39,
+    74.11,
+    77.14,
+    78.47,
+    78.06,
+    79.72,
+    80.14,
+    79.06
+   ],
+   "after": [
+    78.59
+   ],
+   "why": [
+    "EIA showed a 16.3M bbl build, the biggest since 2021, but traders discounted the adjustment factor.",
+    "The IEA raised its 2023 demand forecast to a record. WTI ended down just 0.6%."
+   ],
+   "source": "NYMEX CL settlements 14-15 Feb 2023; EIA WPSR week ending 10 Feb 2023; IEA OMR 15 Feb 2023. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      78.83,
+      78.88,
+      77.25,
+      77.25,
+      "15 Feb · 1/14"
+     ],
+     [
+      77.25,
+      77.46,
+      77.25,
+      77.46,
+      "15 Feb · 2/14"
+     ],
+     [
+      77.46,
+      77.93,
+      77.42,
+      77.88,
+      "15 Feb · 3/14"
+     ],
+     [
+      77.88,
+      78.0,
+      77.87,
+      77.96,
+      "15 Feb · 4/14"
+     ],
+     [
+      77.96,
+      78.4,
+      77.89,
+      78.39,
+      "15 Feb · 5/14"
+     ],
+     [
+      78.39,
+      78.62,
+      78.32,
+      78.59,
+      "15 Feb · 6/14"
+     ],
+     [
+      78.59,
+      78.91,
+      78.51,
+      78.88,
+      "15 Feb · 7/14"
+     ],
+     [
+      78.88,
+      79.15,
+      78.85,
+      79.15,
+      "15 Feb · 8/14"
+     ],
+     [
+      79.15,
+      79.15,
+      78.98,
+      79.01,
+      "15 Feb · 9/14"
+     ],
+     [
+      79.01,
+      79.04,
+      78.95,
+      79.04,
+      "15 Feb · 10/14"
+     ],
+     [
+      79.04,
+      79.07,
+      78.91,
+      78.91,
+      "15 Feb · 11/14"
+     ],
+     [
+      78.91,
+      78.97,
+      78.78,
+      78.81,
+      "15 Feb · 12/14"
+     ],
+     [
+      78.81,
+      78.82,
+      78.52,
+      78.57,
+      "15 Feb · 13/14"
+     ],
+     [
+      78.57,
+      78.65,
+      78.55,
+      78.59,
+      "15 Feb · 14/14"
+     ]
+    ],
+    "days": [
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15",
+     "2023-02-15"
+    ],
+    "open": "EIA and IEA reports both due today",
+    "news": [
+     {
+      "text": "IEA lifts 2023 demand to a record",
+      "major": false,
+      "at": 2
+     },
+     {
+      "text": "EIA: crude stocks +16.3M bbl",
+      "major": true,
+      "at": 3
+     }
+    ],
+    "concept": "cb-storage-build-draw"
+   }
+  },
+  {
+   "id": "ci-eia-record-draw-2023",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "Fitch downgrades the US credit rating after the close. EIA reports tomorrow.",
+   "setup": [
+    "WTI rallied ~16% in July, its biggest monthly gain since 2022. Funds are long.",
+    "API data tonight points to a very large crude draw."
+   ],
+   "decision": {
+    "date": "2023-08-01",
+    "price": 81.37
+   },
+   "outcome": {
+    "date": "2023-08-02",
+    "price": 79.49
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    69.79,
+    71.79,
+    71.8,
+    73.86,
+    72.99,
+    74.83,
+    75.75,
+    76.89,
+    75.42,
+    74.15,
+    75.75,
+    75.35,
+    75.63,
+    77.07,
+    78.74,
+    79.63,
+    78.78,
+    80.09,
+    80.58,
+    81.8,
+    81.37
+   ],
+   "after": [
+    79.49
+   ],
+   "why": [
+    "EIA confirmed a record 17M bbl draw, but risk-off selling and profit-taking won.",
+    "WTI fell 2.3%. Bullish data doesn't help if the move was already priced and macro turns."
+   ],
+   "source": "NYMEX CL settlements 1-2 Aug 2023; EIA WPSR week ending 28 Jul 2023; Fitch action 1 Aug 2023. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      82.05,
+      82.14,
+      82.0,
+      82.09,
+      "2 Aug · 1/14"
+     ],
+     [
+      82.09,
+      82.33,
+      82.05,
+      82.33,
+      "2 Aug · 2/14"
+     ],
+     [
+      82.33,
+      82.43,
+      82.3,
+      82.43,
+      "2 Aug · 3/14"
+     ],
+     [
+      82.43,
+      82.43,
+      81.93,
+      81.99,
+      "2 Aug · 4/14"
+     ],
+     [
+      81.99,
+      82.01,
+      81.47,
+      81.57,
+      "2 Aug · 5/14"
+     ],
+     [
+      81.57,
+      81.65,
+      81.01,
+      81.08,
+      "2 Aug · 6/14"
+     ],
+     [
+      81.08,
+      81.11,
+      80.61,
+      80.68,
+      "2 Aug · 7/14"
+     ],
+     [
+      80.68,
+      80.7,
+      79.78,
+      79.81,
+      "2 Aug · 8/14"
+     ],
+     [
+      79.81,
+      79.83,
+      79.4,
+      79.44,
+      "2 Aug · 9/14"
+     ],
+     [
+      79.44,
+      79.44,
+      79.05,
+      79.05,
+      "2 Aug · 10/14"
+     ],
+     [
+      79.05,
+      79.25,
+      79.05,
+      79.25,
+      "2 Aug · 11/14"
+     ],
+     [
+      79.25,
+      79.34,
+      79.15,
+      79.23,
+      "2 Aug · 12/14"
+     ],
+     [
+      79.23,
+      79.41,
+      79.19,
+      79.36,
+      "2 Aug · 13/14"
+     ],
+     [
+      79.36,
+      79.55,
+      79.31,
+      79.49,
+      "2 Aug · 14/14"
+     ]
+    ],
+    "days": [
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02",
+     "2023-08-02"
+    ],
+    "open": "Fitch downgrades US credit rating",
+    "news": [
+     {
+      "text": "EIA: record 17M bbl crude draw",
+      "major": true,
+      "at": 3
+     }
+    ],
+    "concept": "cb-api-vs-eia"
+   }
+  },
+  {
+   "id": "ci-harvey-crude-2017",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 2,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "Hurricane Harvey makes landfall in Texas tonight as a Category 4.",
+   "setup": [
+    "Houston and Corpus Christi hold about 25% of US refining capacity.",
+    "Gulf offshore output is also partly shut. WTI is $47.87."
+   ],
+   "decision": {
+    "date": "2017-08-25",
+    "price": 47.87
+   },
+   "outcome": {
+    "date": "2017-08-30",
+    "price": 45.96
+   },
+   "horizon": "3 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    49.71,
+    50.17,
+    49.16,
+    49.59,
+    49.03,
+    49.58,
+    49.39,
+    49.17,
+    49.56,
+    48.59,
+    48.82,
+    47.59,
+    47.55,
+    46.78,
+    47.09,
+    48.51,
+    47.37,
+    47.64,
+    48.41,
+    47.43,
+    47.87
+   ],
+   "after": [
+    46.57,
+    46.44,
+    45.96
+   ],
+   "why": [
+    "Refinery shutdowns removed more crude demand than the storm removed supply.",
+    "WTI fell ~4%. A hurricane that hits refineries is bearish crude and bullish products."
+   ],
+   "source": "NYMEX CL settlements 25 & 30 Aug 2017; Harvey landfall 25 Aug 2017. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      47.89,
+      48.2,
+      47.87,
+      48.2,
+      "28 Aug · 1/5"
+     ],
+     [
+      48.2,
+      48.2,
+      46.15,
+      46.15,
+      "28 Aug · 2/5"
+     ],
+     [
+      46.15,
+      46.28,
+      46.15,
+      46.27,
+      "28 Aug · 3/5"
+     ],
+     [
+      46.27,
+      46.53,
+      46.22,
+      46.47,
+      "28 Aug · 4/5"
+     ],
+     [
+      46.47,
+      46.62,
+      46.43,
+      46.57,
+      "28 Aug · 5/5"
+     ],
+     [
+      46.86,
+      46.96,
+      46.86,
+      46.96,
+      "29 Aug · 1/5"
+     ],
+     [
+      46.96,
+      46.96,
+      45.76,
+      45.76,
+      "29 Aug · 2/5"
+     ],
+     [
+      45.76,
+      46.09,
+      45.76,
+      46.06,
+      "29 Aug · 3/5"
+     ],
+     [
+      46.06,
+      46.23,
+      46.05,
+      46.19,
+      "29 Aug · 4/5"
+     ],
+     [
+      46.19,
+      46.45,
+      46.15,
+      46.44,
+      "29 Aug · 5/5"
+     ],
+     [
+      46.31,
+      46.72,
+      46.3,
+      46.72,
+      "30 Aug · 1/5"
+     ],
+     [
+      46.72,
+      46.72,
+      46.23,
+      46.25,
+      "30 Aug · 2/5"
+     ],
+     [
+      46.25,
+      46.26,
+      45.84,
+      45.84,
+      "30 Aug · 3/5"
+     ],
+     [
+      45.84,
+      45.93,
+      45.84,
+      45.92,
+      "30 Aug · 4/5"
+     ],
+     [
+      45.92,
+      45.99,
+      45.9,
+      45.96,
+      "30 Aug · 5/5"
+     ]
+    ],
+    "days": [
+     "2017-08-28",
+     "2017-08-28",
+     "2017-08-28",
+     "2017-08-28",
+     "2017-08-28",
+     "2017-08-29",
+     "2017-08-29",
+     "2017-08-29",
+     "2017-08-29",
+     "2017-08-29",
+     "2017-08-30",
+     "2017-08-30",
+     "2017-08-30",
+     "2017-08-30",
+     "2017-08-30"
+    ],
+    "open": "Cat 4 Harvey to hit Texas refining coast",
+    "news": [
+     {
+      "text": "Houston refineries shut by flooding",
+      "major": true,
+      "day": "2017-08-28",
+      "at": 0
+     },
+     {
+      "text": "About a fifth of US refining offline",
+      "major": false,
+      "day": "2017-08-30",
+      "at": 10
+     }
+    ],
+    "concept": "cb-refinery-utilization"
+   }
+  },
+  {
+   "id": "ci-harvey-gasoline-2017",
+   "type": "callit",
+   "category": "products",
+   "difficulty": 2,
+   "instrument": "RBOB",
+   "contract": "NYMEX RBOB gasoline, front month",
+   "unit": "$/gal",
+   "headline": "Hurricane Harvey makes landfall in Texas tonight as a Category 4.",
+   "setup": [
+    "Gulf Coast refineries supply the East Coast through the Colonial Pipeline.",
+    "September RBOB is $1.67/gal and expires on Aug 31."
+   ],
+   "decision": {
+    "date": "2017-08-25",
+    "price": 1.6666
+   },
+   "outcome": {
+    "date": "2017-08-31",
+    "price": 2.1399
+   },
+   "horizon": "4 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    1.6761,
+    1.7058,
+    1.6613,
+    1.6448,
+    1.6319,
+    1.6463,
+    1.6299,
+    1.6208,
+    1.62,
+    1.6028,
+    1.613,
+    1.5767,
+    1.5795,
+    1.5638,
+    1.5869,
+    1.624,
+    1.5841,
+    1.5908,
+    1.6189,
+    1.6641,
+    1.6666
+   ],
+   "after": [
+    1.7123,
+    1.7833,
+    1.8847,
+    2.1399
+   ],
+   "why": [
+    "Flooded refineries and a Colonial Pipeline shutdown cut supply as the September contract expired.",
+    "RBOB rose ~$0.47/gal (~$20/bbl, +28%). The next contract traded far lower."
+   ],
+   "source": "NYMEX RB Sep-17 contract settlements 25 & 31 Aug 2017; Colonial shutdown 31 Aug 2017. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      1.7601,
+      1.7627,
+      1.7036,
+      1.7036,
+      "28 Aug · 1/4"
+     ],
+     [
+      1.7036,
+      1.7799,
+      1.7036,
+      1.7799,
+      "28 Aug · 2/4"
+     ],
+     [
+      1.7799,
+      1.7799,
+      1.745,
+      1.7458,
+      "28 Aug · 3/4"
+     ],
+     [
+      1.7458,
+      1.746,
+      1.7122,
+      1.7123,
+      "28 Aug · 4/4"
+     ],
+     [
+      1.7342,
+      1.736,
+      1.6964,
+      1.6964,
+      "29 Aug · 1/4"
+     ],
+     [
+      1.6964,
+      1.818,
+      1.6964,
+      1.818,
+      "29 Aug · 2/4"
+     ],
+     [
+      1.818,
+      1.818,
+      1.7961,
+      1.7973,
+      "29 Aug · 3/4"
+     ],
+     [
+      1.7973,
+      1.8003,
+      1.7819,
+      1.7833,
+      "29 Aug · 4/4"
+     ],
+     [
+      1.8154,
+      1.8172,
+      1.8076,
+      1.8076,
+      "30 Aug · 1/4"
+     ],
+     [
+      1.8076,
+      1.9231,
+      1.8076,
+      1.9231,
+      "30 Aug · 2/4"
+     ],
+     [
+      1.9231,
+      1.9231,
+      1.9054,
+      1.9105,
+      "30 Aug · 3/4"
+     ],
+     [
+      1.9105,
+      1.9111,
+      1.8778,
+      1.8847,
+      "30 Aug · 4/4"
+     ],
+     [
+      1.9148,
+      1.9271,
+      1.9121,
+      1.9121,
+      "31 Aug · 1/4"
+     ],
+     [
+      1.9121,
+      2.0379,
+      1.9121,
+      2.0362,
+      "31 Aug · 2/4"
+     ],
+     [
+      2.0362,
+      2.1705,
+      2.0326,
+      2.1705,
+      "31 Aug · 3/4"
+     ],
+     [
+      2.1705,
+      2.1705,
+      2.1361,
+      2.1399,
+      "31 Aug · 4/4"
+     ]
+    ],
+    "days": [
+     "2017-08-28",
+     "2017-08-28",
+     "2017-08-28",
+     "2017-08-28",
+     "2017-08-29",
+     "2017-08-29",
+     "2017-08-29",
+     "2017-08-29",
+     "2017-08-30",
+     "2017-08-30",
+     "2017-08-30",
+     "2017-08-30",
+     "2017-08-31",
+     "2017-08-31",
+     "2017-08-31",
+     "2017-08-31"
+    ],
+    "open": "Cat 4 Harvey to hit Texas refining coast",
+    "news": [
+     {
+      "text": "Houston refineries shut by flooding",
+      "major": true,
+      "day": "2017-08-28",
+      "at": 0
+     },
+     {
+      "text": "Colonial shuts main gasoline line",
+      "major": true,
+      "day": "2017-08-31",
+      "at": 12
+     }
+    ],
+    "concept": "cb-crack-spread",
+    "physical": {
+     "side": "SHORT",
+     "bbl": 250000,
+     "who": "Marketer",
+     "desc": "SHORT 250k bbl gasoline owed in Southeast",
+     "events": [
+      {
+       "at": 12,
+       "usd": 4.0,
+       "text": "Colonial shut: Southeast premium jumps"
+      }
+     ],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-katrina-crude-2005",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 1,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "Hurricane Katrina strengthens in the Gulf and is heading for Louisiana.",
+   "setup": [
+    "The Gulf of Mexico produces about 1.5 mb/d of US crude. WTI is $66.13.",
+    "Platforms are being evacuated ahead of landfall."
+   ],
+   "decision": {
+    "date": "2005-08-26",
+    "price": 66.13
+   },
+   "outcome": {
+    "date": "2005-08-30",
+    "price": 69.81
+   },
+   "horizon": "2 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    60.57,
+    61.57,
+    61.89,
+    60.86,
+    61.38,
+    62.31,
+    63.94,
+    63.07,
+    64.9,
+    65.8,
+    66.86,
+    66.27,
+    66.08,
+    63.25,
+    63.27,
+    65.35,
+    65.45,
+    65.71,
+    67.32,
+    67.49,
+    66.13
+   ],
+   "after": [
+    67.2,
+    69.81
+   ],
+   "why": [
+    "Katrina shut in about 95% of Gulf output and damaged refineries and ports.",
+    "WTI rose ~5.6%, and touched $70 intraday for the first time."
+   ],
+   "source": "NYMEX CL settlements 26 & 30 Aug 2005; MMS shut-in reports Aug-Sep 2005. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      68.6,
+      69.88,
+      68.59,
+      69.86,
+      "29 Aug · 1/7"
+     ],
+     [
+      69.86,
+      70.8,
+      69.69,
+      70.8,
+      "29 Aug · 2/7"
+     ],
+     [
+      70.8,
+      70.8,
+      66.3,
+      66.3,
+      "29 Aug · 3/7"
+     ],
+     [
+      66.3,
+      66.76,
+      66.3,
+      66.73,
+      "29 Aug · 4/7"
+     ],
+     [
+      66.73,
+      66.88,
+      66.67,
+      66.8,
+      "29 Aug · 5/7"
+     ],
+     [
+      66.8,
+      67.0,
+      66.71,
+      66.9,
+      "29 Aug · 6/7"
+     ],
+     [
+      66.9,
+      67.22,
+      66.74,
+      67.2,
+      "29 Aug · 7/7"
+     ],
+     [
+      67.4,
+      67.47,
+      67.37,
+      67.44,
+      "30 Aug · 1/7"
+     ],
+     [
+      67.44,
+      67.5,
+      67.26,
+      67.26,
+      "30 Aug · 2/7"
+     ],
+     [
+      67.26,
+      70.85,
+      67.26,
+      70.85,
+      "30 Aug · 3/7"
+     ],
+     [
+      70.85,
+      70.85,
+      70.55,
+      70.61,
+      "30 Aug · 4/7"
+     ],
+     [
+      70.61,
+      70.68,
+      70.52,
+      70.53,
+      "30 Aug · 5/7"
+     ],
+     [
+      70.53,
+      70.55,
+      70.1,
+      70.11,
+      "30 Aug · 6/7"
+     ],
+     [
+      70.11,
+      70.15,
+      69.76,
+      69.81,
+      "30 Aug · 7/7"
+     ]
+    ],
+    "days": [
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30"
+    ],
+    "open": "Katrina heads for Louisiana's oil coast",
+    "news": [
+     {
+      "text": "Katrina makes landfall as Category 3",
+      "major": true,
+      "day": "2005-08-29",
+      "at": 0
+     },
+     {
+      "text": "Gulf output shut-ins near 95%",
+      "major": false,
+      "day": "2005-08-30",
+      "at": 7
+     }
+    ],
+    "concept": "cb-shut-ins",
+    "physical": {
+     "side": "LONG",
+     "bbl": 250000,
+     "who": "Producer",
+     "desc": "LONG 250k bbl Gulf crude, export terms",
+     "events": [
+      {
+       "at": 7,
+       "usd": -1.0,
+       "text": "Gulf ports shut: your barrels stuck"
+      }
+     ],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  },
+  {
+   "id": "ci-katrina-gasoline-2005",
+   "type": "callit",
+   "category": "products",
+   "difficulty": 2,
+   "instrument": "RBOB",
+   "contract": "NYMEX unleaded gasoline (pre-RBOB), front month",
+   "unit": "$/gal",
+   "headline": "Katrina is heading for Louisiana's refinery corridor and pipeline hubs.",
+   "setup": [
+    "Louisiana and Mississippi refineries supply much of the East Coast. NYMEX gasoline is $1.93/gal.",
+    "The Colonial and Plantation pipelines depend on power from the region."
+   ],
+   "decision": {
+    "date": "2005-08-26",
+    "price": 1.9266
+   },
+   "outcome": {
+    "date": "2005-08-31",
+    "price": 2.6145
+   },
+   "horizon": "3 trading days",
+   "flatBandPct": 1.5,
+   "series": [
+    1.7387,
+    1.7471,
+    1.7816,
+    1.7709,
+    1.8023,
+    1.8322,
+    1.857,
+    1.8224,
+    1.8963,
+    1.9498,
+    2.0048,
+    1.9621,
+    1.9836,
+    1.891,
+    1.8629,
+    1.9039,
+    1.8616,
+    1.858,
+    1.925,
+    1.9637,
+    1.9266
+   ],
+   "after": [
+    2.0606,
+    2.4745,
+    2.6145
+   ],
+   "why": [
+    "Refineries flooded and the pipelines lost power, cutting East Coast supply.",
+    "NYMEX gasoline rose ~$0.69/gal (~$29/bbl, +36%) in three sessions."
+   ],
+   "source": "NYMEX unleaded gasoline (pre-RBOB) settlements 26 & 31 Aug 2005. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      2.031,
+      2.0366,
+      1.997,
+      1.997,
+      "29 Aug · 1/5"
+     ],
+     [
+      1.997,
+      2.1606,
+      1.997,
+      2.1606,
+      "29 Aug · 2/5"
+     ],
+     [
+      2.1606,
+      2.1606,
+      2.1247,
+      2.1262,
+      "29 Aug · 3/5"
+     ],
+     [
+      2.1262,
+      2.1319,
+      2.1029,
+      2.1032,
+      "29 Aug · 4/5"
+     ],
+     [
+      2.1032,
+      2.1047,
+      2.0602,
+      2.0606,
+      "29 Aug · 5/5"
+     ],
+     [
+      2.06,
+      2.3068,
+      2.06,
+      2.3025,
+      "30 Aug · 1/5"
+     ],
+     [
+      2.3025,
+      2.5,
+      2.295,
+      2.5,
+      "30 Aug · 2/5"
+     ],
+     [
+      2.5,
+      2.5,
+      2.474,
+      2.4771,
+      "30 Aug · 3/5"
+     ],
+     [
+      2.4771,
+      2.4868,
+      2.4735,
+      2.4868,
+      "30 Aug · 4/5"
+     ],
+     [
+      2.4868,
+      2.4919,
+      2.4725,
+      2.4745,
+      "30 Aug · 5/5"
+     ],
+     [
+      2.4575,
+      2.4593,
+      2.442,
+      2.442,
+      "31 Aug · 1/5"
+     ],
+     [
+      2.442,
+      2.6488,
+      2.442,
+      2.632,
+      "31 Aug · 2/5"
+     ],
+     [
+      2.632,
+      2.7637,
+      2.6199,
+      2.7617,
+      "31 Aug · 3/5"
+     ],
+     [
+      2.7617,
+      2.925,
+      2.7466,
+      2.925,
+      "31 Aug · 4/5"
+     ],
+     [
+      2.925,
+      2.925,
+      2.6124,
+      2.6145,
+      "31 Aug · 5/5"
+     ]
+    ],
+    "days": [
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-29",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-30",
+     "2005-08-31",
+     "2005-08-31",
+     "2005-08-31",
+     "2005-08-31",
+     "2005-08-31"
+    ],
+    "open": "Katrina heads for Louisiana refineries",
+    "news": [
+     {
+      "text": "Katrina makes landfall as Category 3",
+      "major": true,
+      "day": "2005-08-29",
+      "at": 0
+     },
+     {
+      "text": "Colonial, Plantation pipes lose power",
+      "major": true,
+      "day": "2005-08-30",
+      "at": 5
+     }
+    ],
+    "concept": "cb-321"
+   }
+  },
+  {
+   "id": "ci-ida-shutin-2021",
+   "type": "callit",
+   "category": "crude",
+   "difficulty": 3,
+   "instrument": "WTI",
+   "contract": "NYMEX WTI crude, front month",
+   "unit": "$/bbl",
+   "headline": "Hurricane Ida is set to hit Louisiana as a Category 4. Gulf platforms are evacuating.",
+   "setup": [
+    "Gulf shut-ins could top 90% (~1.7 mb/d). WTI is $68.74.",
+    "Louisiana's refineries are in the storm's path too."
+   ],
+   "decision": {
+    "date": "2021-08-27",
+    "price": 68.74
+   },
+   "outcome": {
+    "date": "2021-08-30",
+    "price": 69.21
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    73.95,
+    71.26,
+    70.56,
+    68.15,
+    69.09,
+    68.28,
+    66.48,
+    68.29,
+    69.25,
+    69.09,
+    68.44,
+    67.29,
+    66.59,
+    65.46,
+    63.69,
+    62.32,
+    65.64,
+    67.54,
+    68.36,
+    67.42,
+    68.74
+   ],
+   "after": [
+    69.21
+   ],
+   "why": [
+    "Lost supply was offset by lost refinery demand. Crude had nowhere to go, then nowhere to come from.",
+    "WTI rose just 0.7%. Shut-ins are only bullish if refinery demand holds up."
+   ],
+   "source": "NYMEX CL settlements 27 & 30 Aug 2021; BSEE shut-in statistics 29 Aug 2021. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      69.3,
+      69.37,
+      69.27,
+      69.36,
+      "30 Aug · 1/14"
+     ],
+     [
+      69.36,
+      69.47,
+      69.27,
+      69.43,
+      "30 Aug · 2/14"
+     ],
+     [
+      69.43,
+      69.54,
+      69.41,
+      69.53,
+      "30 Aug · 3/14"
+     ],
+     [
+      69.53,
+      69.64,
+      69.46,
+      69.64,
+      "30 Aug · 4/14"
+     ],
+     [
+      69.64,
+      69.64,
+      69.35,
+      69.38,
+      "30 Aug · 5/14"
+     ],
+     [
+      69.38,
+      69.39,
+      69.0,
+      69.03,
+      "30 Aug · 6/14"
+     ],
+     [
+      69.03,
+      69.04,
+      68.51,
+      68.57,
+      "30 Aug · 7/14"
+     ],
+     [
+      68.57,
+      68.59,
+      68.5,
+      68.53,
+      "30 Aug · 8/14"
+     ],
+     [
+      68.53,
+      68.59,
+      68.17,
+      68.19,
+      "30 Aug · 9/14"
+     ],
+     [
+      68.19,
+      68.26,
+      67.89,
+      67.91,
+      "30 Aug · 10/14"
+     ],
+     [
+      67.91,
+      67.91,
+      67.67,
+      67.67,
+      "30 Aug · 11/14"
+     ],
+     [
+      67.67,
+      68.28,
+      67.67,
+      68.24,
+      "30 Aug · 12/14"
+     ],
+     [
+      68.24,
+      68.66,
+      68.2,
+      68.64,
+      "30 Aug · 13/14"
+     ],
+     [
+      68.64,
+      69.25,
+      68.61,
+      69.21,
+      "30 Aug · 14/14"
+     ]
+    ],
+    "days": [
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30",
+     "2021-08-30"
+    ],
+    "open": "Cat 4 Ida aims at Louisiana; rigs evacuate",
+    "news": [
+     {
+      "text": "95% of Gulf output shut in",
+      "major": true,
+      "at": 0
+     },
+     {
+      "text": "Louisiana refineries shut, power out",
+      "major": false,
+      "at": 4
+     }
+    ],
+    "concept": "cb-shut-ins"
+   }
+  },
+  {
+   "id": "ci-colonial-hack-2021",
+   "type": "callit",
+   "category": "products",
+   "difficulty": 3,
+   "instrument": "RBOB",
+   "contract": "NYMEX RBOB gasoline, front month",
+   "unit": "$/gal",
+   "headline": "Ransomware shuts the Colonial Pipeline, which carries 2.5 mb/d of fuel to the East Coast.",
+   "setup": [
+    "Southeast gas stations face shortages. RBOB futures are $2.13/gal.",
+    "NYMEX RBOB is priced for delivery in New York Harbor, not the Southeast."
+   ],
+   "decision": {
+    "date": "2021-05-07",
+    "price": 2.1269
+   },
+   "outcome": {
+    "date": "2021-05-10",
+    "price": 2.1334
+   },
+   "horizon": "1 trading day",
+   "flatBandPct": 1.5,
+   "series": [
+    1.9621,
+    1.97,
+    1.9757,
+    2.0355,
+    2.0518,
+    2.0399,
+    2.0445,
+    2.0174,
+    1.9834,
+    1.9747,
+    1.9957,
+    1.9786,
+    2.0204,
+    2.0722,
+    2.0999,
+    2.0698,
+    2.1015,
+    2.1512,
+    2.1513,
+    2.1137,
+    2.1269
+   ],
+   "after": [
+    2.1334
+   ],
+   "why": [
+    "NY Harbor had imports and stocks, while Gulf Coast barrels backed up with nowhere to go.",
+    "RBOB rose just 0.3%. Know where your contract delivers: local shortages show up in basis first."
+   ],
+   "source": "NYMEX RB settlements 7 & 10 May 2021; Colonial shutdown 7 May 2021. Prices: exchange settlements via Yahoo Finance continuous front-month series.",
+   "session": {
+    "bars": "intraday",
+    "simulated": true,
+    "label": "Intraday · path simulated, OHLC real",
+    "candles": [
+     [
+      2.205,
+      2.217,
+      2.1988,
+      2.217,
+      "10 May · 1/14"
+     ],
+     [
+      2.217,
+      2.217,
+      2.1985,
+      2.2005,
+      "10 May · 2/14"
+     ],
+     [
+      2.2005,
+      2.201,
+      2.1882,
+      2.1902,
+      "10 May · 3/14"
+     ],
+     [
+      2.1902,
+      2.1935,
+      2.1805,
+      2.1812,
+      "10 May · 4/14"
+     ],
+     [
+      2.1812,
+      2.1815,
+      2.1732,
+      2.1751,
+      "10 May · 5/14"
+     ],
+     [
+      2.1751,
+      2.1785,
+      2.1512,
+      2.1518,
+      "10 May · 6/14"
+     ],
+     [
+      2.1518,
+      2.1522,
+      2.1426,
+      2.1438,
+      "10 May · 7/14"
+     ],
+     [
+      2.1438,
+      2.1451,
+      2.1227,
+      2.1239,
+      "10 May · 8/14"
+     ],
+     [
+      2.1239,
+      2.1264,
+      2.1128,
+      2.1128,
+      "10 May · 9/14"
+     ],
+     [
+      2.1128,
+      2.117,
+      2.1128,
+      2.1167,
+      "10 May · 10/14"
+     ],
+     [
+      2.1167,
+      2.1237,
+      2.1165,
+      2.1224,
+      "10 May · 11/14"
+     ],
+     [
+      2.1224,
+      2.1326,
+      2.1215,
+      2.1277,
+      "10 May · 12/14"
+     ],
+     [
+      2.1277,
+      2.131,
+      2.1259,
+      2.1269,
+      "10 May · 13/14"
+     ],
+     [
+      2.1269,
+      2.1341,
+      2.1247,
+      2.1334,
+      "10 May · 14/14"
+     ]
+    ],
+    "days": [
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10",
+     "2021-05-10"
+    ],
+    "open": "Ransomware shuts the Colonial Pipeline",
+    "news": [
+     {
+      "text": "Colonial aims to restart by end of week",
+      "major": false,
+      "at": 0
+     },
+     {
+      "text": "Southeast stations report shortages",
+      "major": false,
+      "at": 6
+     }
+    ],
+    "concept": "cb-basis",
+    "physical": {
+     "side": "LONG",
+     "bbl": 250000,
+     "who": "Marketer",
+     "desc": "LONG 250k bbl Gulf gasoline for Colonial",
+     "events": [
+      {
+       "at": 3,
+       "usd": -2.5,
+       "text": "Colonial shut: Gulf gasoline backs up"
+      }
+     ],
+     "source": "Physical basis shocks are modeled around reported events; the benchmark path is the session's real settlement data."
+    }
+   }
+  }
+ ]
+}

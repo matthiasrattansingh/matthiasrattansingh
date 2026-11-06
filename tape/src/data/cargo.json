@@ -1,0 +1,512 @@
+{
+  "_readme": "CARGO sessions: one physical cargo from loading to sale, in day-steps. 'days' (date + benchmark flat price in $/bbl) is filled from real settlements by scripts/build-physical.py. Port basis is MODELED (linear from start to end with seeded noise) around reported levels; there is no free daily basis history. Events are applied at runtime: types port_congestion (+days queued, demurrage), pipeline_outage (basis collapses at the port, widens at widen_ports or all others), weather_delay (+days at sea), refinery_outage (local bid drops), refinery_restart (local bid recovers), demand_spike / demand_fade (local bid jumps / eases), quality_dispute (off-spec penalty $/bbl on sales there). A port's delivered price = flat + that port's basis.",
+  "cards": [
+    {
+      "id": "cg-floating-storage-2020",
+      "type": "cargo",
+      "category": "physical",
+      "difficulty": 3,
+      "title": "Floating storage, April 2020",
+      "open": "Day after WTI went negative. 500k bbl afloat",
+      "cargo": {
+        "name": "WTI Midland",
+        "api": 42,
+        "sulfur": "0.2% sweet",
+        "bbl": 500000
+      },
+      "bench": {
+        "symbol": "BZ",
+        "name": "Brent"
+      },
+      "start": "2020-04-21",
+      "steps": 14,
+      "charter_usd_day": 65000,
+      "charter_source": "Aframax rates spiked in March-April 2020 as tankers were hired for floating storage; ~$50k-$80k/day (Clarksons).",
+      "load": {
+        "port": "Corpus Christi",
+        "basis": -3.4
+      },
+      "ports": [
+        {
+          "id": "hou",
+          "name": "Houston",
+          "voyage": 1,
+          "basis": {
+            "start": -3.6,
+            "end": -2.6,
+            "noise": 0.25
+          }
+        },
+        {
+          "id": "sj",
+          "name": "St. James, LA",
+          "voyage": 2,
+          "basis": {
+            "start": -3.0,
+            "end": -2.2,
+            "noise": 0.25
+          }
+        },
+        {
+          "id": "rtm",
+          "name": "Rotterdam",
+          "voyage": 13,
+          "basis": {
+            "start": -1.4,
+            "end": -0.6,
+            "noise": 0.2
+          }
+        }
+      ],
+      "decisions": [
+        0,
+        4,
+        8
+      ],
+      "events": [
+        {
+          "day": 0,
+          "date": "2020-04-21",
+          "type": "pipeline_outage",
+          "port": "hou",
+          "usd": -1.5,
+          "widen": 0.3,
+          "text": "Day after negative WTI: Gulf glutted"
+        },
+        {
+          "day": 1,
+          "date": "2020-04-22",
+          "type": "port_congestion",
+          "port": "hou",
+          "days": 2,
+          "text": "Houston tanks full; tankers queue"
+        },
+        {
+          "day": 2,
+          "date": "2020-04-23",
+          "type": "distressed_seller",
+          "port": "hou",
+          "usd": -0.8,
+          "buyers": 1,
+          "line": "A VLCC is offering under you.",
+          "text": "Stranded VLCC dumps crude at Houston"
+        },
+        {
+          "day": 3,
+          "date": "2020-04-24",
+          "type": "refinery_outage",
+          "port": "rtm",
+          "usd": -0.6,
+          "text": "EU refiners cut runs; Rotterdam bids off"
+        },
+        {
+          "day": 6,
+          "date": "2020-04-29",
+          "type": "weather_delay",
+          "days": 1,
+          "text": "Atlantic gale slows the voyage a day"
+        }
+      ],
+      "why": [
+        "In April 2020 demand fell faster than supply could stop, so prompt barrels had no buyer and the curve went into super-contango.",
+        "Holding the cargo afloat (paying charter) and selling into the rebound beat dumping it in a full US Gulf."
+      ],
+      "concept": "cb-floating-storage",
+      "source": "Benchmark: ICE Brent front-month settlements 21 Apr-8 May 2020 (real). Port basis modeled around reported spring-2020 US Gulf discounts; event dates match reported storage stress (EIA, Reuters).",
+      "days": [
+        {
+          "date": "2020-04-21",
+          "flat": 19.33
+        },
+        {
+          "date": "2020-04-22",
+          "flat": 20.37
+        },
+        {
+          "date": "2020-04-23",
+          "flat": 21.33
+        },
+        {
+          "date": "2020-04-24",
+          "flat": 21.44
+        },
+        {
+          "date": "2020-04-27",
+          "flat": 19.99
+        },
+        {
+          "date": "2020-04-28",
+          "flat": 20.46
+        },
+        {
+          "date": "2020-04-29",
+          "flat": 22.54
+        },
+        {
+          "date": "2020-04-30",
+          "flat": 25.27
+        },
+        {
+          "date": "2020-05-01",
+          "flat": 26.44
+        },
+        {
+          "date": "2020-05-04",
+          "flat": 27.2
+        },
+        {
+          "date": "2020-05-05",
+          "flat": 30.97
+        },
+        {
+          "date": "2020-05-06",
+          "flat": 29.72
+        },
+        {
+          "date": "2020-05-07",
+          "flat": 29.46
+        },
+        {
+          "date": "2020-05-08",
+          "flat": 30.97
+        }
+      ]
+    },
+    {
+      "id": "cg-diesel-squeeze-2022",
+      "type": "cargo",
+      "category": "physical",
+      "difficulty": 3,
+      "title": "Europe-bound diesel, April 2022",
+      "open": "300k bbl ULSD, Europe screaming for diesel",
+      "cargo": {
+        "name": "ULSD",
+        "api": 34,
+        "sulfur": "10 ppm",
+        "bbl": 300000
+      },
+      "bench": {
+        "symbol": "HO",
+        "name": "NYMEX ULSD"
+      },
+      "start": "2022-04-19",
+      "steps": 14,
+      "charter_usd_day": 45000,
+      "charter_source": "MR/LR1 product tanker rates on transatlantic routes rose to roughly $35k-$60k/day in spring 2022 (Clarksons, Baltic TC2/TC14).",
+      "load": {
+        "port": "Houston",
+        "basis": -2.0
+      },
+      "ports": [
+        {
+          "id": "nyh",
+          "name": "New York Harbor",
+          "voyage": 5,
+          "basis": {
+            "start": 3.0,
+            "end": 1.5,
+            "noise": 0.6
+          }
+        },
+        {
+          "id": "ara",
+          "name": "Rotterdam (ARA)",
+          "voyage": 13,
+          "basis": {
+            "start": 7.0,
+            "end": 9.0,
+            "noise": 0.8
+          }
+        },
+        {
+          "id": "san",
+          "name": "Santos, Brazil",
+          "voyage": 12,
+          "basis": {
+            "start": 3.5,
+            "end": 4.5,
+            "noise": 0.6
+          }
+        }
+      ],
+      "decisions": [
+        0,
+        3
+      ],
+      "events": [
+        {
+          "day": 5,
+          "date": "2022-04-26",
+          "type": "demand_spike",
+          "port": "nyh",
+          "usd": 9.0,
+          "text": "NYH diesel stocks at lows; bids soar",
+          "desperate": "nyh",
+          "buyers": 3,
+          "until_day": 9,
+          "line": "Terminal is dry. Name a number."
+        },
+        {
+          "day": 6,
+          "date": "2022-04-27",
+          "type": "demand_spike",
+          "port": "ara",
+          "usd": 2.5,
+          "text": "Russia cuts gas to Poland; EU diesel up"
+        },
+        {
+          "day": 9,
+          "date": "2022-05-02",
+          "type": "demand_fade",
+          "port": "nyh",
+          "usd": -8.0,
+          "text": "May ULSD expired; NYH squeeze unwinds"
+        },
+        {
+          "day": 10,
+          "date": "2022-05-03",
+          "type": "quality_dispute",
+          "port": "ara",
+          "usd": -0.6,
+          "text": "ARA inspector flags cetane: off-spec"
+        }
+      ],
+      "why": [
+        "Spring 2022: Europe lost Russian diesel and New York Harbor stocks hit multi-decade lows, so local premiums, not just futures, exploded.",
+        "The best sale was the port whose basis peaked while you were there: timing the location mattered as much as the price."
+      ],
+      "concept": "cb-basis",
+      "source": "Benchmark: NYMEX ULSD (HO) front-month settlements 19 Apr-6 May 2022 (real, ×42 to $/bbl). Port premiums modeled around reported spring-2022 NYH and ARA diesel premiums (EIA, Reuters, Argus).",
+      "days": [
+        {
+          "date": "2022-04-19",
+          "flat": 162.2
+        },
+        {
+          "date": "2022-04-20",
+          "flat": 166.87
+        },
+        {
+          "date": "2022-04-21",
+          "flat": 163.83
+        },
+        {
+          "date": "2022-04-22",
+          "flat": 165.42
+        },
+        {
+          "date": "2022-04-25",
+          "flat": 171.82
+        },
+        {
+          "date": "2022-04-26",
+          "flat": 187.65
+        },
+        {
+          "date": "2022-04-27",
+          "flat": 196.32
+        },
+        {
+          "date": "2022-04-28",
+          "flat": 215.69
+        },
+        {
+          "date": "2022-04-29",
+          "flat": 200.83
+        },
+        {
+          "date": "2022-05-02",
+          "flat": 176.61
+        },
+        {
+          "date": "2022-05-03",
+          "flat": 171.47
+        },
+        {
+          "date": "2022-05-04",
+          "flat": 176.27
+        },
+        {
+          "date": "2022-05-05",
+          "flat": 169.73
+        },
+        {
+          "date": "2022-05-06",
+          "flat": 166.08
+        }
+      ]
+    },
+    {
+      "id": "cg-texas-freeze-2021",
+      "type": "cargo",
+      "category": "physical",
+      "difficulty": 2,
+      "title": "Gulf cargo in the Texas freeze, Feb 2021",
+      "open": "Winter Storm Uri is about to hit Texas",
+      "cargo": {
+        "name": "WTI Midland",
+        "api": 42,
+        "sulfur": "0.2% sweet",
+        "bbl": 500000
+      },
+      "bench": {
+        "symbol": "CL",
+        "name": "WTI"
+      },
+      "start": "2021-02-09",
+      "steps": 14,
+      "charter_usd_day": 22000,
+      "charter_source": "Aframax rates were depressed in early 2021, roughly $10k-$25k/day (Clarksons).",
+      "load": {
+        "port": "Corpus Christi",
+        "basis": 0.4
+      },
+      "ports": [
+        {
+          "id": "hou",
+          "name": "Houston",
+          "voyage": 1,
+          "basis": {
+            "start": 1.0,
+            "end": 1.2,
+            "noise": 0.15
+          }
+        },
+        {
+          "id": "sj",
+          "name": "St. James, LA",
+          "voyage": 2,
+          "basis": {
+            "start": 1.7,
+            "end": 1.9,
+            "noise": 0.15
+          }
+        },
+        {
+          "id": "rtm",
+          "name": "Rotterdam",
+          "voyage": 13,
+          "basis": {
+            "start": 3.4,
+            "end": 3.6,
+            "noise": 0.25
+          }
+        }
+      ],
+      "decisions": [
+        0,
+        3,
+        6
+      ],
+      "events": [
+        {
+          "day": 3,
+          "date": "2021-02-12",
+          "type": "weather_delay",
+          "days": 1,
+          "text": "Arctic front: fog and ice slow shipping"
+        },
+        {
+          "day": 4,
+          "date": "2021-02-16",
+          "type": "port_congestion",
+          "port": "hou",
+          "days": 2,
+          "text": "Houston Ship Channel shut; ships queue"
+        },
+        {
+          "day": 4,
+          "date": "2021-02-16",
+          "type": "refinery_outage",
+          "port": "hou",
+          "usd": -2.5,
+          "text": "Refineries freeze; Houston bids drop"
+        },
+        {
+          "day": 5,
+          "date": "2021-02-17",
+          "type": "pipeline_outage",
+          "port": "hou",
+          "usd": -0.8,
+          "widen": 0.6,
+          "text": "Pipelines lose power; Louisiana bids up",
+          "widen_ports": [
+            "sj"
+          ]
+        },
+        {
+          "day": 9,
+          "date": "2021-02-23",
+          "type": "refinery_restart",
+          "port": "hou",
+          "usd": 2.0,
+          "text": "Refineries restart; Houston bids recover"
+        }
+      ],
+      "why": [
+        "The freeze shut Texas refineries, so crude near Houston lost its buyers while Louisiana and export markets were untouched.",
+        "Routing away from the outage (or waiting for restarts) protected the basis; arriving into the freeze meant demurrage and a weak bid."
+      ],
+      "concept": "cb-shut-ins",
+      "source": "Benchmark: NYMEX WTI (CL) front-month settlements 9 Feb-1 Mar 2021 (real). Port basis modeled around reported MEH/LLS levels; event dates follow Winter Storm Uri reporting (EIA, ERCOT, Reuters).",
+      "days": [
+        {
+          "date": "2021-02-09",
+          "flat": 58.36
+        },
+        {
+          "date": "2021-02-10",
+          "flat": 58.68
+        },
+        {
+          "date": "2021-02-11",
+          "flat": 58.24
+        },
+        {
+          "date": "2021-02-12",
+          "flat": 59.47
+        },
+        {
+          "date": "2021-02-16",
+          "flat": 60.05
+        },
+        {
+          "date": "2021-02-17",
+          "flat": 61.14
+        },
+        {
+          "date": "2021-02-18",
+          "flat": 60.52
+        },
+        {
+          "date": "2021-02-19",
+          "flat": 59.24
+        },
+        {
+          "date": "2021-02-22",
+          "flat": 61.49
+        },
+        {
+          "date": "2021-02-23",
+          "flat": 61.67
+        },
+        {
+          "date": "2021-02-24",
+          "flat": 63.22
+        },
+        {
+          "date": "2021-02-25",
+          "flat": 63.53
+        },
+        {
+          "date": "2021-02-26",
+          "flat": 61.5
+        },
+        {
+          "date": "2021-03-01",
+          "flat": 60.64
+        }
+      ]
+    }
+  ]
+}
