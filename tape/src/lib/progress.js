@@ -57,6 +57,9 @@ export function emptyProgress() {
     // v3: physical desk (company book; never touches the personal $100k account)
     phys: emptyPhys(),
     playerName: '',
+    adapt: { sessions: [], traps: { seen: 0, fell: 0 } }, // habits and win rates the bots read
+    wager: null, // { bot, stake } staked before the next session
+    decay: null, // { checked, through, last } XP decay bookkeeping
     // FORECAST cards: your locked numbers and price calls on real EIA weeks, by kind.
     forecast: emptyForecast(),
   };
@@ -85,6 +88,9 @@ export function hydrate(saved) {
     specials: saved.specials ?? {},
     phys: { ...emptyPhys(), ...saved.phys, memory: { ...emptyPhys().memory, ...saved.phys?.memory }, negotiation: { ...emptyPhys().negotiation, ...saved.phys?.negotiation }, ideas: { ...emptyPhys().ideas, ...saved.phys?.ideas } },
     playerName: saved.playerName ?? '',
+    adapt: { sessions: saved.adapt?.sessions ?? [], traps: { seen: 0, fell: 0, ...saved.adapt?.traps } },
+    wager: saved.wager ?? null,
+    decay: saved.decay ?? null,
     forecast: {
       prints: { ...emptyForecast().prints, ...saved.forecast?.prints },
       reactions: { ...emptyForecast().reactions, ...saved.forecast?.reactions },

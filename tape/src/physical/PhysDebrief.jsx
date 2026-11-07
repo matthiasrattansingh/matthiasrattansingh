@@ -3,6 +3,7 @@ import NextUp from '../trade/NextUp.jsx';
 import { fmtMoney } from '../lib/book.js';
 import { seeded } from '../lib/format.js';
 import { gradeFor } from '../game/collection.js';
+import VerdictPanel from '../challenge/VerdictPanel.jsx';
 
 const GRADE_STYLE = { S: 'bg-amber text-black', A: 'bg-up text-black', B: 'bg-sky-400 text-black', C: 'bg-white/70 text-black', D: 'bg-down text-white' };
 const tone = (v) => (v > 0 ? 'text-up' : v < 0 ? 'text-down' : 'text-white');
@@ -14,7 +15,7 @@ const tone = (v) => (v > 0 ? 'text-up' : v < 0 ? 'text-down' : 'text-white');
  */
 export default function PhysDebrief({
   title, pnl, best, bestText, lines, log = [], why = [], source, concept, onConcept, extraTop = null, extraBottom = null, gradeOverride = null,
-  next, onNext, onStop, extras,
+  next, onNext, onStop, extras, review = null, onChallenge = null,
 }) {
   const grade = gradeOverride ?? gradeFor(pnl, Math.max(1, best));
   const [pick, setPick] = useState(null);
@@ -52,6 +53,8 @@ export default function PhysDebrief({
           ))}
         </div>
 
+        <VerdictPanel review={review} />
+        {onChallenge && <button onClick={onChallenge} className="num mt-2 h-10 w-full rounded-lg border border-amber/60 bg-amber/15 text-[11px] font-extrabold tracking-widest text-amber">⚔ CHALLENGE LINK + SCORE CARD</button>}
         {extraTop}
 
         {log.length > 0 && (

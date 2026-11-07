@@ -339,8 +339,25 @@ export function agentSeason(kind, records, classes) {
   }]));
 }
 
-/** XP for a locked forecast: closer is better, scaled by the kind's unit. */
-export function printXp(kind, err) {
+/**
+ * The accuracy band tightens as you get better, and overcalling is punished:
+ *  - experience: the band shrinks from 1× the base unit toward 0.5× over your first 60 weeks
+ *  - overcalling: if your average call is bigger than the market's average print by >25%,
+ *    the band shrinks by that ratio (calling 7.1 vs a market 3.7 halves it)
+ * Base unit: 1 MMbbl (petroleum), 10 Bcf (gas). Floor: 0.25× the unit.
+ */
+export function tolerance(kind, stats) {
   const unit = kind === 'gas' ? 10 : 1;
-  return err <= unit ? 15 : err <= 3 * unit ? 8 : 3;
+  const n = stats?.n ?? 0;
+  const exp = 1 - Math.min(0.5, n / 120);
+  const over = n && stats.avgActualSize ? stats.avgGuessSize / stats.avgActualSize : 1;
+  const penalty = over > 1.25 ? 1 / over : 1;
+  const band = unit * Math.max(0.25, exp * penalty);
+  return { band, unit, over, overcalling: over > 1.25, exp };
+}
+
+/** XP for a locked forecast: inside the band 15, inside 3 bands 8, else 3. */
+export function printXp(kind, err, stats = null) {
+  const { band } = tolerance(kind, stats);
+  return err <= band ? 15 : err <= 3 * band ? 8 : 3;
 }

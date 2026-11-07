@@ -11,9 +11,19 @@ import { afterSession } from '../game/afterSession.js';
 import { EVAL_DD, evalActive } from '../game/evalAccount.js';
 import { AGENTS, CONCEPT_CARDS, DESK_CARDS, ECON, IDEA_CARDS, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
 import DeskSession from '../desk/DeskSession.jsx';
+import { buildSession, simulate } from '../trade/engine.js';
+import { executeAll } from '../trade/execution.js';
+import { HABIT_INFO, habits, isHard, pickTrap, recordAdapt, trapOf, typeOf } from '../game/adaptive.js';
+import { lockedPnl, maxDrawdown, verdict } from '../game/rules.js';
+import { settleWager } from '../game/wager.js';
+import WagerBar from '../game/WagerBar.jsx';
+import { challengeFromSearch, compare, newSeed } from '../challenge/link.js';
+import { submitScore } from '../challenge/leaderboard.js';
+import VerdictPanel, { ChallengeSheet } from '../challenge/VerdictPanel.jsx';
+import { fadeAdjust } from '../physical/memory.js';
 import IdeaCard from '../desk/IdeaCard.jsx';
 import { ideaOf, isIdeaSlot, passIdea, pickIdea, runIdea, tickIdeas } from '../desk/feed.js';
-import { PITCH_RULES } from '../desk/scenario.js';
+import { PITCH_RULES, deskCurve } from '../desk/scenario.js';
 import CargoSession from '../physical/CargoSession.jsx';
 import TankSession from '../physical/TankSession.jsx';
 import { spot as tankSpot, spotMarket, tankSplit } from '../physical/tank.js';
@@ -23,7 +33,7 @@ import PhysStrip from '../physical/PhysStrip.jsx';
 import DeskTable from '../physical/DeskTable.jsx';
 import { rememberCargo, rememberHedge, rivalAdjust } from '../physical/memory.js';
 import NegotiationPanel from '../physical/NegotiationPanel.jsx';
-import { bestSale, desperationAt, distressDaysAt, fairDiff, indexFor, sellNegotiated, setPieceAt } from '../physical/cargo.js';
+import { runCargo, bestSale, desperationAt, distressDaysAt, fairDiff, indexFor, sellNegotiated, setPieceAt } from '../physical/cargo.js';
 import { recordNegotiation } from '../physical/relationships.js';
 import { runAgentCargo, runAgentTank } from '../physical/agents.js';
 import { buildTank as buildTankFor } from '../physical/tank.js';
@@ -36,6 +46,10 @@ import { localDay } from '../lib/progress.js';
 
 const conceptById = new Map(CONCEPT_CARDS.map((c) => [c.id, c]));
 const cardById = new Map([...SESSION_CARDS, ...IDEA_CARDS].map((c) => [c.id, c]));
+// Sessions whose real data makes them a priced-in trap (the move ran before, or the headline reversed).
+// Desk-book drawdown allowed for a physical WIN (positions are 100k-750k bbl).
+const PHYS_RISK_BUDGET = 500_000;
+const TRAP_IDS = new Set(PAPER_SESSION_CARDS.filter((c) => trapOf(buildSession(c))).map((c) => c.id));
 
 /** Share text for a finished session, in the OPEN BELL format. */
 export function sessionShareText(s, grid, pnl, beat) {
@@ -53,8 +67,9 @@ export async function shareOrCopy(text) {
 }
 
 /** The settled trade for a finished session (multiplier applies to wins). */
-export function sessionTrade(progress, { bots, pnl: raw }, account = 'main') {
-  const win = raw > 0;
+export function sessionTrade(progress, { bots, pnl: raw, verdict: v = null }, account = 'main') {
+  // A WIN needs all three checks (best bot, passive benchmark, risk budget); P&L alone isn't enough.
+  const win = v ? v.win : raw > 0;
   // Eval accounts trade plain P&L: no streak multipliers on a prop-firm evaluation.
   const mult = win && account !== 'eval' ? comboMultiplier(progress.combo) : 1;
   return { pnl: Math.round(raw * mult), base: Math.round(raw), mult, win, bots, session: true, account };
@@ -90,7 +105,9 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   const started = useRef(0); // feed items started this visit: sets the 1-in-4 idea slot
   const today = localDay();
   const special = specialFor(progress, today, SESSION_CARDS);
-  const specialItem = (sp) => ({ key: `special-${sp.date}-${Date.now()}`, card: cardById.get(sp.cardId), tag: { special: sp }, label: `⭐ ${sp.label}` });
+  // Every feed item is a run: a seed (live ticks, fills, bots, hard tape) and the hard flag.
+  const mkItem = (p, card, extra = {}) => ({ key: `${card.id}-${Date.now()}`, card, seed: newSeed(), hard: isHard(p, typeOf(card)), ...extra });
+  const specialItem = (sp) => mkItem(progress, cardById.get(sp.cardId), { key: `special-${sp.date}-${Date.now()}`, tag: { special: sp }, label: `⭐ ${sp.label}` });
   const choose = (p) => {
     // Today's event special jumps the queue once; otherwise unplayed -> lowest grade -> review.
     const sp = specialFor(p, today, SESSION_CARDS);
@@ -98,22 +115,31 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     // One feed item in four is a physical trade idea.
     if (isIdeaSlot(started.current)) {
       const idea = pickIdea(p, IDEA_CARDS, started.current);
-      if (idea) return { key: `${idea.id}-${Date.now()}`, card: idea, label: '💡 IDEA' };
+      if (idea) return mkItem(p, idea, { label: '💡 IDEA' });
     }
     // Two-book sessions stay locked until 5 cargoes are done: learn the physical chain first.
     const pool = SESSION_CARDS.filter((c) => c.mode !== 'integrated' || integratedUnlocked(p));
+    // Priced-in traps come up more often the more you fall for them.
+    if (pickTrap(p, `${started.current}|${Date.now()}`)) {
+      const traps = pool.filter((c) => TRAP_IDS.has(c.id) && !recent.current.includes(c.id));
+      if (traps.length) { const t = pickNext(p, traps, { recent: recent.current, salt: `trap${Date.now()}` }); return mkItem(p, t); }
+    }
     const card = pickNext(p, pool, { recent: recent.current, salt: String(Date.now()) });
-    return { key: `${card.id}-${Date.now()}`, card };
+    return mkItem(p, card);
   };
   const [chatOpen, setChatOpen] = useState(false);
   const currentRef = useRef(null);
   // ?session=<id> (or a Library tap) opens a specific session first.
   const [current, setCurrent] = useState(() => {
+    // ?c=<challenge> replays someone's exact run: same scenario, seed, tape and bots.
+    const ch = challengeFromSearch();
+    if (ch && cardById.get(ch.id)) return { key: `challenge-${ch.id}-${Date.now()}`, card: cardById.get(ch.id), seed: ch.seed, hard: ch.hard, challenge: ch, label: `⚔ ${ch.name}` };
     const want = startWith ?? new URLSearchParams(location.search).get('session');
     const found = want && cardById.get(want);
     const card = found && (found.mode !== 'integrated' || integratedUnlocked(progress)) ? found : null;
-    return card ? { key: `pick-${want}-${Date.now()}`, card } : choose(progress);
+    return card ? mkItem(progress, card, { key: `pick-${want}-${Date.now()}` }) : choose(progress);
   });
+  const [sheet, setSheet] = useState(null); // challenge share sheet
   currentRef.current = current;
   const [next, setNext] = useState(null);
   const [result, setResult] = useState(null);
@@ -129,15 +155,21 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   if (startWith && startWith !== lastStart.current && cardById.get(startWith)) {
     lastStart.current = startWith;
     const card = cardById.get(startWith);
-    setTimeout(() => { setResult(null); setMode('play'); setCurrent({ key: `pick-${startWith}-${Date.now()}`, card }); onStarted?.(); }, 0);
+    setTimeout(() => { setResult(null); setMode('play'); setCurrent(mkItem(progress, card, { key: `pick-${startWith}-${Date.now()}` })); onStarted?.(); }, 0);
   }
 
   const onFinish = useCallback((r) => {
+    // 0) score the session: the three win checks, on raw P&L (before any streak multiplier).
+    const cur = currentRef.current;
+    const passiveSim = simulate(r.session, executeAll(r.session, [{ type: 'OPEN', side: 'LONG', lots: 2 }], { seed: r.seed }));
+    const passive = { pnl: Math.round(lockedPnl(passiveSim.curve, r.limits).pnl), label: `hold ${r.session.sides.LONG.toLowerCase()} 2 lots` };
+    const v = verdict({ pnl: r.pnl, bots: r.bots, passive, maxDD: Math.max(r.stats.maxDD, maxDrawdown(r.sim.curve)), budget: r.limits.budget, limitHit: r.limitHit ?? null });
+    const trap = trapOf(r.session);
     // 1) read the latest state, 2) book the trade, 3) run the post-session pipeline.
     let trade;
     let rideBefore = 0;
     apply((p) => {
-      trade = sessionTrade(p, r, evalActive(p) ? 'eval' : 'main');
+      trade = sessionTrade(p, { ...r, verdict: v }, evalActive(p) ? 'eval' : 'main');
       rideBefore = p.ride?.active ? p.ride.balance : 0;
       return { progress: p };
     });
@@ -151,12 +183,32 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
         tag: currentRef.current?.tag ?? null, cards: PAPER_SESSION_CARDS,
       });
     });
+    // 4) the desk learns your habits; any wager settles; a bot that front-ran you says so.
+    let wager = null;
+    let fell = false;
+    apply((p) => {
+      let q = recordAdapt(p, { card: cur.card, s: r.session, decisions: r.decisions, win: v.win, pnl: r.pnl });
+      fell = Boolean(q.adapt.sessions.at(-1)?.fell);
+      const w = settleWager(q, { pnl: r.pnl, bots: r.bots });
+      wager = w.result;
+      q = w.progress;
+      const bot = Object.keys(r.costs?.frontRun ?? {})[0];
+      const habit = bot && Object.values(HABIT_INFO).find((h) => h.bot === bot);
+      if (habit) q = post(q, bot, 'taunt', habit.line);
+      return { progress: q };
+    });
+    // 5) the run as a challenge: link, leaderboard entry, and the head-to-head if this was one.
+    const run = { id: cur.card.id, kind: 'paper', seed: r.seed, hard: r.hard, name: progress.playerName || 'Me', pnl: r.pnl, win: v.win, bots: r.bots, checks: v.checks.map((c) => c.pass) };
+    submitScore(run);
+    const ch = cur.challenge;
+    const versus = ch ? { ...compare(r.pnl, ch.pnl), name: ch.name, mine: r.pnl, theirs: ch.pnl } : null;
+    const review = { verdict: v, trap: trap ? { ...trap, fell } : null, wager, versus, costs: r.costs, limitHit: r.limitHit ?? null, hard: r.hard };
     const tag = currentRef.current?.tag;
     recent.current = [r.session.id, ...(tag?.special ? [`special:${tag.special.date}`] : []), ...recent.current].slice(0, 8);
     setRode(false);
     // Let the last candle's P&L flash land before the debrief slides up.
-    setTimeout(() => setResult({ ...r, trade, rideLost, events }), 1200);
-  }, [apply, record]);
+    setTimeout(() => setResult({ ...r, trade, rideLost, events, review, run }), 1200);
+  }, [apply, record, progress.playerName]);
 
   // Choose the next session once the debrief is up (progress now includes this result).
   if (result && !next) {
@@ -209,6 +261,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           ⚔️ Challenge: beat {fmtMoney(challenge.target, { compact: true })} on {challenge.inst} · PLAY ▶
         </button>
       )}
+      {(!next || ['callit', 'spread'].includes(next.card.type)) && <WagerBar progress={progress} apply={apply} />}
       <div className="mb-2 flex items-center justify-between gap-2">
         <Rings progress={progress} small />
         <ChatButton progress={progress} onOpen={() => setChatOpen(true)} />
@@ -218,13 +271,31 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
 
   // The desk agents play the same physical session, from public state only.
   // After 5 cargoes, rivals pre-position at your favorite port (fixed for the session).
-  const adjust = useMemo(() => rivalAdjust(progress), [current.key]); // eslint-disable-line react-hooks/exhaustive-deps
+  // A challenge replays the challenger's tape: their rivals' pre-positioning, not yours.
+  const adjust = useMemo(() => (current.challenge ? (current.challenge.fade ? fadeAdjust(current.challenge.fade) : null) : rivalAdjust(progress)), [current.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const agentRuns = useMemo(() => {
     if (current.card.type === 'cargo') return AGENTS.map((a) => runAgentCargo(a, current.card, ECON, { adjust }));
     if (current.card.type === 'tank') { const t = buildTankFor(current.card, ECON); return AGENTS.map((a) => runAgentTank(a, t)); }
     return null;
   }, [current.card, adjust]);
-  const physStrip = agentRuns && ((step, mine) => <PhysStrip runs={agentRuns} step={step} mine={mine} />);
+  const physStrip = agentRuns && ((step, mine) => <PhysStrip runs={agentRuns} step={step} mine={mine} ghost={progress.played[current.card.id]?.curve ?? null} />);
+  // Physical sessions: the same three checks (bots, passive, risk budget) on the desk book.
+  const physReview = (kind, { pnl, bots, passive, curve, fade = null }) => {
+    const v = verdict({ pnl, bots, passive, maxDD: maxDrawdown(curve ?? []), budget: PHYS_RISK_BUDGET });
+    const ch = current.challenge;
+    const versus = ch ? { ...compare(pnl, ch.pnl), name: ch.name, mine: pnl, theirs: ch.pnl } : null;
+    const run = { id: current.card.id, kind, seed: current.seed ?? current.key, hard: false, name: progress.playerName || 'Me', pnl, win: v.win, bots, fade };
+    submitScore({ ...run, checks: v.checks.map((c) => c.pass) });
+    return { review: { verdict: v, versus }, run };
+  };
+  const openSheet = (run, title, date, kind, bots, checks, versus) => setSheet({
+    run,
+    info: {
+      title, date, kind, checks,
+      standings: [{ name: progress.playerName || 'You', emoji: '🫵', pnl: run.pnl, me: true }, ...bots.map((b) => ({ ...botById[b.id], pnl: b.pnl }))].sort((a, b) => b.pnl - a.pnl),
+      versus: versus ? { name: versus.name, pnl: versus.theirs } : null,
+    },
+  });
 
   const inEval = evalActive(progress);
   // In an eval, sessions trade the eval sub-account: no ride, and the trailing drawdown is the limit.
@@ -261,7 +332,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     const halfDayCost = (atBerth && st.waited >= (c.ports.find((p) => p.id === port).laytime ?? 1.5) ? c.demurrage : c.charter) / 2;
     const ctx = {
       side: 'sell', fair: fairDiff(c, port, st.day), desperation: desperationAt(c, port, st.day),
-      roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.key}|${st.day}|${port}`,
+      roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.seed ?? current.key}|${st.day}|${port}`,
       distressDays, count: piece?.count, line: piece?.line ?? undefined,
       index: (term) => indexFor(c, getSt().day, term).price, costPerHalfDay: halfDayCost,
       onHalfDay: (h) => (h % 2 === 0 ? advance() : true), place: `${portName}${sale.afloat ? ' (afloat)' : ''}`, bbl: c.bbl, name: progress.playerName ?? '',
@@ -283,7 +354,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     const bbl = Math.min(action.bbl ?? t.capacity, t.capacity);
     const ctx = {
       side: 'buy', fair: m.fair, desperation: m.desperation, theirClock: m.theirClock,
-      roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.key}|${st.week}|buy`,
+      roster: AGENTS, econ: ECON, relationships: progress.phys.relationships, seed: `${current.seed ?? current.key}|${st.week}|buy`,
       distressDays: 0, index: () => tankSpot(t, st.week),
       // The tank sits empty while you haggle: half a day of rent per round.
       costPerHalfDay: (bbl * t.rent) / 61, onHalfDay: () => true,
@@ -301,7 +372,13 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
 
   // Physical sessions: book to the physical desk ledger, then the physical debrief.
   const onPhysFinish = (kind) => (r) => {
-    const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? r.t?.W ?? 0, ...(r.book ?? {}) }));
+    const events = apply((p) => bookPhysical(p, { card: current.card, kind, pnl: r.pnl, best: r.best.pnl, C: r.c?.D ?? r.t?.W ?? 0, curve: r.curve, ...(r.book ?? {}) }));
+    // Passive benchmark: cargo = sell on day 0 at the best netback; tank = stay empty.
+    const bots = (agentRuns ?? []).map((x) => ({ id: x.agent.id, pnl: Math.round(x.pnl) }));
+    const passive = kind === 'cargo'
+      ? { pnl: Math.round(runCargo(r.c, [{ type: 'SELL' }]).sold?.pnl ?? 0), label: 'sell day 0' }
+      : { pnl: 0, label: 'stay empty' };
+    Object.assign(r, physReview(kind, { pnl: r.pnl, bots, passive, curve: r.curve, fade: r.c?.fadedName ?? null }));
     if (kind === 'cargo') {
       const sold = r.st.sold;
       apply((p) => ({ progress: rememberCargo(p, { portName: r.c.ports.find((x) => x.id === sold.port).name, days: sold.day + 1, demurrage: r.st.cost.demurrage }) }));
@@ -321,6 +398,8 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     return (
       <PhysDebrief
         title={`${current.card.title}`}
+        review={result.review}
+        onChallenge={() => openSheet(result.run, current.card.title, fmtDate(c.dates[0]), 'cargo', result.run.bots, result.review.verdict.checks, result.review.versus)}
         pnl={st.sold.pnl}
         best={best.pnl}
         bestText={`${portName(best.port)}${best.wait ? `, drift ${best.wait}d` : ''}, sell day ${best.sellDay + 1}`}
@@ -375,6 +454,8 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     return (
       <PhysDebrief
         title={current.card.title}
+        review={result.review}
+        onChallenge={() => openSheet(result.run, current.card.title, fmtDate(t.weeks[0].date), 'tank', result.run.bots, result.review.verdict.checks, result.review.versus)}
         pnl={sp.total}
         best={best.pnl}
         bestText={best.plan}
@@ -525,8 +606,11 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
   // A DESK scenario: physical dislocation as a short feed of ideas, decisions, news and rival pitches.
   if (current.card.type === 'desk') {
     const onPitch = (bot, idea) => apply((p) => ({ progress: post(p, bot, 'pitch', `💡 ${idea.title}. ${idea.pitch}`) }));
-    const finishDeskSession = ({ sc, result: r }) => {
-      const events = apply((p) => bookPhysical(p, { card: current.card, kind: 'desk', pnl: r.pnl, best: r.best, C: sc.D, calls: r.calls, right: r.right }));
+    const finishDeskSession = ({ sc, st, result: r }) => {
+      const curve = deskCurve(sc, st);
+      curve[curve.length - 1] = r.pnl;
+      const events = apply((p) => bookPhysical(p, { card: current.card, kind: 'desk', pnl: r.pnl, best: r.best, C: sc.D, calls: r.calls, right: r.right, curve }));
+      Object.assign(r, physReview('desk', { pnl: r.pnl, bots: AGENTS.map((a) => ({ id: a.id, pnl: Math.round(r.bots[a.id].pnl) })), passive: { pnl: 0, label: 'do nothing' }, curve }));
       // The best and worst rival trades get talked about in desk chat.
       const ranked = AGENTS.map((a) => ({ a, v: r.bots[a.id].pnl })).sort((x, y) => y.v - x.v);
       apply((p) => ({ progress: post(p, ranked[0].a.id, 'brag', `${current.card.title}: closed ${fmtMoney(Math.round(ranked[0].v), { compact: true })}. ${ranked[0].a.id === 'dan' ? 'told you 🎰' : 'Process.'}`) }));
@@ -538,6 +622,8 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       const steps = sc.steps;
       return (
         <PhysDebrief
+          review={r.review}
+          onChallenge={() => openSheet(r.run, current.card.title, fmtDate(sc.days[0]), 'desk', r.run.bots, r.review.verdict.checks, r.review.versus)}
           title={current.card.title}
           pnl={r.pnl}
           best={r.best}
@@ -582,7 +668,8 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     })();
     return (
       <div className="relative">
-        <DeskSession key={current.key} card={current.card} onFinish={finishDeskSession} onPitch={onPitch} />
+        <DeskSession key={current.key} card={current.card} onFinish={finishDeskSession} onPitch={onPitch} ghost={progress.played[current.card.id]?.curve ?? null} />
+        {sheet && <ChallengeSheet run={sheet.run} info={sheet.info} onClose={() => setSheet(null)} onName={(nm) => nm && apply((p) => ({ progress: { ...p, playerName: nm } }))} />}
         {deskDebrief}
         {chat}
       </div>
@@ -605,6 +692,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       <div className="relative">
         <TankSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('tank')} rivals={physStrip} renderBuy={renderBuy} />
         {tankDebrief}
+        {sheet && <ChallengeSheet run={sheet.run} info={sheet.info} onClose={() => setSheet(null)} onName={(nm) => nm && apply((p) => ({ progress: { ...p, playerName: nm } }))} />}
         {chat}
       </div>
     );
@@ -615,6 +703,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       <div className="relative">
         <CargoSession key={current.key} card={current.card} econ={ECON} onFinish={onPhysFinish('cargo')} rivals={physStrip} adjust={adjust} renderSell={renderSell} />
         {physDebrief}
+        {sheet && <ChallengeSheet run={sheet.run} info={sheet.info} onClose={() => setSheet(null)} onName={(nm) => nm && apply((p) => ({ progress: { ...p, playerName: nm } }))} />}
         {chat}
       </div>
     );
@@ -633,12 +722,31 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
         sizes={sizes}
         maxLots={maxLots}
         ghost={ghostRow?.curve ?? null}
-        salt={current.key}
+        salt={current.seed ?? current.key}
+        seed={current.seed ?? current.key}
+        hard={Boolean(current.hard)}
+        habits={habits(progress)}
         onFinish={onFinish}
       />
+      {current.challenge && !result && (
+        <div className="pop num pointer-events-none fixed inset-x-3 top-[52px] z-20 rounded-lg border border-amber/60 bg-black/90 px-3 py-1.5 text-center text-[12px] font-bold text-amber">
+          ⚔ Beat {current.challenge.name}: {fmtMoney(current.challenge.pnl)} · same tape, same bots
+        </div>
+      )}
+      {sheet && <ChallengeSheet run={sheet.run} info={sheet.info} onClose={() => setSheet(null)} onName={(nm) => nm && apply((p) => ({ progress: { ...p, playerName: nm } }))} />}
       {result && next && (
         <Debrief
           result={result}
+          review={result.review}
+          onChallenge={() => setSheet({
+            run: result.run,
+            info: {
+              title: `${result.session.instrument} · ${result.session.card.headline ?? ''}`.slice(0, 60), date: fmtDate(result.session.date), kind: 'paper',
+              standings: [{ name: progress.playerName || 'You', emoji: '🫵', pnl: result.pnl, me: true }, ...result.bots.map((b) => ({ ...botById[b.id], pnl: b.pnl }))].sort((a, b) => b.pnl - a.pnl),
+              checks: result.review.verdict.checks,
+              versus: result.review.versus ? { name: result.review.versus.name, pnl: result.review.versus.theirs } : null,
+            },
+          })}
           concept={conceptById.get(result.session.card.session.concept)}
           onConcept={(c, ok) => bookConcept(progress, record, c, ok)}
           onNext={() => go()}

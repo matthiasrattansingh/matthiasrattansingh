@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import FORECAST from '../data/forecast.json'; // code-split with this component
 import { AGENTS } from '../data/index.js';
-import { AGENT_RULES, CLASS_NAMES, UNIT, agentSeason, classesFor, printStats, reactionStats } from './engine.js';
+import { AGENT_RULES, CLASS_NAMES, UNIT, agentSeason, classesFor, printStats, reactionStats, tolerance } from './engine.js';
 
 const LABEL = { petroleum: 'Crude print (MMbbl)', gas: 'Gas storage (Bcf)' };
 
@@ -45,6 +45,15 @@ export default function ForecastStats({ progress }) {
                   <div className="rounded-lg bg-black/40 p-1.5"><div className="text-[9px] uppercase text-dim">Repeat last wk</div><div className={`text-sm font-bold ${beatLast ? 'text-up' : 'text-down'}`}>{f(print.baselines.repeatLast)}</div></div>
                   <div className="rounded-lg bg-black/40 p-1.5"><div className="text-[9px] uppercase text-dim">Consensus{cons ? ` · ${cons.n}wk` : ''}</div><div className={`text-sm font-bold ${cons ? (beatCons ? 'text-up' : 'text-down') : 'text-dim'}`}>{cons ? `${f(cons.mae)} vs ${f(cons.mine)}` : 'n/a'}</div></div>
                 </div>
+                {(() => {
+                  const t = tolerance(kind, print);
+                  return (
+                    <div className={`num mt-1 rounded-lg px-2 py-1 text-[11px] ${t.overcalling ? 'bg-down/15 text-down' : 'bg-black/40 text-white/80'}`}>
+                      Avg call {f(print.avgGuessSize)} vs market {f(print.avgActualSize)} {UNIT[kind]} ({t.over.toFixed(1)}×)
+                      {t.overcalling ? ' · OVERCALLING' : ''} → full-XP band ±{t.band.toFixed(kind === 'gas' ? 0 : 2)}
+                    </div>
+                  );
+                })()}
                 <p className="num mt-1 text-[10.5px] text-white/70">
                   {beatLast ? 'You beat repeat-last-week.' : 'Repeat-last-week beats you.'}{' '}
                   {cons ? (beatCons ? 'You beat consensus on the weeks it is stored.' : 'Consensus beats you on the weeks it is stored.') : kind === 'petroleum' ? 'Consensus is stored only for cited weeks; none played yet.' : 'No consensus stored for gas.'}

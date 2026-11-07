@@ -55,6 +55,7 @@ export default function TankSession({ card, econ, onFinish, rivals = null, rende
   const [panel, setPanel] = useState(false);
   const [vol, setVol] = useState(500_000);
   const [buying, setBuying] = useState(null);
+  const curveRef = useRef([]); // P&L each week: ghost + drawdown
   const [banner, setBanner] = useState(null);
   const doneRef = useRef(false);
   const finishRef = useRef(onFinish);
@@ -73,7 +74,7 @@ export default function TankSession({ card, econ, onFinish, rivals = null, rende
   useEffect(() => {
     if (!st.done || doneRef.current) return;
     doneRef.current = true;
-    finishRef.current?.({ t, st, pnl: tankPnl(t, st), best: bestTank(t) });
+    finishRef.current?.({ t, st, pnl: tankPnl(t, st), best: bestTank(t), curve: [...curveRef.current.slice(0, t.W - 1), tankPnl(t, st)] });
   }, [st.done, t, st]);
 
   // Scheduler decisions due this week block the thumb row until you choose.
@@ -136,7 +137,7 @@ export default function TankSession({ card, econ, onFinish, rivals = null, rende
         </div>
       </div>
 
-      {typeof rivals === 'function' ? rivals(st.week, tankPnl(t, st)) : rivals}
+      {typeof rivals === 'function' ? rivals(st.week, (curveRef.current[st.week] = tankPnl(t, st))) : rivals}
 
       <div className="border-t border-line px-3 pt-1">
         <div className="flex items-end justify-between">

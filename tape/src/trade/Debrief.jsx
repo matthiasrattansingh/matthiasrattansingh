@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
-import { benchmarks, decisionValues, gradeGrid } from './engine.js';
+import { benchmarks, decisionValues, gradeGrid, simulate } from './engine.js';
+import { lockedPnl } from '../game/rules.js';
 import { fmtMoney } from '../lib/book.js';
 import { BOTS, botById } from '../lib/rivals.js';
 import { fmtDate, seeded } from '../lib/format.js';
 import NextUp from './NextUp.jsx';
+import VerdictPanel from '../challenge/VerdictPanel.jsx';
 
 const ACTION = { OPEN: 'Open', ADD: 'Add 1', CUT: 'Cut ½', CLOSE: 'Close', FLIP: 'Flip', HOLD: 'Hold' };
 
@@ -39,12 +41,18 @@ function EquityCurve({ curve, best, worst }) {
 // RIDE carries a winning session's profit into the next session as bonus margin.
 export default function Debrief({
   result, concept, onConcept, onNext, onShare, next, onStop, onRide, ride = 0, canRide = false, rode = false, rideLost = 0, banner = null, extra = null,
+  review = null, onChallenge = null,
 }) {
   const { session: s, sim, trade, decisions, marginCall } = result;
   const values = useMemo(() => decisionValues(s, decisions), [s, decisions]);
   const best = values.length ? values.reduce((a, b) => (b.value > a.value ? b : a)) : null;
   const worst = values.length ? values.reduce((a, b) => (b.value < a.value ? b : a)) : null;
-  const bench = useMemo(() => benchmarks(s), [s]);
+  // Benchmarks trade under the same prop-firm limits you do.
+  const bench = useMemo(() => {
+    if (!result.limits) return benchmarks(s);
+    const run = (side) => lockedPnl(simulate(s, [{ type: 'OPEN', side, lots: 2 }]).curve, result.limits).pnl;
+    return { long: run('LONG'), short: run('SHORT') };
+  }, [s, result.limits]);
   const grid = gradeGrid(sim);
   const dd = useMemo(() => {
     let peak = 0;
@@ -109,6 +117,8 @@ export default function Debrief({
           </div>
         </div>
 
+        <VerdictPanel review={review} />
+
         <ol className="num mt-2 grid grid-cols-5 gap-1 text-center text-[10px]">
           {board.map((r, i) => (
             <li key={r.id} className={`rounded-md border px-0.5 py-1 ${r.id === 'you' ? 'border-amber/60 bg-amber/10' : 'border-line bg-panel'}`}>
@@ -156,6 +166,7 @@ export default function Debrief({
           {extra}
           <div className="mb-2 flex gap-2">
             <button onClick={() => onShare(grid)} className="num h-10 flex-1 rounded-lg border border-white/25 bg-black text-[11px] font-bold tracking-widest">SHARE</button>
+            {onChallenge && <button onClick={onChallenge} className="num h-10 flex-1 rounded-lg border border-amber/60 bg-amber/15 text-[11px] font-extrabold tracking-widest text-amber">⚔ CHALLENGE</button>}
             {canRide && (
               <button onClick={onRide} disabled={rode}
                 className={`num h-10 flex-[2] rounded-lg border text-[11px] font-extrabold tracking-wider ${rode ? 'border-up/30 text-up/60' : 'border-up/70 bg-up/15 text-up'}`}>

@@ -240,6 +240,56 @@ a preferred pricing term (NOW or AVG5).
   shore tank, nominate pumpover, renew a lease, sell tank heels. You see only the cost now;
   the consequence lands in dollars on its day.
 
+## Harder to win, real stakes, and challenge links
+
+**Scoring rules** (`src/game/rules.js`). Limits scale with the equity you start a session with.
+- **Prop-firm limits:** a daily loss limit of −3% and a trailing drawdown cap 4% below the
+  session high. Both meters are always on screen. Hit either and the session ends on the spot,
+  with the score locked. The bots and the passive benchmark trade under the same limits.
+- **A session WIN needs all three:** beat the best bot, beat the passive benchmark (hold long 2
+  lots, same costs), and keep max drawdown inside a 2.5% risk budget. The debrief shows each
+  check, pass or fail. The streak multiplier and quests now count WINs, not just P&L > 0.
+
+**Execution** (`src/trade/execution.js`, seeded):
+- The price keeps ticking every 250 ms while you decide, and you fill at the tick when you tap.
+- You pay a half-spread on every fill, three times wider on news candles.
+- Orders above 2 lots get partial fills.
+- The bots pay the same costs.
+
+**Adaptive desk** (`src/game/adaptive.js`). The bots read three habits from your trades:
+fading first moves, oversizing after a win, and chasing headlines.
+- Once a habit shows up in half your sessions, a bot front-runs it (extra slippage on that fill)
+  and taunts you in desk chat.
+- A win rate over 65% on a scenario type (5+ sessions) serves the HARD tape: choppier candles, a
+  fakeout first move and a headline that reverses. The final close stays real, and it's labeled.
+- **Priced-in traps** are detected from the real data: a ≥3% run-in that doesn't follow
+  through, or a headline that reverses. The more you fall for them, the more you get, from 15%
+  up to 50% of picks.
+
+**Forecast bands** tighten as your record grows. Overcalling (your average call vs the
+market's) shrinks the full-XP band by that ratio, and ME shows the numbers.
+
+**Stakes:**
+- **Wagers:** stake XP against one bot before a session. The winner takes the pot (a tie
+  refunds), and the bot posts about it.
+- **Weekly league:** promotion and relegation, as before.
+- **OPEN BELL streak:** shown on the Bell screen and in ME.
+- **XP decay:** 2% per skipped day, capped at 20%, never charged twice.
+- **Ghost racing:** a ghost of your best run, on paper charts and in the cargo, tank and desk
+  strips.
+
+**Challenge links** (`src/challenge/`). After any session, ⚔ CHALLENGE makes a link,
+`…/?c=<payload>.<checksum>`. The payload carries the scenario, the seed, hard mode and your
+score (plus the cargo port rivals faded).
+- Opening it replays the identical run: same price path, live ticks, fills and bots. The end
+  screen then puts the challenger's score head to head against yours.
+- It works on static hosting with no accounts. Scores in links are self-reported.
+- The share sheet draws a 1200×1200 score card with the scenario, P&L, standings, the three
+  checks and a QR code of the link. It shares it as a PNG on phones, or downloads it.
+- **Leaderboard:** `leaderboard.js` submits through an adapter. Only the local one ships; the
+  Supabase table and the steps to add it are documented in that file. Entries are keyed by
+  `challengeKey` (scenario + seed + mode), so links never change.
+
 ## EIA tab: forecast cards on real weeks
 
 A feed of real EIA weekly reports with the date hidden: 252 weeks of the Weekly Petroleum
@@ -289,6 +339,7 @@ card's `source` field names the specific dates and events.
 src/
   trade/       engine.js (positions, P&L, sell-vol, replay, bots), chart.js (canvas), TradeSession, Debrief
   desk/        econ.js (idea economics), scenario.js (desk engine + rival pitches), feed.js (main-feed ideas), DeskSession, IdeaCard
+  challenge/   link.js (encode/decode), scorecard.js (LinkedIn image + QR), leaderboard.js (adapter), VerdictPanel
   forecast/    engine.js (classes, drivers, reactions, agents, deck, scoring), ForecastScreen, ForecastCards, ForecastStats
   physical/    cargo.js, tank.js, twobook.js (pure engines), agents.js (no-look-ahead desk agents),
                memory.js, ledger.js (desk P&L + tracks), negotiation.js + relationships.js,

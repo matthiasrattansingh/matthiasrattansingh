@@ -10,6 +10,7 @@ import { xpFor } from '../lib/scoring.js';
 import { bookEval, refreshEval } from './evalAccount.js';
 import { expireChallenge, maybeChallenge, reactToLeague, reactToSession, reactToStreak, resolveChallenge } from './chat.js';
 import { recordSpecial } from './events.js';
+import { applyDecay } from './streaks.js';
 
 const chain = (state, step) => {
   const out = step(state.progress);
@@ -19,7 +20,9 @@ const chain = (state, step) => {
 /** Day/week rollovers: run on app open and before anything that reads them. */
 export function refresh(progress, now = new Date()) {
   const date = localDay(now);
-  let st = { progress: ensureQuests(progress, date), events: [] };
+  // XP decays for days you skipped (once per day, only for days not already charged).
+  let st = applyDecay(progress, date);
+  st = chain(st, (p) => ({ progress: ensureQuests(p, date) }));
   st = chain(st, (p) => ensureLeague(p, now));
   st = chain(st, (p) => refreshEval(p, now.getTime()));
   st = chain(st, (p) => ({ progress: expireChallenge(p, date) }));

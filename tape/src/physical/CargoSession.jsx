@@ -32,6 +32,8 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
   const [banner, setBanner] = useState(null);
   const [schedBanner, setSchedBanner] = useState(null);
   const [selling, setSelling] = useState(false);
+  // Your P&L each day (for the ghost of your best run and the drawdown check).
+  const curveRef = useRef([]);
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
   const doneRef = useRef(false);
@@ -76,7 +78,7 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
     doneRef.current = true;
     if (st.sold.pnl < -200000) thud(); else tick();
     const best = bestCargo(c);
-    finishRef.current?.({ c, st, pnl: st.sold.pnl, best });
+    finishRef.current?.({ c, st, pnl: st.sold.pnl, best, curve: [...curveRef.current.slice(0, st.sold.day), st.sold.pnl] });
   }, [st.sold, c]);
 
   // Scheduler decisions due today block the thumb row until you choose.
@@ -149,7 +151,7 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
         })}
       </div>
 
-      {typeof rivals === 'function' ? rivals(st.day, markToMarket(c, st)) : rivals}
+      {typeof rivals === 'function' ? rivals(st.day, (curveRef.current[st.day] = markToMarket(c, st))) : rivals}
 
       <div className="border-t border-line px-3 pt-1">
         <div className="flex items-center justify-between text-[10.5px]">

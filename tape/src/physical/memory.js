@@ -62,9 +62,14 @@ export function rivalAdjust(p) {
   if ((m.daysToSell?.length ?? 0) < MEMORY_KICKS_IN) return null;
   const fav = favoritePort(m);
   if (!fav) return null;
+  return fadeAdjust(fav.name);
+}
+
+/** The rivals' pre-positioning at a named port (also rebuilt from a challenge link). */
+export function fadeAdjust(portName) {
   return (c) => {
-    const port = c.ports.find((x) => x.name === fav.name);
+    const port = c.ports.find((x) => x.name === portName);
     if (!port) return c;
-    return { ...c, faded: port.id, events: [...c.events, { day: 0, type: 'basis_fade', port: port.id, usd: -FADE_USD_BBL, text: `Rivals pre-positioned at ${port.name}` }] };
+    return { ...c, faded: port.id, fadedName: port.name, events: [...c.events, { day: 0, type: 'basis_fade', port: port.id, usd: -FADE_USD_BBL, text: `Rivals pre-positioned at ${port.name}` }] };
   };
 }

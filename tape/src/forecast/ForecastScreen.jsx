@@ -46,7 +46,9 @@ export default function ForecastScreen({ progress, apply }) {
     if (p.forecast.prints[kind][id] != null) return { progress: p };
     const m = meta[kind];
     const err = Math.abs(guess - actualOf(kind, m.records[m.idx.get(id)]));
-    return { progress: { ...p, xp: p.xp + printXp(kind, err), forecast: { ...p.forecast, prints: { ...p.forecast.prints, [kind]: { ...p.forecast.prints[kind], [id]: guess } } } } };
+    // Band from your record before this week (it tightens as you improve; overcalling shrinks it).
+    const before = printStats(kind, m.records, m.classes, p.forecast.prints[kind]);
+    return { progress: { ...p, xp: p.xp + printXp(kind, err, before), forecast: { ...p.forecast, prints: { ...p.forecast.prints, [kind]: { ...p.forecast.prints[kind], [id]: guess } } } } };
   });
   const call = (kind, id, dir, right) => apply((p) => {
     if (p.forecast.reactions[kind][id]) return { progress: p };

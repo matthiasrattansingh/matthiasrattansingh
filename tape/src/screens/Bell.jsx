@@ -9,6 +9,7 @@ import { seeded } from '../lib/format.js';
 import { CONCEPT_CARDS, SESSION_CARDS } from '../data/index.js';
 import { bookConcept, bookSession, shareOrCopy } from './Trade.jsx';
 import { afterSession } from '../game/afterSession.js';
+import { bellStreak } from '../game/streaks.js';
 
 
 function Warmup({ concept, onDone }) {
@@ -45,7 +46,7 @@ function Warmup({ concept, onDone }) {
   );
 }
 
-function Results({ date, r, abandoned }) {
+function Results({ date, r, abandoned, streak = 0 }) {
   const [status, setStatus] = useState('');
   const share = async () => {
     const how = await shareOrCopy(shareText(date, r));
@@ -64,6 +65,7 @@ function Results({ date, r, abandoned }) {
   return (
     <div className="flex h-[100dvh] flex-col px-4 pt-[52px] pb-4">
       <div className="text-[10px] uppercase tracking-[0.2em] text-amber">🔔 Open Bell · {r.title}</div>
+      <div className="num mt-1 text-[12px] font-bold text-amber">🔥 {streak}-day bell streak{streak >= 7 ? ' · on fire' : ''}</div>
       <div className="num mt-4 text-center text-4xl tracking-widest">{r.grid}</div>
       <div className={`num mt-3 text-center text-5xl font-extrabold ${r.pnl >= 0 ? 'text-up' : 'text-down'}`}>{fmtMoney(r.pnl)}</div>
       <div className="num mt-1 text-center text-sm font-bold text-amber">{r.beat === 4 ? '👑 You beat the whole desk' : `You beat ${r.beat}/4 of the desk`}</div>
@@ -95,7 +97,7 @@ export default function Bell({ date, progress, record, apply, saveBell }) {
   const saved = bellState(progress, date);
   const [stage, setStage] = useState(() => (saved.result ? 'results' : saved.started ? 'abandoned' : saved.warmup ? 'trade' : 'warmup'));
 
-  if (stage === 'results' || stage === 'abandoned') return <Results date={date} r={saved.result} abandoned={stage === 'abandoned' && !saved.result} />;
+  if (stage === 'results' || stage === 'abandoned') return <Results date={date} r={saved.result} abandoned={stage === 'abandoned' && !saved.result} streak={bellStreak(progress, date)} />;
   if (stage === 'warmup') {
     return (
       <Warmup concept={concept} onDone={(ok) => {

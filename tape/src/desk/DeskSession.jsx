@@ -30,7 +30,7 @@ function DeskChart({ sc, day }) {
  * one you haven't answered, so you can't swipe past a decision. Each card moves the clock
  * to its day; the desk P&L and the rivals' strip stay on screen.
  */
-export default function DeskSession({ card, onFinish, onPitch }) {
+export default function DeskSession({ card, onFinish, onPitch, ghost = null }) {
   const sc = useMemo(() => buildDesk(card), [card]);
   const [st, setSt] = useState(newDeskState);
   const [answers, setAnswers] = useState({}); // stepIdx -> { ran } | { option }
@@ -100,7 +100,7 @@ export default function DeskSession({ card, onFinish, onPitch }) {
           {sc.chart.slice(0, 2).map((k) => `${sc.series[k].label} ${fmtUnit(sc.series[k].values[day], sc.series[k].unit)}${sc.series[k].kind === 'modeled' ? ' (modeled)' : ''}`).join(' · ')}
         </span>
       </div>
-      <PhysStrip runs={runs} step={day} mine={mark.total} />
+      <PhysStrip runs={runs} step={day} mine={mark.total} ghost={ghost} />
 
       <div ref={box} onScroll={onScroll} className="min-h-0 flex-1 snap-y snap-mandatory overflow-y-scroll">
         {cards.map((step, i) => (

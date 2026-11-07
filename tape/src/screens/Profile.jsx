@@ -9,6 +9,9 @@ import { hedgeAverage, physLevel, PHYS_LEVELS, integratedUnlocked, INTEGRATED_UN
 import { TIER_ICON } from '../game/league.js';
 import Library from './Library.jsx';
 import EvalPanel from './EvalPanel.jsx';
+import { habits, isHard, trapRate, trapWeight, winRate } from '../game/adaptive.js';
+import { bellStreak } from '../game/streaks.js';
+import { BOTS } from '../lib/rivals.js';
 // Forecast scores read ~5 years of EIA weeks: code-split.
 const ForecastStats = lazy(() => import('../forecast/ForecastStats.jsx'));
 
@@ -25,6 +28,39 @@ function Stat({ label, value, tone = 'text-white' }) {
 }
 
 const VIEWS = [['profile', 'PROFILE'], ['library', 'LIBRARY'], ['eval', 'EVAL']];
+
+/** What the bots have learned about you, and where the game has turned up the difficulty. */
+function DeskReadsYou({ progress }) {
+  const h = habits(progress);
+  const types = ['crude', 'products', 'spreads', 'physical'].map((t) => ({ t, ...winRate(progress, t), hard: isHard(progress, t) }));
+  const tr = trapRate(progress);
+  const decay = progress.decay?.last;
+  return (
+    <div className="mt-3 rounded-2xl border border-line bg-panel p-4">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-amber">The desk reads you</div>
+      <div className="num mt-1 text-[11.5px] text-white/80">🔔 OPEN BELL streak <b className="text-amber">{bellStreak(progress)}</b> days{decay ? ` · last decay −${decay.lost} XP (${decay.missed}d away)` : ' · skip a day and XP decays 2%/day'}</div>
+      <div className="num mt-2 grid grid-cols-4 gap-1 text-center text-[10px]">
+        {types.map((x) => (
+          <div key={x.t} className={`rounded p-1 ${x.hard ? 'bg-down/20' : 'bg-black/40'}`}>
+            <div className="uppercase text-dim">{x.t}</div>
+            <div className="font-bold">{x.n ? `${Math.round(x.rate * 100)}%` : '—'}</div>
+            <div className={x.hard ? 'font-bold text-down' : 'text-dim'}>{x.hard ? '🔥 HARD' : `${x.n} played`}</div>
+          </div>
+        ))}
+      </div>
+      <p className="num mt-1 text-[10px] text-dim">Win rate over 65% (5+ sessions) on a type serves the hard tape: choppier, fakeouts, reversing news.</p>
+      <div className="mt-2 space-y-1">
+        {h.length ? h.map((x) => (
+          <div key={x.key} className="num flex justify-between rounded-lg bg-black/40 px-2 py-1 text-[11px]">
+            <span>{BOTS.find((b) => b.id === x.bot)?.emoji} reads you {x.name}</span>
+            <span className="text-down">{Math.round(x.rate * 100)}% of sessions</span>
+          </div>
+        )) : <p className="num text-[11px] text-dim">No habit the bots can exploit yet (they need 4+ traded sessions).</p>}
+      </div>
+      <div className="num mt-1 text-[11px] text-white/70">🪤 Priced-in traps: fell for {tr.fell}/{tr.seen}{tr.seen >= 3 ? ` · you now get traps ${Math.round(trapWeight(progress) * 100)}% of the time` : ''}</div>
+    </div>
+  );
+}
 
 /** The PHYSICAL career track: desk P&L, cargoes, lifetime hedge grade. */
 function PhysicalTrack({ progress, apply }) {
@@ -142,6 +178,8 @@ function ProfileBody({ progress, session, onReset, apply }) {
         )}
 
         <PhysicalTrack progress={progress} apply={apply} />
+
+        <DeskReadsYou progress={progress} />
 
         <Suspense fallback={null}><ForecastStats progress={progress} /></Suspense>
 

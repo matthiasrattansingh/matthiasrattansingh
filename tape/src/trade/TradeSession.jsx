@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TradeChart } from './chart.js';
-import { act, botDecisions, buildSession, decisionPrice, emptyBook, equityOf, simulate } from './engine.js';
+import { LOT_BBL, act, botDecisions, buildSession, decisionPrice, emptyBook, equityOf, simulate } from './engine.js';
+import { EXEC, execute, executeAll, hardenSession, livePrice } from './execution.js';
+import { limitState, limitsFor, lockSim } from '../game/rules.js';
+import { frontRunner } from '../game/adaptive.js';
+import { toPerBbl } from '../lib/scoring.js';
 import { fmtMoney } from '../lib/book.js';
 import { BOTS } from '../lib/rivals.js';
 import { decimalsFor, fmtDate } from '../lib/format.js';
@@ -33,11 +37,14 @@ function buzz(pattern) {
  */
 export default function TradeSession({
   card, bankroll, salt = '', onFinish, maxCandles, sizes: sizesIn = SIZES, maxLots, ride = 0, ghost = null, guard = null, account = null,
-  physical = null, agents = null,
+  physical = null, agents = null, seed = null, hard = false, habits = [],
 }) {
+  const runSeed = seed ?? salt;
   const [s] = useState(() => {
     const full = buildSession(card);
-    const out = maxCandles ? regroup(full, maxCandles) : full;
+    const cut = maxCandles ? regroup(full, maxCandles) : full;
+    // Hard mode: same session, meaner tape (seeded, final close real).
+    const out = hard ? hardenSession(cut, runSeed) : cut;
     if (physical) return { ...out, maxLots: HEDGE_MAX_LOTS, addStep: HEDGE_ADD };
     return maxLots ? { ...out, maxLots } : out;
   });
@@ -46,11 +53,20 @@ export default function TradeSession({
   const physEl = useRef(null);
   const physNow = (price, t) => (physical ? physPnl(physical, s, price, t) : 0);
   const stats = useRef({ peak: 0, maxDD: 0, warned: false, traded: false, guardPeak: guard?.peak ?? 0 });
+  // Prop-firm limits for this session, scaled to the equity you start with.
+  const limits = useMemo(() => limitsFor(bankroll), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const dailyEl = useRef(null);
+  const trailEl = useRef(null);
+  const liveEl = useRef(null);
+  const costs = useRef({ slip: 0, partial: 0, frontRun: {} });
+  const decideAt = useRef(0);
+  const [fillNote, setFillNote] = useState(null);
   const d = decimalsFor(s.unit);
   const bots = useMemo(
     () => (physical && agents
       ? agents.map((a) => ({ ...BOTS.find((b) => b.id === a.id), sim: botTwoBook(a, physical, s, salt) }))
-      : BOTS.map((b) => ({ ...b, sim: simulate(s, botDecisions(b.id, s, salt)) }))),
+      // Bots pay the same spreads and partial fills you do (they tap instantly).
+      : BOTS.map((b) => ({ ...b, sim: lockSim(simulate(s, executeAll(s, botDecisions(b.id, s, salt), { seed: runSeed })), limitsFor(bankroll)) }))),
     [s, salt, physical, agents],
   );
 
@@ -90,6 +106,16 @@ export default function TradeSession({
     st.peak = Math.max(st.peak, total);
     st.maxDD = Math.max(st.maxDD, st.peak - total);
     st.guardPeak = Math.max(st.guardPeak, bankroll + pnl);
+    // The two prop-firm meters, always on screen.
+    const ls = physical ? { daily: 0, trailing: 0, hit: null } : limitState({ pnl: total, peak: st.peak }, limits);
+    const meter = (el, v) => {
+      if (!el) return;
+      el.style.width = `${Math.max(v * 100, 2)}%`;
+      el.className = `h-full rounded ${v > 0.7 ? 'bg-down margin-pulse' : v > 0.4 ? 'bg-amber' : 'bg-white/40'}`;
+    };
+    meter(dailyEl.current, ls.daily);
+    meter(trailEl.current, ls.trailing);
+    st.limitHit = ls.hit;
     // Margin bar: how close you are to a margin call (or, in an eval, to the drawdown limit).
     const f = guard
       ? Math.min(1, Math.max(0, st.guardPeak - (bankroll + pnl)) / (st.guardPeak * guard.limit))
@@ -105,10 +131,14 @@ export default function TradeSession({
   function finish(extra = {}) {
     if (overRef.current) return;
     overRef.current = true;
-    const sim = simulate(s, decisions.current);
+    const full = simulate(s, decisions.current);
+    // A session stopped by a limit or a margin call is the record: freeze it where it stopped.
+    const stoppedAt = extra.marginCall || extra.guardHit || extra.limitHit ? Math.min(i, s.C) : null;
+    const sim = stoppedAt === null ? full : truncateSim(full, stoppedAt, extra.pnl);
     setPhase('over');
     chartRef.current.setEntry(null);
-    const pnl = extra.marginCall || extra.guardHit ? extra.pnl : sim.final;
+    // A margin call, an eval guard or a prop-firm limit locks the score where it was hit.
+    const pnl = extra.marginCall || extra.guardHit || extra.limitHit ? extra.pnl : sim.final;
     paint(pnl);
     const { maxDD, warned, traded } = stats.current;
     let twoBook = null;
@@ -123,6 +153,8 @@ export default function TradeSession({
     }
     finishRef.current?.({
       twoBook,
+      seed: runSeed, hard: Boolean(s.hard), limits,
+      costs: { ...costs.current },
       session: s, decisions: decisions.current, sim, pnl,
       bots: bots.map((b) => ({ id: b.id, pnl: Math.round(b.sim.final) })),
       stats: { maxDD, warned, traded, guardPeak: stats.current.guardPeak },
@@ -144,6 +176,9 @@ export default function TradeSession({
       } else if (guard && f >= 1) {
         chart.anim = null; // eval: trailing drawdown limit hit
         finish({ guardHit: true, pnl });
+      } else if (stats.current.limitHit) {
+        chart.anim = null; // prop-firm limit: the session ends on the spot, score locked
+        finish({ limitHit: stats.current.limitHit, pnl });
       }
     };
     chart.onDone = (ci) => {
@@ -186,6 +221,27 @@ export default function TradeSession({
     return () => clearTimeout(id);
   }, [news]);
 
+  // The price keeps ticking while you decide: you fill at the live tick when you tap.
+  useEffect(() => {
+    if (phase !== 'decide') return undefined;
+    decideAt.current = performance.now();
+    const id = setInterval(() => {
+      if (overRef.current) return;
+      const ms = performance.now() - decideAt.current;
+      const live = livePrice(s, i, ms, runSeed);
+      const pnl = equityOf(bookRef.current, live, i, s);
+      paint(pnl, physNow(live, i));
+      if (liveEl.current) {
+        const ch = live - decisionPrice(s, i);
+        liveEl.current.textContent = `LIVE ${live < 0 ? '−' : ''}${Math.abs(live).toFixed(d)} ${ch > 0 ? '▲' : ch < 0 ? '▼' : '·'}`;
+        liveEl.current.className = `num shrink-0 text-[10px] font-bold ${ch > 0 ? 'text-up' : ch < 0 ? 'text-down' : 'text-dim'}`;
+      }
+      if (stats.current.limitHit) finish({ limitHit: stats.current.limitHit, pnl });
+    }, EXEC.tickMs);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, i]);
+
   // The market never waits: 8s, then HOLD.
   useEffect(() => {
     if (phase !== 'decide') return undefined;
@@ -194,10 +250,24 @@ export default function TradeSession({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, i]);
 
-  function decide(action) {
+  function decide(intent) {
     if (phase !== 'decide' || overRef.current) return;
-    const price = decisionPrice(s, i);
+    // Execution: live tick at the moment you tap, half-spread (wider on news), partial fills
+    // above 2 lots, and extra slippage if a bot has read this habit and front-runs it.
+    const ms = performance.now() - decideAt.current;
+    const pos = bookRef.current.pos;
+    const bot = intent.type === 'HOLD' ? null : frontRunner(habits, s, i, intent, pos);
+    const { action, cost } = execute(s, i, intent, { ms, seed: runSeed, pos, frontRun: Boolean(bot) });
+    const price = action.fill ?? decisionPrice(s, i);
     const nb = act(bookRef.current, action, price, i, s);
+    if (cost) {
+      const lots = action.lots ?? pos?.lots ?? 1;
+      const slip$ = Math.abs(toPerBbl(cost.fill - cost.mid, s.unit)) * LOT_BBL * lots;
+      costs.current.slip += slip$;
+      if (cost.partial) costs.current.partial += cost.partial.asked - cost.partial.filled;
+      if (bot) costs.current.frontRun[bot] = (costs.current.frontRun[bot] ?? 0) + 1;
+      setFillNote({ k: i, text: `${cost.partial ? `Filled ${cost.partial.filled}/${cost.partial.asked} lots · ` : ''}slip −$${Math.round(slip$).toLocaleString()}${cost.news ? ' · wide news spread' : ''}${bot ? ` · ${BOTS.find((b) => b.id === bot)?.emoji} front-ran you` : ''}` });
+    }
     bookRef.current = nb;
     decisions.current[i] = action;
     if (nb.pos) stats.current.traded = true;
@@ -231,7 +301,8 @@ export default function TradeSession({
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div className="flex items-baseline justify-between gap-2 px-3 py-1">
         <span className="num truncate text-[12px] font-bold text-white">{s.instrument} · {fmtDate(s.date)}</span>
-        <span className="num shrink-0 text-[10px] text-dim">{phase === 'over' ? 'SESSION OVER' : `${candleLabel} · ${Math.min(i + 1, s.C)}/${s.C}`}</span>
+        {deciding && <span ref={liveEl} className="num shrink-0 text-[10px] font-bold text-dim" />}
+        <span className="num shrink-0 text-[10px] text-dim">{phase === 'over' ? 'SESSION OVER' : `${s.hard ? '🔥HARD · ' : ''}${candleLabel} · ${Math.min(i + 1, s.C)}/${s.C}`}</span>
       </div>
       <div className="truncate px-3 text-[12.5px] font-semibold text-amber">{s.open}</div>
       {physical && <div className="truncate px-3 text-[11.5px] font-bold text-sky-300">📦 {physical.who}: {physical.desc} · hedge it</div>}
@@ -253,6 +324,7 @@ export default function TradeSession({
           </div>
         )}
         {deciding && <TimerRing key={`t${i}`} />}
+        {fillNote && <div key={`f${fillNote.k}`} className="news-drop num pointer-events-none absolute inset-x-2 bottom-12 z-10 truncate rounded-md bg-black/80 px-2 py-1 text-center text-[11px] font-bold text-amber">{fillNote.text}</div>}
         {s.simulated && <span className="num pointer-events-none absolute bottom-1 left-2 text-[9px] text-white/30">{s.label}</span>}
       </div>
 
@@ -276,10 +348,17 @@ export default function TradeSession({
             <div ref={eqEl} className="num text-lg font-bold leading-tight" />
           </div>
         </div>
-        <div className="mt-1.5 flex items-center gap-2">
-          <span className="text-[9px] uppercase tracking-wider text-dim">margin</span>
-          <div className="h-1.5 flex-1 rounded bg-white/10"><div ref={marginEl} className="h-full rounded bg-white/40" style={{ width: '2%' }} /></div>
+        <div className="mt-1 grid grid-cols-2 gap-x-3">
+          <div className="flex items-center gap-1.5">
+            <span className="num shrink-0 text-[8.5px] uppercase tracking-wider text-dim">daily loss ${Math.round(limits.daily / 1000)}k</span>
+            <div className="h-1.5 flex-1 rounded bg-white/10"><div ref={dailyEl} className="h-full rounded bg-white/40" style={{ width: '2%' }} /></div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="num shrink-0 text-[8.5px] uppercase tracking-wider text-dim">trail dd ${Math.round(limits.trailing / 1000)}k</span>
+            <div className="h-1.5 flex-1 rounded bg-white/10"><div ref={trailEl} className="h-full rounded bg-white/40" style={{ width: '2%' }} /></div>
+          </div>
         </div>
+        <div ref={marginEl} className="hidden" />
       </div>
 
       <div className="px-3 pt-2 pb-[max(10px,env(safe-area-inset-bottom))]">
@@ -315,6 +394,13 @@ export default function TradeSession({
       </div>
     </div>
   );
+}
+
+/** The session as played when it stopped at candle k with P&L locked: flat from there on. */
+export function truncateSim(sim, k, locked) {
+  const curve = sim.curve.map((v, j) => (j < k ? v : locked));
+  const perCandle = curve.map((v, j) => v - (j ? curve[j - 1] : 0));
+  return { ...sim, curve, perCandle, held: sim.held.map((h, j) => (j < k ? h : null)), final: locked, stoppedAt: k };
 }
 
 /** Merge a session's candles into `n` candles (OPEN BELL uses 5). */

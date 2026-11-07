@@ -9,11 +9,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "validate": "node scripts/validate-data.mjs",
-    "test": "node scripts/test-sessions.mjs && node scripts/test-game.mjs && node scripts/test-physical.mjs && node scripts/test-forecast.mjs && node scripts/test-desk.mjs",
+    "test": "node scripts/test-sessions.mjs && node scripts/test-game.mjs && node scripts/test-physical.mjs && node scripts/test-forecast.mjs && node scripts/test-desk.mjs && node scripts/test-stakes.mjs",
+    "test:stakes": "node scripts/test-stakes.mjs",
     "test:desk": "node scripts/test-desk.mjs",
     "test:forecast": "node scripts/test-forecast.mjs"
   },
   "dependencies": {
+    "qrcode-generator": "^1.4.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

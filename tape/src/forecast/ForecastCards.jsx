@@ -3,8 +3,20 @@ import CardShell from '../components/CardShell.jsx';
 import Choice from '../components/Choice.jsx';
 import { AGENTS } from '../data/index.js';
 import {
-  CLASS_NAMES, UNIT, actualOf, classOf, dominantDriver, driverClues, priceName, reaction,
+  CLASS_NAMES, UNIT, actualOf, classOf, dominantDriver, driverClues, priceName, reaction, tolerance,
 } from './engine.js';
+
+/** Your accuracy band: tighter as you improve, tighter still while you overcall. */
+function BandLine({ kind, stats }) {
+  const t = tolerance(kind, stats);
+  const d = kind === 'gas' ? 0 : 1;
+  return (
+    <div className={`num mt-1 text-[10.5px] ${t.overcalling ? 'text-down' : 'text-dim'}`}>
+      Full XP band ±{t.band.toFixed(kind === 'gas' ? 0 : 2)} {UNIT[kind]}
+      {t.overcalling ? ` · tightened: you call ${stats.avgGuessSize.toFixed(d)} vs market ${stats.avgActualSize.toFixed(d)} (${t.over.toFixed(1)}×)` : stats?.n ? ` · tightens as you improve (${stats.n} wk)` : ''}
+    </div>
+  );
+}
 
 const fmt = (x, kind, d = kind === 'gas' ? 0 : 1) => `${x > 0 ? '+' : x < 0 ? '−' : ''}${Math.abs(x).toFixed(d)}`;
 const word = (kind, x) => (x < 0 ? (kind === 'gas' ? 'withdrawal' : 'draw') : (kind === 'gas' ? 'injection' : 'build'));
@@ -51,6 +63,7 @@ export function PrintCard({ kind, rec, records, index, classes, rates, guess, on
             {kind === 'gas' ? 'Storage change this week?' : 'Crude stock change this week?'}
           </div>
           <BaseRates rates={rates} />
+          <BandLine kind={kind} stats={stats} />
           <div className="mt-1.5 space-y-1">
             {clues.map((c) => (
               <div key={c.key} className="flex items-baseline justify-between gap-2 whitespace-nowrap rounded-lg border border-line bg-panel px-2.5 py-1">
@@ -149,6 +162,7 @@ export function Calibration({ kind, stats }) {
           );
         })}
       </div>
+      <BandLine kind={kind} stats={stats} />
       <div className="num mt-1 text-[10.5px] text-white/70">
         {big ? 'You forecast bigger than the market prints: gambling on tails.' : small ? 'You forecast smaller than the market prints: too timid for the base rate.' : 'Your size matches the market. Now check where the error lives.'}
       </div>

@@ -141,6 +141,15 @@ export function deskMark(sc, st, t = st.day) {
   return { ideas, sched, total: ideas + sched };
 }
 
+/** Your desk book marked each day (ideas open by then + scheduler landed by then). */
+export function deskCurve(sc, st) {
+  return Array.from({ length: sc.D }, (_, d) => {
+    const ideas = st.positions.filter((p) => p.entry <= d).reduce((s, p) => s + ideaPnl(sc, p.idea, p.entry, d), 0);
+    const sched = st.sched.filter((x) => x.day <= d).reduce((s, x) => s + x.usd, 0);
+    return ideas + sched;
+  });
+}
+
 /**
  * Close the book: every idea settles at its horizon (or the last day), every pending
  * consequence lands. Returns the split, each call's outcome (judgment), and the rivals' books.

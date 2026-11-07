@@ -105,7 +105,9 @@ export function simulate(s, decisions) {
   let prev = 0;
   const perCandle = [];
   for (let i = 0; i < s.C; i++) {
-    book = act(book, decisions[i] ?? { type: 'HOLD' }, decisionPrice(s, i), i, s);
+    // Executed decisions carry their own fill price (live tick ± spread); plain ones fill at the close.
+    const d = decisions[i] ?? { type: 'HOLD' };
+    book = act(book, d, d.fill ?? decisionPrice(s, i), i, s);
     held.push(book.pos ? book.pos.side : null);
     const eq = equityOf(book, s.candles[i].c, i + 1, s);
     perCandle.push(eq - prev);
