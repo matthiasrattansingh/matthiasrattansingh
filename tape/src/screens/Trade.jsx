@@ -9,7 +9,11 @@ import { pickNext } from '../game/order.js';
 import { sizesFor } from '../game/ride.js';
 import { afterSession } from '../game/afterSession.js';
 import { EVAL_DD, evalActive } from '../game/evalAccount.js';
-import { AGENTS, CONCEPT_CARDS, ECON, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
+import { AGENTS, CONCEPT_CARDS, DESK_CARDS, ECON, IDEA_CARDS, PAPER_SESSION_CARDS, SESSION_CARDS } from '../data/index.js';
+import DeskSession from '../desk/DeskSession.jsx';
+import IdeaCard from '../desk/IdeaCard.jsx';
+import { ideaOf, isIdeaSlot, passIdea, pickIdea, runIdea, tickIdeas } from '../desk/feed.js';
+import { PITCH_RULES } from '../desk/scenario.js';
 import CargoSession from '../physical/CargoSession.jsx';
 import TankSession from '../physical/TankSession.jsx';
 import { spot as tankSpot, spotMarket, tankSplit } from '../physical/tank.js';
@@ -31,7 +35,7 @@ import { specialFor } from '../game/calendar.js';
 import { localDay } from '../lib/progress.js';
 
 const conceptById = new Map(CONCEPT_CARDS.map((c) => [c.id, c]));
-const cardById = new Map(SESSION_CARDS.map((c) => [c.id, c]));
+const cardById = new Map([...SESSION_CARDS, ...IDEA_CARDS].map((c) => [c.id, c]));
 
 /** Share text for a finished session, in the OPEN BELL format. */
 export function sessionShareText(s, grid, pnl, beat) {
@@ -83,6 +87,7 @@ export function bookConcept(progress, record, concept, correct) {
 // session already moving behind a 5s countdown (autoplay); STOP pauses it.
 export default function Trade({ progress, record, apply, startWith, onStarted }) {
   const recent = useRef([]);
+  const started = useRef(0); // feed items started this visit: sets the 1-in-4 idea slot
   const today = localDay();
   const special = specialFor(progress, today, SESSION_CARDS);
   const specialItem = (sp) => ({ key: `special-${sp.date}-${Date.now()}`, card: cardById.get(sp.cardId), tag: { special: sp }, label: `⭐ ${sp.label}` });
@@ -90,6 +95,11 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
     // Today's event special jumps the queue once; otherwise unplayed -> lowest grade -> review.
     const sp = specialFor(p, today, SESSION_CARDS);
     if (sp && !sp.played && !recent.current.includes(`special:${sp.date}`)) return specialItem(sp);
+    // One feed item in four is a physical trade idea.
+    if (isIdeaSlot(started.current)) {
+      const idea = pickIdea(p, IDEA_CARDS, started.current);
+      if (idea) return { key: `${idea.id}-${Date.now()}`, card: idea, label: '💡 IDEA' };
+    }
     // Two-book sessions stay locked until 5 cargoes are done: learn the physical chain first.
     const pool = SESSION_CARDS.filter((c) => c.mode !== 'integrated' || integratedUnlocked(p));
     const card = pickNext(p, pool, { recent: recent.current, salt: String(Date.now()) });
@@ -155,6 +165,10 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
 
   const go = (n = next) => {
     if (!n) return;
+    // A swipe: open physical ideas move one scenario day; finished ones settle to the desk book.
+    started.current += 1;
+    const ev = apply((p) => tickIdeas(p, DESK_CARDS));
+    if (ev?.length) { setToast(ev.map((e) => e.text).join(' · ')); setTimeout(() => setToast(''), 3500); }
     setResult(null);
     setNext(null);
     setMode('play');
@@ -315,6 +329,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           { label: 'Basis (location)', value: s.basis, note: `load ${c.load.basis.toFixed(2)} → ${portName(st.sold.port)} ${(st.sold.price - c.flat[st.sold.day]).toFixed(2)} vs ${current.card.bench.name}` },
           { label: 'Freight + demurrage + port', value: s.costs, note: `charter ${fmtMoney(st.cost.charter, { compact: true, sign: false })} · demurrage ${fmtMoney(st.cost.demurrage, { compact: true, sign: false })} · port ${fmtMoney(st.cost.port, { compact: true, sign: false })}${st.sold.freightToBuyer ? ` · afloat discount ${fmtMoney(st.sold.freightToBuyer, { compact: true, sign: false })}` : ''}` },
           { label: 'Events', value: s.events },
+          ...(s.sched ? [{ label: 'Scheduler decisions', value: s.sched, note: st.log.filter((l) => l.type === 'sched').map((l) => l.text).join(' · ') }] : []),
         ]}
         log={st.log}
         extraTop={st.sold.nego && (
@@ -368,6 +383,7 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
           { label: 'Unwind / spread moves', value: sp.unwind, note: 'what selling early or at session end added or cost vs the locked spread' },
           { label: 'Tank rent paid', value: sp.rent, note: `$${t.rent.toFixed(2)}/bbl/month` },
           { label: 'Financing paid', value: sp.financing, note: `${(t.finance * 100).toFixed(1)}%/yr on the barrels' value` },
+          ...(sp.sched ? [{ label: 'Scheduler decisions', value: sp.sched, note: st.log.filter((l) => l.type === 'sched').map((l) => l.text).join(' · ') }] : []),
         ]}
         extraTop={held.length > 0 && (<>
           {st.buyNego && (
@@ -467,6 +483,111 @@ export default function Trade({ progress, record, apply, startWith, onStarted })
       />
     );
   })();
+
+  // A physical IDEA card in the main feed: RUN IT opens a position that stays open across swipes.
+  if (current.card.type === 'idea') {
+    const { sc, step } = ideaOf(DESK_CARDS, current.card);
+    const decide = (ran) => {
+      let line;
+      if (ran) {
+        apply((p) => ({ progress: runIdea(p, current.card, DESK_CARDS) }));
+        line = `▶ Running on the desk book: settles over your next ${step.horizon} swipes`;
+      } else {
+        let out;
+        apply((p) => { const r = passIdea(p, current.card, DESK_CARDS); out = r.outcome; return { progress: r.progress }; });
+        line = `${out.right ? '✓ Good pass' : '✗ It worked'}: it ${out.pnl >= 0 ? 'made' : 'lost'} ${fmtMoney(Math.round(out.pnl), { compact: true, sign: false })} over ${step.horizon}d`;
+      }
+      recent.current = [current.card.id, ...recent.current].slice(0, 8);
+      setResult({ idea: true, ran, line });
+    };
+    return (
+      <div className="flex h-[100dvh] flex-col">
+        <div className="flex min-h-0 flex-1 flex-col px-3 pt-[40px] pb-2">
+          <div className="num mb-1 truncate text-[10px] font-extrabold tracking-[0.18em] text-amber">💡 PHYSICAL IDEA · {sc.title.toUpperCase()}</div>
+          <div className="min-h-0 flex-1">
+            <IdeaCard key={current.key} sc={sc} idea={{ ...step, by: null }} entry={step.day}
+              decided={result?.idea ? { ran: result.ran, text: result.ran ? '▶ RUNNING' : 'PASSED' } : null}
+              onRun={() => decide(true)} onPass={() => decide(false)} />
+          </div>
+        </div>
+        {result?.idea && next && (
+          <NextUp card={next.card} label={next.label} onGo={() => go()} onStop={() => setMode('idle')}>
+            <div className={`num pop mb-1.5 rounded-md px-2 py-1.5 text-[12px] font-bold ${result.ran ? 'bg-amber/15 text-amber' : result.line.startsWith('✓') ? 'bg-up/15 text-up' : 'bg-down/15 text-down'}`}>{result.line}</div>
+            {extras}
+          </NextUp>
+        )}
+        {chat}
+        {toast && <div className="pop num fixed inset-x-0 bottom-28 z-40 mx-auto w-fit max-w-[90%] rounded-lg bg-white px-3 py-2 text-xs font-bold text-black">{toast}</div>}
+      </div>
+    );
+  }
+
+  // A DESK scenario: physical dislocation as a short feed of ideas, decisions, news and rival pitches.
+  if (current.card.type === 'desk') {
+    const onPitch = (bot, idea) => apply((p) => ({ progress: post(p, bot, 'pitch', `💡 ${idea.title}. ${idea.pitch}`) }));
+    const finishDeskSession = ({ sc, result: r }) => {
+      const events = apply((p) => bookPhysical(p, { card: current.card, kind: 'desk', pnl: r.pnl, best: r.best, C: sc.D, calls: r.calls, right: r.right }));
+      // The best and worst rival trades get talked about in desk chat.
+      const ranked = AGENTS.map((a) => ({ a, v: r.bots[a.id].pnl })).sort((x, y) => y.v - x.v);
+      apply((p) => ({ progress: post(p, ranked[0].a.id, 'brag', `${current.card.title}: closed ${fmtMoney(Math.round(ranked[0].v), { compact: true })}. ${ranked[0].a.id === 'dan' ? 'told you 🎰' : 'Process.'}`) }));
+      recent.current = [current.card.id, ...recent.current].slice(0, 8);
+      setTimeout(() => setResult({ phys: 'desk', sc, r, events }), 600);
+    };
+    const deskDebrief = result?.phys === 'desk' && next && (() => {
+      const { sc, r } = result;
+      const steps = sc.steps;
+      return (
+        <PhysDebrief
+          title={current.card.title}
+          pnl={r.pnl}
+          best={r.best}
+          bestText={`run every winner, pass every loser, best scheduler calls · you were right on ${r.right}/${r.calls} ideas`}
+          lines={[
+            { label: 'Ideas you ran', value: Math.round(r.split.ideas), note: `${r.outcomes.filter((o) => o.ran).length} run · ${r.outcomes.filter((o) => !o.ran).length} passed` },
+            { label: 'Scheduler decisions', value: Math.round(r.split.sched), note: 'costs paid and consequences landed' },
+          ]}
+          log={r.log}
+          extraTop={(
+            <div className="mt-3 rounded-xl border border-line bg-panel p-3">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-amber">Every call</div>
+              {r.outcomes.map((o, i) => (
+                <div key={i} className="num mt-1 flex items-baseline justify-between gap-2 text-[11.5px]">
+                  <span className="truncate">{o.right ? '✓' : '✗'} {steps[o.stepIdx].kind === 'pitch' ? `${AGENTS.find((a) => a.id === steps[o.stepIdx].by)?.emoji} ` : ''}{o.idea.title}</span>
+                  <span className="shrink-0"><span className="text-dim">{o.ran ? 'ran' : 'passed'} </span><b className={o.pnl >= 0 ? 'text-up' : 'text-down'}>{fmtMoney(Math.round(o.pnl), { compact: true })}</b></span>
+                </div>
+              ))}
+            </div>
+          )}
+          extraBottom={(
+            <div className="mt-3 rounded-xl border border-line bg-panel p-3">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-dim">Desk table</div>
+              {[{ id: 'me', name: 'You', emoji: '🫵', v: r.pnl }, ...AGENTS.map((a) => ({ ...a, v: r.bots[a.id].pnl }))].sort((x, y) => y.v - x.v).map((x) => (
+                <div key={x.id} className="num mt-1 text-[11.5px]">
+                  <div className="flex justify-between"><span className={x.id === 'me' ? 'font-bold text-amber' : ''}>{x.emoji} {x.name}</span><b className={x.v >= 0 ? 'text-up' : 'text-down'}>{fmtMoney(Math.round(x.v), { compact: true })}</b></div>
+                  {x.id !== 'me' && <div className="text-[10px] text-dim">{PITCH_RULES[x.id]}{r.bots[x.id].pitches.length ? ` · pitched: ${r.bots[x.id].pitches.map((pp) => `${pp.title} ${fmtMoney(Math.round(pp.pnl), { compact: true })}`).join(', ')}` : ''}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          why={Array.isArray(sc.why) ? sc.why : [sc.why]}
+          source={sc.source}
+          concept={conceptById.get(sc.concept)}
+          onConcept={(cc, ok) => bookConcept(progress, record, cc, ok)}
+          next={next}
+          onNext={() => go()}
+          onStop={() => setMode('idle')}
+          extras={extras}
+        />
+      );
+    })();
+    return (
+      <div className="relative">
+        <DeskSession key={current.key} card={current.card} onFinish={finishDeskSession} onPitch={onPitch} />
+        {deskDebrief}
+        {chat}
+      </div>
+    );
+  }
 
   if (current.card.mode === 'integrated') {
     return (

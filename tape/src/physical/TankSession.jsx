@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { bestTank, buildTank, carryCost, carryOffer, newTankState, priceOf, spot, stepTank, tankPnl } from './tank.js';
 import { fmtMoney } from '../lib/book.js';
+import { decideSched, dueDecision } from './scheduler.js';
+import { DecisionCard } from '../desk/IdeaCard.jsx';
 import { tick, ping, unlock } from '../lib/sound.js';
 
 export const TANK_DECIDE_MS = 10_000;
@@ -74,8 +76,17 @@ export default function TankSession({ card, econ, onFinish, rivals = null, rende
     finishRef.current?.({ t, st, pnl: tankPnl(t, st), best: bestTank(t) });
   }, [st.done, t, st]);
 
+  // Scheduler decisions due this week block the thumb row until you choose.
+  const due = st.done ? null : dueDecision(card, st, st.week);
+  // Consequences land as dollars, in the banner, the week they arrive.
+  const seenLog = useRef(0);
+  useEffect(() => {
+    const fresh = st.log.slice(seenLog.current).filter((l) => l.type === 'sched');
+    seenLog.current = st.log.length;
+    if (fresh.length) setBanner(fresh.map((l) => l.text).join(' · '));
+  }, [st.log.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const act = (a) => {
-    if (st.done) return;
+    if (st.done || due) return;
     unlock();
     if (a.type === 'CARRY' && renderBuy && !a.agreed) { setBuying(a); setPanel(false); return; }
     setSt(stepTank(t, st, a));
@@ -84,10 +95,10 @@ export default function TankSession({ card, econ, onFinish, rivals = null, rende
   };
 
   useEffect(() => {
-    if (st.done || panel || buying) return undefined;
+    if (st.done || panel || buying || due) return undefined;
     const id = setTimeout(() => act({ type: 'WAIT' }), TANK_DECIDE_MS);
     return () => clearTimeout(id);
-  }, [st.week, st.done, panel, buying]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [st.week, st.done, panel, buying, due?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pnl = tankPnl(t, st);
   const rentWk = st.inv * t.rent * (7 / 30.4);
@@ -175,6 +186,11 @@ export default function TankSession({ card, econ, onFinish, rivals = null, rende
               );
             })}
             <p className="text-center text-[10.5px] text-white/60">The spread has to pay more than the tank.</p>
+          </div>
+        )}
+        {due && (
+          <div className="pop absolute inset-x-0 bottom-0 z-30 rounded-t-2xl border-t border-sky-300/50 bg-[#0c0d0f] px-3 pt-2 pb-[max(10px,env(safe-area-inset-bottom))]">
+            <DecisionCard sheet decision={due} onChoose={(k) => { unlock(); setSt((s) => decideSched(s, due, k, st.week)); }} />
           </div>
         )}
         {buying && renderBuy?.({ t, st, action: buying, onDone: (deal) => { setBuying(null); if (deal) setSt(stepTank(t, st, { ...buying, ...deal, agreed: true })); }, onCancel: () => setBuying(null) })}

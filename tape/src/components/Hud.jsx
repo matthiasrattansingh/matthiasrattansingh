@@ -1,5 +1,23 @@
 import { levelFor } from '../lib/levels.js';
 import { comboMultiplier, fmtMoney, START_BANKROLL } from '../lib/book.js';
+import { DESK_CARDS } from '../data/index.js';
+import { ideaMarks } from '../desk/feed.js';
+
+/** Open physical ideas stay on screen across swipes: total mark and the nearest settle. */
+function IdeaPill({ progress }) {
+  const open = progress.phys?.ideas?.open ?? [];
+  if (!open.length) return null;
+  const marks = ideaMarks(progress, DESK_CARDS);
+  const total = marks.reduce((s, m) => s + m.mtm, 0);
+  const soon = Math.min(...marks.map((m) => m.left));
+  return (
+    <div className="mt-0.5 flex justify-end px-1">
+      <span className="num rounded-full border border-amber/40 bg-black/80 px-2 py-px text-[10px] font-bold text-amber">
+        📦 {open.length} <span className={total >= 0 ? 'text-up' : 'text-down'}>{fmtMoney(Math.round(total), { compact: true })}</span> · {soon} swipe{soon === 1 ? '' : 's'}
+      </span>
+    </div>
+  );
+}
 
 const TABS = [
   { id: 'trade', label: 'TRADE' },
@@ -28,6 +46,7 @@ export default function Hud({ progress, tab, onTab, liveStatus, bellDone, compac
           </button>
         ))}
       </nav>
+      <IdeaPill progress={progress} />
       {!compact && <div className="mt-1 flex items-center gap-2 px-1">
         <span className={`num text-sm font-bold ${up > 0 ? 'text-up' : up < 0 ? 'text-down' : 'text-white'}`}>
           {fmtMoney(progress.bankroll, { sign: false })}

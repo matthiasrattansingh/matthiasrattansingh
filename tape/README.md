@@ -214,6 +214,32 @@ a preferred pricing term (NOW or AVG5).
   party's first bid, summed over deals, plus a count of bids pulled on you. Each deal gets an
   S-D grade: the edge captured vs their reservation, minus the days burned.
 
+### Physical idea cards, desk scenarios and the scheduler
+
+- **Idea cards** are one feed item in four in TRADE. Each one prices both legs, transport, fees,
+  the break-even and the P&L if nothing moves, and lists what kills the trade.
+  - Types: location arb, storage/carry, basis, quality spread, freight play.
+  - **RUN IT** opens a position on the desk ledger that stays open across swipes. A HUD pill
+    shows its mark, and each swipe moves its scenario clock one day until it settles.
+  - **PASS** reveals what it would have done and scores the call.
+  - The math lives in `src/desk/econ.js`: arb break-even, carry coverage, differential P&L and
+    one generic leg model.
+- **Desk scenarios** (`python3 scripts/build-desk.py` → `src/data/desk.json`) are short feeds of
+  8–12 cards: news, ideas, scheduler decisions and rival pitches. Then the debrief, with every
+  call scored and a desk table vs the four bots.
+  - Scenarios: Colonial 2021, Uri 2021, Keystone 2022, SPR release weeks 2022, Red Sea 2024.
+  - Real series come from EIA daily spot (WTI, Brent, NYH/USGC gasoline and ULSD, Henry Hub)
+    and NYMEX gas.
+  - Grades with no public daily print (WCS, Mars, Midland) and freight rates are **modeled**:
+    straight lines between cited anchors, labeled in the app.
+- **Rivals** pitch their own ideas by rule, from data up to that day only (a test poisons the
+  future to prove it), and post them in desk chat. They sometimes take the other side of your
+  deal and book the mirror of your P&L.
+- **Scheduler decisions** inside cargo and tank sessions (`scheduler` in `cargo.json` /
+  `tank.json`, added by `scripts/add-scheduler.py`): roll a cargo, blend the slop tank, book
+  shore tank, nominate pumpover, renew a lease, sell tank heels. You see only the cost now;
+  the consequence lands in dollars on its day.
+
 ## EIA tab: forecast cards on real weeks
 
 A feed of real EIA weekly reports with the date hidden: 252 weeks of the Weekly Petroleum
@@ -262,6 +288,7 @@ card's `source` field names the specific dates and events.
 ```
 src/
   trade/       engine.js (positions, P&L, sell-vol, replay, bots), chart.js (canvas), TradeSession, Debrief
+  desk/        econ.js (idea economics), scenario.js (desk engine + rival pitches), feed.js (main-feed ideas), DeskSession, IdeaCard
   forecast/    engine.js (classes, drivers, reactions, agents, deck, scoring), ForecastScreen, ForecastCards, ForecastStats
   physical/    cargo.js, tank.js, twobook.js (pure engines), agents.js (no-look-ahead desk agents),
                memory.js, ledger.js (desk P&L + tracks), negotiation.js + relationships.js,

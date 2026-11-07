@@ -2,6 +2,8 @@
 // Cash-and-carry = buy spot (contract 1) + sell a later month; the spread is locked,
 // rent and financing accrue every week, and at expiry the barrels are delivered
 // into the short futures (spot and futures converge), so you realize the locked spread.
+import { landSched, schedState, schedUsd } from './scheduler.js';
+
 const WEEK_DAYS = 7;
 const MONTH_DAYS = 30.4;
 
@@ -66,7 +68,7 @@ export function spotMarket(t, w, econ) {
 
 export function newTankState() {
   return { week: 0, inv: 0, buy: 0, hedge: null, realized: 0, rent: 0, financing: 0, locked: 0, enteredWeek: null,
-    log: [], rows: [], done: false, rolls: 0 };
+    log: [], rows: [], done: false, rolls: 0, ...schedState() };
 }
 
 function close(t, st, w, why) {
@@ -131,8 +133,8 @@ export function stepTank(t, st, a) {
   if (out.hedge && w + 1 < t.W && t.weeks[w].months[0] === out.hedge.month && t.weeks[w + 1].months[0] !== out.hedge.month) {
     out = close(t, out, w, 'Delivered into futures at expiry');
   }
-  if (w + 1 >= t.W) return { ...close(t, out, w, 'Session end: sold'), done: true };
-  return { ...out, week: w + 1, log: [...out.log] };
+  if (w + 1 >= t.W) return landSched({ ...close(t, out, w, 'Session end: sold'), done: true }, Infinity);
+  return landSched({ ...out, week: w + 1, log: [...out.log] }, w + 1); // consequences due this week land
 }
 
 /** Running P&L: realized + open legs - rent - financing. */
@@ -143,14 +145,15 @@ export function tankPnl(t, st) {
     open += (spot(t, w) - st.buy) * st.inv;
     if (st.hedge) open += (st.hedge.entry - (priceOf(t, w, st.hedge.month) ?? spot(t, w))) * st.hedge.bbl;
   }
-  return st.realized + open - st.rent - st.financing;
+  return st.realized + open - st.rent - st.financing + schedUsd(st, st.done);
 }
 
 /** The debrief lines: carry locked vs rent and financing paid, plus whatever the unwind added. */
 export function tankSplit(t, st) {
   const total = tankPnl(t, st);
-  const unwind = total + st.rent + st.financing - st.locked;
-  return { locked: st.locked, unwind, rent: -st.rent, financing: -st.financing, total };
+  const sched = schedUsd(st, st.done);
+  const unwind = total + st.rent + st.financing - st.locked - sched;
+  return { locked: st.locked, unwind, rent: -st.rent, financing: -st.financing, sched, total };
 }
 
 export function runTank(t, actions) {

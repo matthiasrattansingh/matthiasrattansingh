@@ -83,7 +83,7 @@ export function hydrate(saved) {
     quests: saved.quests ?? base.quests,
     chat: { ...base.chat, ...saved.chat },
     specials: saved.specials ?? {},
-    phys: { ...emptyPhys(), ...saved.phys, memory: { ...emptyPhys().memory, ...saved.phys?.memory }, negotiation: { ...emptyPhys().negotiation, ...saved.phys?.negotiation } },
+    phys: { ...emptyPhys(), ...saved.phys, memory: { ...emptyPhys().memory, ...saved.phys?.memory }, negotiation: { ...emptyPhys().negotiation, ...saved.phys?.negotiation }, ideas: { ...emptyPhys().ideas, ...saved.phys?.ideas } },
     playerName: saved.playerName ?? '',
     forecast: {
       prints: { ...emptyForecast().prints, ...saved.forecast?.prints },
@@ -104,6 +104,9 @@ export function emptyPhys() {
     memory: { ports: {}, daysToSell: [], hedgeAtLoad: 0, hedgeChances: 0, demurrage: [] },
     relationships: {}, // agentId -> { deals_closed, rounds_stalled_on_them, walk_aways_after_3plus_rounds }
     negotiation: { edge: 0, pulled: 0, deals: 0 },
+    // Desk scenarios played, and main-feed idea cards (open positions tick one day per swipe).
+    desks: 0, deskCalls: 0, deskRight: 0,
+    ideas: { open: [], run: 0, passed: 0, calls: 0, right: 0, pnl: 0, seen: {} },
   };
 }
 

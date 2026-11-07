@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   base: './', // relative paths so the build works from any host or subfolder
+  // Build stamp shown in ME, so you can see which deploy your phone is running.
+  define: { __BUILD__: JSON.stringify(`${(process.env.GITHUB_SHA ?? 'local').slice(0, 7)} · ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`) },
   plugins: [react(), tailwindcss()],
   server: {
     host: true,

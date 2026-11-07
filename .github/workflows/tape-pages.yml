@@ -1,6 +1,11 @@
 # Builds TAPE (tape/) and publishes it to GitHub Pages:
 #   https://matthiasrattansingh.github.io/matthiasrattansingh/
-# One-time setup: repo Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+# One-time setup: repo Settings -> Pages -> Source: "GitHub Actions", and (until this branch is
+# merged) Settings -> Environments -> github-pages -> allow this branch.
+#
+# The last job proves the deploy landed: it polls the live site until it serves this commit's
+# version.json and every asset index.html references returns 200. A green run means the live
+# site is this commit, not just that an upload happened.
 name: Deploy TAPE to GitHub Pages
 
 on:
@@ -36,6 +41,8 @@ jobs:
       - run: npm run validate
       - run: npm test
       - run: npm run build
+      - name: Stamp the build with its commit
+        run: printf '{"sha":"%s","run":"%s"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > dist/version.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: tape/dist
@@ -43,9 +50,37 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Live site serves this commit
+        env:
+          URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -u
+          for i in $(seq 1 30); do
+            got=$(curl -fsS "${URL}version.json?t=$(date +%s)" | sed -n 's/.*"sha":"\([0-9a-f]*\)".*/\1/p' || true)
+            echo "attempt $i: live sha=${got:-none} want=$GITHUB_SHA"
+            if [ "$got" = "$GITHUB_SHA" ]; then break; fi
+            sleep 10
+          done
+          [ "$got" = "$GITHUB_SHA" ] || { echo "::error::Live site is not serving $GITHUB_SHA"; exit 1; }
+          html=$(curl -fsS "${URL}?t=$(date +%s)")
+          echo "$html" | grep -o 'assets/[^"]*' | sort -u > assets.txt
+          [ -s assets.txt ] || { echo "::error::index.html references no assets"; exit 1; }
+          while read -r a; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${URL}${a}")
+            echo "$code $a"
+            [ "$code" = 200 ] || { echo "::error::$a returned $code"; exit 1; }
+          done < assets.txt
+          echo "Live site at $URL is commit $GITHUB_SHA with all assets reachable."

@@ -1,0 +1,1767 @@
+{
+ "_readme": "Built by scripts/build-desk.py. Real series come from EIA daily spot (and NYMEX gas via Yahoo); modeled series are straight lines between cited anchors and say so. Do not edit by hand.",
+ "cards": [
+  {
+   "id": "dsk-colonial-2021",
+   "title": "Colonial Pipeline shutdown, May 2021",
+   "date": "2021-05-03",
+   "open": "The East Coast's fuel pipe just went dark.",
+   "why": "Colonial carries ~45% of East Coast fuel. When it shut, the only way north was Jones Act tankers, so freight, not the barrel spread, captured the dislocation. EIA spot shows the NYH-Gulf gasoline spread widening only ~$2/bbl while MR earnings jumped to ~$50k/day.",
+   "source": "EIA daily spot NYH and USGC conventional gasoline; S&P Global (13 May 2021) Jones Act MR ~$50k/day; Colonial Pipeline statements 7-15 May 2021.",
+   "concept": "cb-freight",
+   "days": [
+    "2021-05-03",
+    "2021-05-04",
+    "2021-05-05",
+    "2021-05-06",
+    "2021-05-07",
+    "2021-05-10",
+    "2021-05-11",
+    "2021-05-12",
+    "2021-05-13",
+    "2021-05-14",
+    "2021-05-17",
+    "2021-05-18"
+   ],
+   "series": {
+    "gas_nyh": {
+     "label": "NYH gasoline",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      87.906,
+      90.174,
+      89.544,
+      88.494,
+      89.082,
+      88.956,
+      89.754,
+      91.224,
+      88.116,
+      90.342,
+      91.35,
+      91.35
+     ],
+     "source": "EIA daily spot EER_EPMRU_PF4_Y35NY_DPG ($/gal × 42)"
+    },
+    "gas_usgc": {
+     "label": "USGC gasoline",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      85.68,
+      87.024,
+      86.1,
+      85.008,
+      86.352,
+      86.646,
+      86.52,
+      87.528,
+      84.462,
+      86.058,
+      87.57,
+      87.066
+     ],
+     "source": "EIA daily spot EER_EPMRU_PF4_RGC_DPG ($/gal × 42)"
+    },
+    "nyh_usgc": {
+     "label": "NYH − USGC gasoline",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      2.226,
+      3.15,
+      3.444,
+      3.486,
+      2.73,
+      2.31,
+      3.234,
+      3.696,
+      3.654,
+      4.284,
+      3.78,
+      4.284
+     ],
+     "source": "EIA daily spot: NYH minus USGC conventional gasoline, $/gal × 42"
+    },
+    "jones_mr": {
+     "label": "Jones Act MR tanker",
+     "unit": "$/day",
+     "kind": "modeled",
+     "values": [
+      30000,
+      30500.0,
+      31000.0,
+      31500.0,
+      32000.0,
+      42800.0,
+      46400.0,
+      50000.0,
+      48000.0,
+      46000.0,
+      40000.0,
+      38000
+     ],
+     "anchors": [
+      {
+       "date": "2021-05-03",
+       "value": 30000,
+       "source": "Assumption: pre-shutdown Jones Act MR level (no public daily print)"
+      },
+      {
+       "date": "2021-05-07",
+       "value": 32000,
+       "source": "Assumption: Colonial shut late on May 7"
+      },
+      {
+       "date": "2021-05-12",
+       "value": 50000,
+       "source": "S&P Global, 13 May 2021: Jones Act MR TCE ~$50,000/day USGC-New York on May 12, per a Jones Act broker"
+      },
+      {
+       "date": "2021-05-18",
+       "value": 38000,
+       "source": "Assumption: brokers expected rates to ease once the line restarted (S&P Global, 13 May 2021)"
+      }
+     ],
+     "source": "Modeled: straight lines between the dated anchors listed (each cited). "
+    }
+   },
+   "chart": [
+    "nyh_usgc",
+    "jones_mr"
+   ],
+   "steps": [
+    {
+     "kind": "news",
+     "day": 0,
+     "headline": "Gulf gasoline $2.23/bbl under New York",
+     "text": "Colonial moves ~2.5 MMb/d of fuel from Houston to Linden. The spread is roughly its tariff.",
+     "series": [
+      "nyh_usgc"
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 1,
+     "type": "location_arb",
+     "title": "Ship Gulf gasoline to New York on a Jones Act MR",
+     "pitch": "Buy 300k bbl at Houston, fix a US-flag MR for 8 days, sell NY Harbor on arrival. Spread $3.15 vs ~$1.40 to move it.",
+     "bbl": 300000,
+     "horizon": 8,
+     "legs": [
+      {
+       "series": "gas_usgc",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy USGC gasoline"
+      },
+      {
+       "series": "gas_nyh",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell NYH on arrival"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Jones Act MR, 8 days",
+       "freight": {
+        "rate": "jones_mr",
+        "days": 8
+       }
+      },
+      {
+       "label": "Terminal in/out (assumed)",
+       "usd_bbl": 0.3
+      },
+      {
+       "label": "Financing",
+       "financing": {
+        "pct": 0.02,
+        "on": "gas_usgc"
+       }
+      }
+     ],
+     "killers": [
+      "Flat price drops while you're on the water: this is unhedged",
+      "Freight spikes before you fix the ship",
+      "NYH premium collapses when the line restarts"
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 2,
+     "by": "mo"
+    },
+    {
+     "kind": "news",
+     "day": 4,
+     "headline": "Colonial shuts all 5,500 miles after ransomware attack",
+     "text": "The East Coast's main fuel artery is down. Every Jones Act product tanker on the Gulf gets booked.",
+     "series": [
+      "nyh_usgc",
+      "jones_mr"
+     ]
+    },
+    {
+     "kind": "decision",
+     "day": 4,
+     "title": "Scheduler: your Cycle 27 line space",
+     "prompt": "150k bbl nominated Houston → Linden can't move. Hold the nomination for the restart, or release it and sell at Houston?",
+     "options": [
+      {
+       "label": "Hold nomination, keep barrels in tank",
+       "later": {
+        "day": 8,
+        "usd": 225600,
+        "text": "Line restarted; your 150k bbl shipped and sold NYH",
+        "calc": "150k × (NYH−USGC $3.65 − tariff $1.90 − tankage $0.25, both assumed)"
+       }
+      },
+      {
+       "label": "Release it, sell at Houston now",
+       "now": {
+        "usd": 0,
+        "text": "Sold at Houston spot: no spread, no tankage"
+       },
+       "later": {
+        "day": 8,
+        "usd": 0,
+        "text": "Line restarted without you: missed the cycle",
+        "calc": "No exposure, no spread captured"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 5,
+     "type": "freight",
+     "title": "Charter a Jones Act MR for 30 days",
+     "pitch": "The pipe is down; ships are the only way north. Take an MR on time charter now and relet it as rates climb.",
+     "bbl": 300000,
+     "horizon": 5,
+     "legs": [
+      {
+       "series": "jones_mr",
+       "side": "buy",
+       "at": "entry",
+       "qty": 30,
+       "label": "Hire 30 days"
+      },
+      {
+       "series": "jones_mr",
+       "side": "sell",
+       "at": "exit",
+       "qty": 30,
+       "label": "Relet 30 days"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Broker commission 1.25% (assumed)",
+       "usd": 12000.0
+      }
+     ],
+     "killers": [
+      "The line restarts fast and every charterer cancels",
+      "Jones Act waivers let foreign ships in",
+      "You can't find a relet: you're stuck paying hire"
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 7,
+     "headline": "Colonial restarts; full service in days",
+     "text": "Fuel starts moving again late May 12. Panic buying left gas stations dry across the Southeast.",
+     "series": [
+      "nyh_usgc",
+      "jones_mr"
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 8,
+     "by": "dan"
+    },
+    {
+     "kind": "decision",
+     "day": 9,
+     "title": "Scheduler: berth at Linden",
+     "prompt": "Your MR arrives into a queue. Pay $40k to jump to an open berth, or wait out a 2-day line?",
+     "options": [
+      {
+       "label": "Pay $40k priority berth",
+       "now": {
+        "usd": -40000,
+        "text": "Priority berth fee"
+       },
+       "later": {
+        "day": 10,
+        "usd": 0,
+        "text": "Discharged on arrival: no demurrage"
+       }
+      },
+      {
+       "label": "Wait in the queue",
+       "later": {
+        "day": 11,
+        "usd": -100000,
+        "text": "2 days of demurrage",
+        "calc": "2 days × $50k/day (Jones Act MR rate that week)"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 11,
+     "headline": "Spread ends at $4.28: the ships, not the pipe, set the price",
+     "text": "Gulf to NY gasoline widened ~$2/bbl. Freight took most of it.",
+     "series": [
+      "nyh_usgc",
+      "jones_mr"
+     ]
+    }
+   ],
+   "pitchable": {
+    "nyh_usgc": {
+     "qty": 300000,
+     "fee": 0.15
+    },
+    "jones_mr": {
+     "qty": 30,
+     "fee": 500
+    }
+   },
+   "type": "desk",
+   "category": "physical",
+   "difficulty": 3
+  },
+  {
+   "id": "dsk-uri-freeze-2021",
+   "title": "Winter Storm Uri, February 2021",
+   "date": "2021-02-08",
+   "open": "Texas is freezing. Gas cash is vertical.",
+   "why": "Uri froze wells, pipes and refineries at once. Henry Hub spot went from $3.76 to $23.86 and back to $3.16 in eight sessions while NYMEX futures barely moved: storage you could actually withdraw was the asset. Diesel cracks widened as ~6 MMb/d of refining went offline.",
+   "source": "EIA daily spot (Henry Hub RNGWHHD, WTI RWTC, USGC ULSD); NYMEX gas front month via Yahoo; IHS Markit (Feb 2021) ~6 MMb/d refining affected; Reuters/Argus Midland differentials.",
+   "concept": "cb-shut-ins",
+   "days": [
+    "2021-02-08",
+    "2021-02-09",
+    "2021-02-10",
+    "2021-02-11",
+    "2021-02-12",
+    "2021-02-16",
+    "2021-02-17",
+    "2021-02-18",
+    "2021-02-19",
+    "2021-02-22",
+    "2021-02-23",
+    "2021-02-24"
+   ],
+   "series": {
+    "hh": {
+     "label": "Henry Hub spot",
+     "unit": "$/MMBtu",
+     "kind": "real",
+     "values": [
+      3.4,
+      3.35,
+      3.76,
+      6.5,
+      6.12,
+      11.32,
+      23.86,
+      8.56,
+      4.96,
+      3.16,
+      2.94,
+      2.8
+     ],
+     "source": "EIA daily spot RNGWHHD"
+    },
+    "ng_fut": {
+     "label": "NYMEX gas front month",
+     "unit": "$/MMBtu",
+     "kind": "real",
+     "values": [
+      2.882,
+      2.835,
+      2.911,
+      2.868,
+      2.912,
+      3.129,
+      3.219,
+      3.082,
+      3.069,
+      2.953,
+      2.879,
+      2.854
+     ],
+     "source": "NYMEX natural gas front-month settle (Yahoo Finance NG=F)"
+    },
+    "wti": {
+     "label": "WTI Cushing",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      57.95,
+      58.34,
+      58.69,
+      58.22,
+      59.5,
+      60.07,
+      61.09,
+      60.4,
+      59.12,
+      61.67,
+      61.66,
+      63.21
+     ],
+     "source": "EIA daily spot RWTC"
+    },
+    "ulsd_usgc": {
+     "label": "USGC ULSD",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      71.442,
+      71.568,
+      71.442,
+      70.686,
+      72.156,
+      74.634,
+      76.608,
+      75.138,
+      75.054,
+      77.28,
+      77.532,
+      79.044
+     ],
+     "source": "EIA daily spot EER_EPD2DXL0_PF4_RGC_DPG ($/gal × 42)"
+    },
+    "hh_fut": {
+     "label": "Henry Hub spot − futures",
+     "unit": "$/MMBtu",
+     "kind": "real",
+     "values": [
+      0.518,
+      0.515,
+      0.849,
+      3.632,
+      3.208,
+      8.191,
+      20.641,
+      5.478,
+      1.891,
+      0.207,
+      0.061,
+      -0.054
+     ],
+     "source": "EIA RNGWHHD minus NYMEX front month"
+    },
+    "crack": {
+     "label": "USGC diesel crack",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      13.492,
+      13.228,
+      12.752,
+      12.466,
+      12.656,
+      14.564,
+      15.518,
+      14.738,
+      15.934,
+      15.61,
+      15.872,
+      15.834
+     ],
+     "source": "EIA daily spot: USGC ULSD ($/gal × 42) minus WTI Cushing"
+    },
+    "midland": {
+     "label": "WTI Midland vs Cushing",
+     "unit": "$/bbl",
+     "kind": "modeled",
+     "values": [
+      0.95,
+      0.98,
+      1.01,
+      1.04,
+      1.07,
+      1.19,
+      1.22,
+      1.2,
+      1.18,
+      1.12,
+      1.1,
+      1.08
+     ],
+     "anchors": [
+      {
+       "date": "2021-02-08",
+       "value": 0.95,
+       "source": "Assumption: ~$1 premium to WTI in early Feb (no public daily Midland print)"
+      },
+      {
+       "date": "2021-02-17",
+       "value": 1.22,
+       "source": "Reuters/Argus: Midland hit an 11-month-high $1.22 premium in February 2021"
+      },
+      {
+       "date": "2021-02-24",
+       "value": 1.08,
+       "source": "Reuters/Argus: Midland averaged a $1.08 premium in March 2021"
+      }
+     ],
+     "source": "Modeled: straight lines between the dated anchors listed (each cited). "
+    },
+    "zero": {
+     "label": "Cushing (diff to WTI)",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "source": "WTI Cushing is the benchmark: its differential to itself is zero"
+    }
+   },
+   "chart": [
+    "hh",
+    "ng_fut",
+    "crack"
+   ],
+   "steps": [
+    {
+     "kind": "news",
+     "day": 1,
+     "headline": "Arctic blast heads for Texas",
+     "text": "Forecasts show single digits in Midland and Houston. Gas demand for heat will spike.",
+     "series": [
+      "hh",
+      "ng_fut"
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 3,
+     "type": "storage",
+     "title": "Pull your gas out of storage, sell it today",
+     "pitch": "You hold 1 Bcf at a Gulf salt cavern. Spot pays more than March futures: sell spot, buy the futures back.",
+     "bbl": 1000000,
+     "unit": "MMBtu",
+     "horizon": 1,
+     "legs": [
+      {
+       "series": "hh",
+       "side": "sell",
+       "at": "entry",
+       "label": "Sell Henry Hub spot"
+      },
+      {
+       "series": "ng_fut",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy March futures back"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Withdrawal fee (assumed $0.02/MMBtu)",
+       "usd_bbl": 0.02
+      }
+     ],
+     "killers": [
+      "Pipes freeze and you can't deliver what you sold",
+      "Spot goes higher tomorrow: you sold too early",
+      "Futures spike and your buyback costs more"
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 5,
+     "headline": "ERCOT blackouts; ~6 MMb/d of refining offline",
+     "text": "IHS Markit: Storm Uri hit nearly 6 million b/d of US refining. Permian wells freeze.",
+     "series": [
+      "crack",
+      "midland"
+     ]
+    },
+    {
+     "kind": "decision",
+     "day": 5,
+     "title": "Scheduler: Midland → Cushing nomination",
+     "prompt": "Nominations due 10am. You hold 50k b/d of line space, but frozen wells give you ~20k b/d.",
+     "options": [
+      {
+       "label": "Nominate the full 50k b/d",
+       "later": {
+        "day": 9,
+        "usd": -94500,
+        "text": "Ship-or-pay on 30k b/d you couldn't fill",
+        "calc": "30k b/d × 7 days × $0.45 tariff (assumed) deficiency"
+       }
+      },
+      {
+       "label": "Cut to 20k b/d",
+       "later": {
+        "day": 10,
+        "usd": -67500,
+        "text": "Line history cut 15%: less space next month",
+        "calc": "7.5k b/d × 30 days × $0.30/bbl lost margin (assumed)"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 5,
+     "type": "quality",
+     "title": "Long the Gulf diesel crack",
+     "pitch": "Refineries froze; diesel will be short when demand comes back. Buy USGC ULSD vs WTI.",
+     "bbl": 200000,
+     "horizon": 4,
+     "legs": [
+      {
+       "series": "crack",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy diesel crack"
+      },
+      {
+       "series": "crack",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell it back"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Execution, both legs",
+       "usd_bbl": 0.1
+      }
+     ],
+     "killers": [
+      "Refineries restart faster than expected",
+      "Crude rallies faster than diesel",
+      "Demand stays frozen with the roads"
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 6,
+     "headline": "Henry Hub cash prints $23.86",
+     "text": "Spot gas at Henry Hub hits $23.86/MMBtu while March futures sit near $3.20.",
+     "series": [
+      "hh",
+      "ng_fut"
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 6,
+     "by": "dan"
+    },
+    {
+     "kind": "idea",
+     "day": 6,
+     "type": "location_arb",
+     "title": "Buy Midland, ship to Cushing",
+     "pitch": "Permian is frozen, Cushing looks cheap. Buy Midland, pay the tariff, sell Cushing in 3 days (hedged).",
+     "bbl": 200000,
+     "horizon": 3,
+     "legs": [
+      {
+       "series": "midland",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy Midland (diff to WTI)"
+      },
+      {
+       "series": "zero",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell Cushing (WTI flat)"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Midland→Cushing tariff (assumed)",
+       "usd_bbl": 0.45
+      }
+     ],
+     "killers": [
+      "Midland trades at a premium: the arb runs the wrong way",
+      "Wells thaw and Midland sags",
+      "Line space is prorated"
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 8,
+     "by": "quinn"
+    },
+    {
+     "kind": "news",
+     "day": 9,
+     "headline": "Thaw: Henry Hub back at $3.16",
+     "text": "Spot gas collapses back to the futures. Refineries restart over the next weeks.",
+     "series": [
+      "hh",
+      "crack"
+     ]
+    }
+   ],
+   "pitchable": {
+    "hh_fut": {
+     "qty": 100000,
+     "fee": 0.01
+    },
+    "crack": {
+     "qty": 200000,
+     "fee": 0.1
+    }
+   },
+   "type": "desk",
+   "category": "physical",
+   "difficulty": 3
+  },
+  {
+   "id": "dsk-keystone-2022",
+   "title": "Keystone leak, December 2022",
+   "date": "2022-12-05",
+   "open": "Keystone just shut. Hardisty is backing up.",
+   "why": "The December 2022 leak blew WCS out $6 in a day, but the move faded within a week while the line stayed shut: refiners and traders found other routes and the January discount barely moved. The panic discount was the trade, not the outage.",
+   "source": "WTI: EIA daily spot RWTC. WCS: Reuters 8 and 13 Dec 2022 (CalRock), Argus/S&P Global Dec 2022; Houston WCS and rail costs are labeled assumptions.",
+   "concept": "cb-basis",
+   "days": [
+    "2022-12-05",
+    "2022-12-06",
+    "2022-12-07",
+    "2022-12-08",
+    "2022-12-09",
+    "2022-12-12",
+    "2022-12-13",
+    "2022-12-14",
+    "2022-12-15",
+    "2022-12-16",
+    "2022-12-19",
+    "2022-12-20"
+   ],
+   "series": {
+    "wti": {
+     "label": "WTI Cushing",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      76.83,
+      74.21,
+      71.93,
+      71.3,
+      71.05,
+      72.96,
+      75.44,
+      77.14,
+      75.89,
+      74.19,
+      75.05,
+      75.92
+     ],
+     "source": "EIA daily spot RWTC"
+    },
+    "wcs": {
+     "label": "WCS Hardisty vs WTI",
+     "unit": "$/bbl",
+     "kind": "modeled",
+     "values": [
+      -26.75,
+      -27.125,
+      -27.5,
+      -33.5,
+      -32.65,
+      -30.1,
+      -29.25,
+      -29.143,
+      -29.036,
+      -28.929,
+      -28.607,
+      -28.5
+     ],
+     "anchors": [
+      {
+       "date": "2022-12-05",
+       "value": -26.75,
+       "source": "Assumption: ~$27 under WTI before the spill (Reuters, 8 Dec 2022)"
+      },
+      {
+       "date": "2022-12-07",
+       "value": -27.5,
+       "source": "Reuters, 8 Dec 2022: Dec WCS at Hardisty $27.50 under WTI the previous day (CalRock)"
+      },
+      {
+       "date": "2022-12-08",
+       "value": -33.5,
+       "source": "Reuters, 8 Dec 2022: Dec WCS at Hardisty $33.50 under WTI (CalRock)"
+      },
+      {
+       "date": "2022-12-13",
+       "value": -29.25,
+       "source": "Reuters, 13 Dec 2022: WCS $29.25 under WTI (CalRock)"
+      },
+      {
+       "date": "2022-12-20",
+       "value": -28.5,
+       "source": "Assumption: back within its range (Argus: 'within a well-worn range')"
+      }
+     ],
+     "source": "Modeled: straight lines between the dated anchors listed (each cited). "
+    },
+    "wcs_hou": {
+     "label": "WCS Houston vs WTI",
+     "unit": "$/bbl",
+     "kind": "modeled",
+     "values": [
+      -11.0,
+      -11.067,
+      -11.133,
+      -11.2,
+      -11.267,
+      -11.467,
+      -11.533,
+      -11.6,
+      -11.667,
+      -11.733,
+      -11.933,
+      -12.0
+     ],
+     "anchors": [
+      {
+       "date": "2022-12-05",
+       "value": -11.0,
+       "source": "Assumption: WCS at Houston ~$11 under WTI in late 2022"
+      },
+      {
+       "date": "2022-12-20",
+       "value": -12.0,
+       "source": "Assumption"
+      }
+     ],
+     "source": "Modeled: straight lines between the dated anchors listed (each cited). "
+    }
+   },
+   "chart": [
+    "wcs"
+   ],
+   "steps": [
+    {
+     "kind": "news",
+     "day": 0,
+     "headline": "WCS steady around $27 under WTI",
+     "text": "Heavy Canadian crude flows south on Keystone, 622k b/d to Cushing and the Gulf.",
+     "series": [
+      "wcs"
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 3,
+     "headline": "Keystone shut after ~14,000 bbl leak in Kansas",
+     "text": "TC Energy halts the line. Heavy barrels back up at Hardisty.",
+     "series": [
+      "wcs"
+     ]
+    },
+    {
+     "kind": "decision",
+     "day": 3,
+     "title": "Scheduler: 50k bbl stranded at Hardisty",
+     "prompt": "Your December Keystone barrels can't move. Rent tank and wait, or dump them at today's panic discount?",
+     "options": [
+      {
+       "label": "Sell spot now at −$33.50",
+       "now": {
+        "usd": -300000,
+        "text": "Sold into the panic",
+        "calc": "50k × ($33.50 − $27.50 normal discount)"
+       }
+      },
+      {
+       "label": "Rent tank, sell next week",
+       "later": {
+        "day": 8,
+        "usd": -102500,
+        "text": "Sold at ~−$29.25 after two weeks of tank",
+        "calc": "50k × ($29.25 − $27.50) + tank 50k × $0.60/month × ½ month (assumed rate)"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 3,
+     "type": "basis",
+     "title": "Buy WCS at −$33.50",
+     "pitch": "The discount blew out $6 in a day on a leak, not on demand. Buy the differential, hedged on WTI, and wait for it to snap back.",
+     "bbl": 100000,
+     "horizon": 5,
+     "legs": [
+      {
+       "series": "wcs",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy WCS diff"
+      },
+      {
+       "series": "wcs",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell it back"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Execution + tank (assumed)",
+       "usd_bbl": 0.35
+      }
+     ],
+     "killers": [
+      "Keystone stays down for months (2017 outage pushed WCS past −$30 for months)",
+      "Alberta storage fills and producers dump",
+      "Refiners switch to Latin heavy grades"
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 4,
+     "by": "mo"
+    },
+    {
+     "kind": "idea",
+     "day": 4,
+     "type": "location_arb",
+     "title": "Rail heavy crude to the Gulf",
+     "pitch": "Hardisty is $22 under Houston. Rail costs ~$17. Book cars and move 100k bbl to the coast.",
+     "bbl": 100000,
+     "horizon": 7,
+     "legs": [
+      {
+       "series": "wcs",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy WCS Hardisty"
+      },
+      {
+       "series": "wcs_hou",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell WCS Houston"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Rail Hardisty → USGC (assumed $17/bbl)",
+       "usd_bbl": 17.0
+      },
+      {
+       "label": "Loading + terminal (assumed)",
+       "usd_bbl": 0.75
+      }
+     ],
+     "killers": [
+      "The spread narrows before your cars load",
+      "No rail cars on short notice",
+      "Keystone restarts and Hardisty snaps back"
+     ]
+    },
+    {
+     "kind": "decision",
+     "day": 7,
+     "title": "Scheduler: Keystone restarts the Wood River leg",
+     "prompt": "Line space offered on the unaffected segment. Pay $1.50/bbl to jump the queue for your 50k bbl?",
+     "options": [
+      {
+       "label": "Pay $1.50/bbl to move now",
+       "now": {
+        "usd": -75000,
+        "text": "Queue-jump premium"
+       },
+       "later": {
+        "day": 10,
+        "usd": 60000,
+        "text": "Moved before the January roll: saved tank and roll",
+        "calc": "Saved 50k × ($0.60 tank + $0.60 roll), assumed"
+       }
+      },
+      {
+       "label": "Wait for your turn",
+       "later": {
+        "day": 11,
+        "usd": -60000,
+        "text": "Rolled into January: tank + roll",
+        "calc": "50k × ($0.60 tank + $0.60 roll), assumed"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 8,
+     "by": "carla"
+    },
+    {
+     "kind": "news",
+     "day": 10,
+     "headline": "WCS back near −$28.50",
+     "text": "The panic premium fades even with Keystone still partly shut.",
+     "series": [
+      "wcs"
+     ]
+    }
+   ],
+   "pitchable": {
+    "wcs": {
+     "qty": 100000,
+     "fee": 0.25
+    }
+   },
+   "type": "desk",
+   "category": "physical",
+   "difficulty": 3
+  },
+  {
+   "id": "dsk-spr-release-2022",
+   "title": "SPR release weeks, June 2022",
+   "date": "2022-06-01",
+   "open": "Policy barrels are hitting the Gulf.",
+   "why": "The 2022 SPR release was mostly sour crude, delivered into the Gulf. Commercial sour grades had to make room: Mars went from about −$4 to −$8.25 under WTI, its weakest since 2008, before refiners bought the discount.",
+   "source": "EIA daily spot (RWTC, RBRTE) and weekly SPR stocks (WCSSTUS1); Reuters 10 Jun 2022 and S&P Global 13 Jun 2022 Mars assessments; DOE SPR release history. Freight and blending values are labeled assumptions.",
+   "concept": "cb-spr",
+   "days": [
+    "2022-06-01",
+    "2022-06-02",
+    "2022-06-03",
+    "2022-06-06",
+    "2022-06-07",
+    "2022-06-08",
+    "2022-06-09",
+    "2022-06-10",
+    "2022-06-13",
+    "2022-06-14",
+    "2022-06-15",
+    "2022-06-16"
+   ],
+   "series": {
+    "wti": {
+     "label": "WTI Cushing",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      115.26,
+      116.88,
+      118.97,
+      118.41,
+      119.55,
+      121.94,
+      121.52,
+      120.73,
+      120.92,
+      118.92,
+      115.32,
+      117.56
+     ],
+     "source": "EIA daily spot RWTC"
+    },
+    "brent": {
+     "label": "Brent",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      122.2,
+      122.2,
+      125.68,
+      124.99,
+      126.89,
+      129.2,
+      128.47,
+      127.44,
+      128.44,
+      127.02,
+      124.96,
+      125.78
+     ],
+     "source": "EIA daily spot RBRTE"
+    },
+    "mars": {
+     "label": "Mars vs WTI",
+     "unit": "$/bbl",
+     "kind": "modeled",
+     "values": [
+      -4.0,
+      -4.278,
+      -4.556,
+      -5.389,
+      -5.667,
+      -5.944,
+      -6.222,
+      -6.5,
+      -8.25,
+      -7.833,
+      -7.417,
+      -7.0
+     ],
+     "anchors": [
+      {
+       "date": "2022-06-01",
+       "value": -4.0,
+       "source": "Assumption: early-June Mars discount"
+      },
+      {
+       "date": "2022-06-10",
+       "value": -6.5,
+       "source": "Reuters, 10 Jun 2022: Mars $6.50 under WTI, widest since March 2020"
+      },
+      {
+       "date": "2022-06-13",
+       "value": -8.25,
+       "source": "S&P Global: Mars assessed $8.25 under cash WTI on 13 Jun 2022, weakest since Oct 2008"
+      },
+      {
+       "date": "2022-06-16",
+       "value": -7.0,
+       "source": "Assumption: Mars steadies after the low (Reuters, June 2022)"
+      }
+     ],
+     "source": "Modeled: straight lines between the dated anchors listed (each cited). "
+    },
+    "brent_wti": {
+     "label": "Brent − WTI",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      6.94,
+      5.32,
+      6.71,
+      6.58,
+      7.34,
+      7.26,
+      6.95,
+      6.71,
+      7.52,
+      8.1,
+      9.64,
+      8.22
+     ],
+     "source": "EIA daily spot RBRTE minus RWTC"
+    }
+   },
+   "chart": [
+    "mars",
+    "brent_wti"
+   ],
+   "steps": [
+    {
+     "kind": "news",
+     "day": 0,
+     "headline": "SPR is releasing 1 MMb/d for six months",
+     "text": "The largest release in SPR history, ~180 MMbbl, mostly sour crude, into Gulf Coast refineries.",
+     "series": [
+      "mars"
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 2,
+     "type": "quality",
+     "title": "Short Mars vs WTI",
+     "pitch": "Policy barrels are sour and they keep coming. Sell Mars vs WTI and buy it back once refiners are full.",
+     "bbl": 300000,
+     "horizon": 6,
+     "legs": [
+      {
+       "series": "mars",
+       "side": "sell",
+       "at": "entry",
+       "label": "Sell Mars diff"
+      },
+      {
+       "series": "mars",
+       "side": "buy",
+       "at": "exit",
+       "label": "Buy it back"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Execution, both legs",
+       "usd_bbl": 0.1
+      }
+     ],
+     "killers": [
+      "SPR sales slow or get cancelled",
+      "A coker restart soaks up sour barrels",
+      "OPEC cuts sour supply"
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 3,
+     "headline": "SPR down 7.3 MMbbl in a week",
+     "text": "EIA's weekly data: commercial sour barrels pile up along the Gulf.",
+     "series": [
+      "mars",
+      "brent_wti"
+     ]
+    },
+    {
+     "kind": "decision",
+     "day": 3,
+     "title": "Scheduler: pick a load window",
+     "prompt": "Your 500k bbl WTI export cargo to Rotterdam. Load June 8-10, or June 15-17 on a ship $150k cheaper?",
+     "options": [
+      {
+       "label": "June 8-10, prompt ship",
+       "later": {
+        "day": 6,
+        "usd": 185000,
+        "text": "Loaded; Brent−WTI $6.95 vs $6.58 when you chose",
+        "calc": "500k × ($6.95 − $6.58)"
+       }
+      },
+      {
+       "label": "June 15-17, cheaper ship",
+       "now": {
+        "usd": 150000,
+        "text": "Cheaper vessel"
+       },
+       "later": {
+        "day": 11,
+        "usd": 820000,
+        "text": "Loaded; Brent−WTI $8.22 vs $6.58 when you chose",
+        "calc": "500k × ($8.22 − $6.58)"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 4,
+     "type": "location_arb",
+     "title": "Export WTI to Europe",
+     "pitch": "Brent−WTI is ~$7. Buy WTI at the Gulf, ship to Rotterdam on an Aframax, sell against Brent.",
+     "bbl": 600000,
+     "horizon": 7,
+     "legs": [
+      {
+       "series": "wti",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy WTI (USGC)"
+      },
+      {
+       "series": "brent",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell vs Brent"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Aframax USG→Rotterdam (assumed $5.50/bbl)",
+       "usd_bbl": 5.5
+      },
+      {
+       "label": "Pipeline Cushing→Houston (assumed)",
+       "usd_bbl": 0.6
+      },
+      {
+       "label": "Financing",
+       "financing": {
+        "pct": 0.03,
+        "on": "wti"
+       }
+      }
+     ],
+     "killers": [
+      "Brent−WTI narrows before you discharge",
+      "Freight rallies (2022 Aframax rates were extreme)",
+      "Flat price falls: unhedged cargo"
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 5,
+     "by": "mo"
+    },
+    {
+     "kind": "pitch",
+     "day": 8,
+     "by": "quinn"
+    },
+    {
+     "kind": "news",
+     "day": 8,
+     "headline": "Mars hits −$8.25, weakest since 2008",
+     "text": "S&P Global: sour grades from Mars to WCS are swamped by SPR barrels.",
+     "series": [
+      "mars"
+     ]
+    },
+    {
+     "kind": "decision",
+     "day": 8,
+     "title": "Scheduler: blend to a refinery spec",
+     "prompt": "A refiner pays $0.75/bbl over formula for 1.5% sulfur. Blend 200k Mars with 100k Midland at $0.20/bbl?",
+     "options": [
+      {
+       "label": "Blend and sell to spec",
+       "now": {
+        "usd": -60000,
+        "text": "Blending fee 300k × $0.20"
+       },
+       "later": {
+        "day": 11,
+        "usd": 225000,
+        "text": "Spec premium paid",
+        "calc": "300k × $0.75 (assumed offer)"
+       }
+      },
+      {
+       "label": "Sell Mars straight",
+       "later": {
+        "day": 11,
+        "usd": 0,
+        "text": "Sold at formula"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 11,
+     "headline": "Mars steadies near −$7",
+     "text": "Refiners load up on cheap sour. The policy discount starts to look like a bargain.",
+     "series": [
+      "mars",
+      "brent_wti"
+     ]
+    }
+   ],
+   "pitchable": {
+    "mars": {
+     "qty": 300000,
+     "fee": 0.1
+    },
+    "brent_wti": {
+     "qty": 300000,
+     "fee": 0.1
+    }
+   },
+   "type": "desk",
+   "category": "physical",
+   "difficulty": 3
+  },
+  {
+   "id": "dsk-red-sea-2024",
+   "title": "Red Sea diversions, January 2024",
+   "date": "2024-01-08",
+   "open": "Ships are going the long way round.",
+   "why": "Diversions around the Cape add up to two weeks per Middle East-Europe voyage. That soaks up tanker capacity: LR2 earnings roughly doubled in a month while Brent-WTI barely moved. Owning ships (or charters) beat owning barrels.",
+   "source": "EIA daily spot (RBRTE, RWTC, NYH and USGC ULSD); S&P Global Jan 2024 LR2 freight reports; FreightWaves/Clarksons; BRS Cape fuel estimate; Argus war-risk premiums.",
+   "concept": "cb-freight",
+   "days": [
+    "2024-01-08",
+    "2024-01-09",
+    "2024-01-10",
+    "2024-01-11",
+    "2024-01-12",
+    "2024-01-16",
+    "2024-01-17",
+    "2024-01-18",
+    "2024-01-19",
+    "2024-01-22",
+    "2024-01-23",
+    "2024-01-24",
+    "2024-01-25"
+   ],
+   "series": {
+    "wti": {
+     "label": "WTI Cushing",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      71.06,
+      72.43,
+      71.57,
+      72.15,
+      72.94,
+      72.63,
+      72.79,
+      74.32,
+      73.69,
+      75.26,
+      74.72,
+      75.48,
+      77.91
+     ],
+     "source": "EIA daily spot RWTC"
+    },
+    "brent": {
+     "label": "Brent",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      75.47,
+      77.97,
+      78.46,
+      80.21,
+      79.89,
+      80.15,
+      78.88,
+      81.04,
+      80.71,
+      81.7,
+      82.04,
+      82.15,
+      82.33
+     ],
+     "source": "EIA daily spot RBRTE"
+    },
+    "brent_wti": {
+     "label": "Brent − WTI",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      4.41,
+      5.54,
+      6.89,
+      8.06,
+      6.95,
+      7.52,
+      6.09,
+      6.72,
+      7.02,
+      6.44,
+      7.32,
+      6.67,
+      4.42
+     ],
+     "source": "EIA daily spot RBRTE minus RWTC"
+    },
+    "ulsd_nyh": {
+     "label": "NYH ULSD",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      108.486,
+      111.174,
+      109.326,
+      112.644,
+      112.266,
+      111.048,
+      111.09,
+      113.022,
+      111.846,
+      112.938,
+      112.812,
+      112.518,
+      117.222
+     ],
+     "source": "EIA daily spot EER_EPD2DXL0_PF4_Y35NY_DPG ($/gal × 42)"
+    },
+    "ulsd_usgc": {
+     "label": "USGC ULSD",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      103.782,
+      106.428,
+      104.37,
+      107.688,
+      107.646,
+      105.798,
+      106.05,
+      108.108,
+      107.016,
+      108.108,
+      109.662,
+      109.158,
+      113.316
+     ],
+     "source": "EIA daily spot EER_EPD2DXL0_PF4_RGC_DPG ($/gal × 42)"
+    },
+    "ulsd_spread": {
+     "label": "NYH − USGC diesel",
+     "unit": "$/bbl",
+     "kind": "real",
+     "values": [
+      4.704,
+      4.746,
+      4.956,
+      4.956,
+      4.62,
+      5.25,
+      5.04,
+      4.914,
+      4.83,
+      4.83,
+      3.15,
+      3.36,
+      3.906
+     ],
+     "source": "EIA daily spot NYH minus USGC ULSD, $/gal × 42"
+    },
+    "lr2": {
+     "label": "LR2 earnings",
+     "unit": "$/day",
+     "kind": "modeled",
+     "values": [
+      40000,
+      42000.0,
+      44000.0,
+      46000.0,
+      47642.857,
+      54214.286,
+      55857.143,
+      57500.0,
+      62428.571,
+      77214.286,
+      82142.857,
+      87071.429,
+      92000
+     ],
+     "anchors": [
+      {
+       "date": "2024-01-08",
+       "value": 40000,
+       "source": "Assumption: early-January LR2 earnings"
+      },
+      {
+       "date": "2024-01-11",
+       "value": 46000,
+       "source": "Derived: S&P Global, Europe-bound LR2 freight +25% in 4 days after the 11 Jan strikes"
+      },
+      {
+       "date": "2024-01-18",
+       "value": 57500,
+       "source": "Derived: S&P Global, LR2s +60% in the five trading days to 25 Jan (92k/1.6)"
+      },
+      {
+       "date": "2024-01-25",
+       "value": 92000,
+       "source": "Brokers via S&P Global / Clarksons: LR2 MEG-Europe ~$90-100k/day, late January 2024"
+      }
+     ],
+     "source": "Modeled: straight lines between the dated anchors listed (each cited). "
+    }
+   },
+   "chart": [
+    "lr2",
+    "brent_wti"
+   ],
+   "steps": [
+    {
+     "kind": "news",
+     "day": 0,
+     "headline": "Houthi attacks push tankers away from Bab el-Mandeb",
+     "text": "Owners start routing Europe-bound cargoes around the Cape: up to two extra weeks a voyage.",
+     "series": [
+      "lr2"
+     ]
+    },
+    {
+     "kind": "idea",
+     "day": 1,
+     "type": "freight",
+     "title": "Take an LR2 on 60-day time charter",
+     "pitch": "Longer voyages soak up ships. Hire an LR2 now at ~$43k/day and relet it once the diversions bite.",
+     "bbl": 750000,
+     "horizon": 11,
+     "legs": [
+      {
+       "series": "lr2",
+       "side": "buy",
+       "at": "entry",
+       "qty": 60,
+       "label": "Hire 60 days"
+      },
+      {
+       "series": "lr2",
+       "side": "sell",
+       "at": "exit",
+       "qty": 60,
+       "label": "Relet 60 days"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Broker commission 1.25%",
+       "usd": 32250.0
+      }
+     ],
+     "killers": [
+      "A ceasefire reopens Suez",
+      "Owners reposition ballast ships and add supply",
+      "Refinery runs drop in Europe, fewer cargoes"
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 3,
+     "headline": "US and UK strike Houthi targets",
+     "text": "Dozens of tankers divert overnight. Europe-bound LR2 freight jumps 25% in four days (S&P Global).",
+     "series": [
+      "lr2",
+      "brent_wti"
+     ]
+    },
+    {
+     "kind": "decision",
+     "day": 4,
+     "title": "Scheduler: Suez or the Cape?",
+     "prompt": "Your chartered tanker is approaching the Red Sea. Pay war-risk cover and transit, or go round the Cape?",
+     "options": [
+      {
+       "label": "Transit Suez, pay war risk",
+       "now": {
+        "usd": -100000,
+        "text": "War-risk premium (Argus: up to ~$100k for an LR2)"
+       },
+       "later": {
+        "day": 9,
+        "usd": 0,
+        "text": "Transited; delivered on schedule"
+       }
+      },
+      {
+       "label": "Go round the Cape",
+       "later": {
+        "day": 12,
+        "usd": -802000,
+        "text": "12 extra days of hire + fuel",
+        "calc": "BRS: ~$250k extra fuel + 12 days × $46k/day hire"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 5,
+     "by": "mo"
+    },
+    {
+     "kind": "idea",
+     "day": 6,
+     "type": "basis",
+     "title": "Long NY Harbor diesel vs the Gulf",
+     "pitch": "European diesel to New York gets pricier with every diversion. Buy NYH vs USGC ULSD.",
+     "bbl": 300000,
+     "horizon": 5,
+     "legs": [
+      {
+       "series": "ulsd_spread",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy NYH−USGC"
+      },
+      {
+       "series": "ulsd_spread",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell it back"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Execution",
+       "usd_bbl": 0.1
+      }
+     ],
+     "killers": [
+      "Gulf barrels just ship north on Colonial",
+      "Mild weather caps heating oil demand",
+      "Europe keeps its own diesel"
+     ]
+    },
+    {
+     "kind": "pitch",
+     "day": 8,
+     "by": "dan"
+    },
+    {
+     "kind": "idea",
+     "day": 9,
+     "type": "location_arb",
+     "title": "WTI export arb to Europe",
+     "pitch": "Brent−WTI widened toward $7. Sell WTI into Europe, but freight is up too.",
+     "bbl": 600000,
+     "horizon": 3,
+     "legs": [
+      {
+       "series": "wti",
+       "side": "buy",
+       "at": "entry",
+       "label": "Buy WTI (USGC)"
+      },
+      {
+       "series": "brent",
+       "side": "sell",
+       "at": "exit",
+       "label": "Sell vs Brent"
+      }
+     ],
+     "costs": [
+      {
+       "label": "Aframax USG→Rotterdam (assumed $3.80/bbl)",
+       "usd_bbl": 3.8
+      },
+      {
+       "label": "Pipeline Cushing→Houston (assumed)",
+       "usd_bbl": 0.6
+      }
+     ],
+     "killers": [
+      "Brent−WTI narrows",
+      "Freight keeps climbing",
+      "Flat price drops: unhedged"
+     ]
+    },
+    {
+     "kind": "news",
+     "day": 12,
+     "headline": "LR2s earn ~$92k/day, near four-year highs",
+     "text": "Tonne-miles, not barrels, are the shortage: the same oil now needs more ship-days.",
+     "series": [
+      "lr2"
+     ]
+    }
+   ],
+   "pitchable": {
+    "lr2": {
+     "qty": 60,
+     "fee": 600
+    },
+    "brent_wti": {
+     "qty": 300000,
+     "fee": 0.1
+    }
+   },
+   "type": "desk",
+   "category": "physical",
+   "difficulty": 3
+  }
+ ]
+}

@@ -4,6 +4,8 @@ import {
   bestCargo, bestSale, buildCargo, canChoosePort, deliveredAt, markToMarket, netbackAt, newCargoState, step,
 } from './cargo.js';
 import { fmtMoney } from '../lib/book.js';
+import { decideSched, dueDecision } from './scheduler.js';
+import { DecisionCard } from '../desk/IdeaCard.jsx';
 import { tick, thud, ping, unlock } from '../lib/sound.js';
 
 export const CARGO_DECIDE_MS = 10_000;
@@ -28,6 +30,7 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
   stRef.current = st;
   const [portPanel, setPortPanel] = useState(true); // day 0: pick a port first
   const [banner, setBanner] = useState(null);
+  const [schedBanner, setSchedBanner] = useState(null);
   const [selling, setSelling] = useState(false);
   const canvasRef = useRef(null);
   const chartRef = useRef(null);
@@ -54,12 +57,16 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
 
   // Breaking events for the day.
   useEffect(() => {
-    const today = st.log.filter((l) => l.day === st.day && !['port', 'sell'].includes(l.type));
+    const today = st.log.filter((l) => l.day === st.day && !['port', 'sell', 'decision'].includes(l.type));
+    // Scheduler consequences get their own line, so the dollars are never truncated by the news.
+    const sched = today.filter((l) => l.type === 'sched');
+    const news = today.filter((l) => l.type !== 'sched');
+    setSchedBanner(sched.length ? sched.map((l) => l.text).join(' · ') : null);
     if (!today.length) return undefined;
-    setBanner(today.map((l) => l.text).join(' · '));
+    setBanner(news.length ? news.map((l) => l.text).join(' · ') : null);
     buzz([50, 30, 50]);
     ping();
-    const id = setTimeout(() => setBanner(null), 4000);
+    const id = setTimeout(() => { setBanner(null); setSchedBanner(null); }, 4500);
     return () => clearTimeout(id);
   }, [st.day, st.log.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -72,8 +79,10 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
     finishRef.current?.({ c, st, pnl: st.sold.pnl, best });
   }, [st.sold, c]);
 
+  // Scheduler decisions due today block the thumb row until you choose.
+  const due = st.sold ? null : dueDecision(card, st, st.day);
   const act = (a) => {
-    if (st.sold || selling) return;
+    if (st.sold || selling || due) return;
     unlock();
     if (a.type === 'SELL' && renderSell) { setSelling(true); return; }
     const before = st.day;
@@ -85,7 +94,7 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
 
   // The market never waits: 10s, then the default (sail on, or wait at port; day 0 picks best netback).
   useEffect(() => {
-    if (st.sold || selling) return undefined;
+    if (st.sold || selling || due) return undefined;
     const id = setTimeout(() => {
       if (!st.dest && !st.at) {
         const best = [...c.ports].sort((a, b) => netbackAt(c, st, b.id) - netbackAt(c, st, a.id))[0];
@@ -93,7 +102,7 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
       } else act({ type: st.at ? 'WAIT' : 'SAIL' });
     }, CARGO_DECIDE_MS);
     return () => clearTimeout(id);
-  }, [st.day, st.dest, st.sold, selling]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [st.day, st.dest, st.sold, selling, due?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const mtm = markToMarket(c, st);
   const costs = st.cost.charter + st.cost.demurrage + st.cost.port;
@@ -116,6 +125,11 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
           <div key={banner} className="news-drop absolute inset-x-2 top-1 z-10 flex items-center gap-2 rounded-lg border border-down/60 bg-down/90 px-2.5 py-1.5">
             <span className="margin-pulse h-2 w-2 shrink-0 rounded-full bg-white" />
             <span className="truncate text-[13px] font-bold text-white">{banner}</span>
+          </div>
+        )}
+        {schedBanner && (
+          <div key={schedBanner} className="news-drop absolute inset-x-2 top-11 z-10 rounded-lg border border-sky-300/60 bg-sky-500/90 px-2.5 py-1.5 text-[12.5px] font-bold leading-snug text-black">
+            📋 {schedBanner}
           </div>
         )}
         {!st.sold && !selling && <Ring key={`${st.day}-${st.dest}`} />}
@@ -184,6 +198,11 @@ export default function CargoSession({ card, econ, onFinish, rivals = null, rend
                 </button>
               );
             })}
+          </div>
+        )}
+        {due && (
+          <div className="pop absolute inset-x-0 bottom-0 z-30 rounded-t-2xl border-t border-sky-300/50 bg-[#0c0d0f] px-3 pt-2 pb-[max(10px,env(safe-area-inset-bottom))]">
+            <DecisionCard sheet decision={due} onChoose={(k) => { unlock(); setSt((s) => decideSched(s, due, k, st.day)); }} />
           </div>
         )}
         {selling && renderSell?.({

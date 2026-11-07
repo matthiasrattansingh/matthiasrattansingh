@@ -170,6 +170,33 @@
           "date": "2020-05-08",
           "flat": 30.97
         }
+      ],
+      "scheduler": [
+        {
+          "id": "roll",
+          "day": 2,
+          "title": "Scheduler: roll the cargo a month?",
+          "prompt": "Your buyer offers $0.40/bbl to take delivery in July instead of June. Super-contango pays to wait.",
+          "options": [
+            {
+              "label": "Roll to July for +$0.40/bbl",
+              "later": {
+                "day": 8,
+                "usd": -125000,
+                "text": "Roll paid, but you kept the ship 5 more days",
+                "calc": "500k × $0.40 − 5 days × $65,000 charter"
+              }
+            },
+            {
+              "label": "Keep June delivery",
+              "later": {
+                "day": 8,
+                "usd": 0,
+                "text": "Delivered on the June schedule"
+              }
+            }
+          ]
+        }
       ]
     },
     {
@@ -333,6 +360,37 @@
         {
           "date": "2022-05-06",
           "flat": 166.08
+        }
+      ],
+      "scheduler": [
+        {
+          "id": "blend",
+          "day": 2,
+          "title": "Scheduler: blend the slop tank in?",
+          "prompt": "You have 50k bbl of high-sulfur diesel in tank. Blend it into the cargo and sell it at full value?",
+          "options": [
+            {
+              "label": "Blend it in",
+              "now": {
+                "usd": 100000,
+                "text": "Slop sold at cargo value (50k × $2 uplift)"
+              },
+              "later": {
+                "day": 9,
+                "usd": -105000,
+                "text": "Inspector at discharge: cargo off-spec on sulfur",
+                "calc": "300k × $0.35 quality penalty (economics.json)"
+              }
+            },
+            {
+              "label": "Keep the cargo clean",
+              "later": {
+                "day": 9,
+                "usd": 0,
+                "text": "Cargo passed inspection"
+              }
+            }
+          ]
         }
       ]
     },
@@ -505,6 +563,37 @@
         {
           "date": "2021-03-01",
           "flat": 60.64
+        }
+      ],
+      "scheduler": [
+        {
+          "id": "tank",
+          "day": 2,
+          "title": "Scheduler: book shore tank at discharge?",
+          "prompt": "Houston refineries are wobbling. Book 3 days of shore tank for $60k, or deliver straight into the refinery?",
+          "options": [
+            {
+              "label": "Book shore tank ($60k)",
+              "now": {
+                "usd": -60000,
+                "text": "Shore tank booked"
+              },
+              "later": {
+                "day": 6,
+                "usd": 0,
+                "text": "Discharged into tank while the refinery was frozen"
+              }
+            },
+            {
+              "label": "Deliver straight to the refinery",
+              "later": {
+                "day": 6,
+                "usd": -135000,
+                "text": "Refinery couldn't take barrels: 3 days waiting",
+                "calc": "3 days × $45,000 demurrage (economics.json)"
+              }
+            }
+          ]
         }
       ]
     }

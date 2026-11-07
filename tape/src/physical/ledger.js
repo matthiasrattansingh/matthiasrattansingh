@@ -27,7 +27,7 @@ export const integratedUnlocked = (p) => (p.phys?.cargoes ?? 0) >= INTEGRATED_UN
 
 /**
  * Book a finished physical session.
- * r: { card, kind: 'cargo'|'tank'|'integrated', pnl, best, curve, C, memory? }
+ * r: { card, kind: 'cargo'|'tank'|'integrated'|'desk', pnl, best, curve, C, memory?, calls?, right? }
  */
 export function bookPhysical(p, r, now = new Date()) {
   const date = localDay(now);
@@ -40,6 +40,11 @@ export function bookPhysical(p, r, now = new Date()) {
   if (r.kind === 'cargo') phys.cargoes += 1;
   if (r.kind === 'tank') phys.tanks += 1;
   if (r.kind === 'integrated') phys.integrated += 1;
+  if (r.kind === 'desk') {
+    phys.desks = (phys.desks ?? 0) + 1;
+    phys.deskCalls = (phys.deskCalls ?? 0) + (r.calls ?? 0);
+    phys.deskRight = (phys.deskRight ?? 0) + (r.right ?? 0);
+  }
   if (r.hedgeGrade) phys.hedgeGrades = [...phys.hedgeGrades, r.hedgeGrade].slice(-200);
   let next = { ...p, phys, streak: touchStreak(p.streak, date) };
   // Two-book sessions pay both tracks: physical XP above, paper XP here.

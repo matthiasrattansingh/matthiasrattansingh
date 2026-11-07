@@ -7,6 +7,7 @@ const REQUIRED = {
   tapecheck: ['symbol', 'name', 'unit', 'driver', 'fallback'],
   cargo: ['title', 'open', 'cargo', 'bench', 'days', 'load', 'ports', 'decisions', 'events', 'why'],
   tank: ['title', 'open', 'location', 'weekly', 'why'],
+  desk: ['title', 'open', 'date', 'days', 'series', 'chart', 'steps', 'pitchable', 'why', 'concept'],
 };
 const CATEGORIES = ['crude', 'spreads', 'products', 'concepts', 'physical'];
 
@@ -24,6 +25,68 @@ export function validateCard(c) {
   if (c?.session) errors.push(...validateSession(c));
   if (c?.type === 'cargo') errors.push(...validateCargo(c));
   if (c?.type === 'tank') errors.push(...validateTank(c));
+  if (c?.type === 'desk') errors.push(...validateDesk(c));
+  if (c?.scheduler) errors.push(...validateScheduler(c.scheduler, c.type === 'tank' ? (c.weekly?.length ?? 0) : (c.days?.length ?? 0)));
+  return errors;
+}
+
+/** Scheduler decisions: 2-3 options, each costs or pays now and/or lands later inside the session. */
+export function validateScheduler(list, steps) {
+  const errors = [];
+  const ids = new Set();
+  for (const x of list) {
+    if (!x.id || ids.has(x.id)) errors.push(`scheduler: missing or duplicate id "${x.id}"`);
+    ids.add(x.id);
+    if (!(x.day >= 0 && x.day < steps)) errors.push(`scheduler ${x.id}: day out of range`);
+    if (!x.title || !x.prompt) errors.push(`scheduler ${x.id}: needs a title and a prompt`);
+    if (!(x.options?.length >= 2 && x.options.length <= 3)) errors.push(`scheduler ${x.id}: needs 2-3 options`);
+    for (const o of x.options ?? []) {
+      if (!o.label || o.label.length > 48) errors.push(`scheduler ${x.id}: option label must be 1-48 characters`);
+      if (!o.now && !o.later) errors.push(`scheduler ${x.id}: option "${o.label}" has no consequence`);
+      if (o.now && !Number.isFinite(o.now.usd)) errors.push(`scheduler ${x.id}: now.usd must be a number`);
+      if (o.later && (!Number.isFinite(o.later.usd) || !(o.later.day > x.day && o.later.day < steps + 1) || !o.later.text)) {
+        errors.push(`scheduler ${x.id}: later needs usd, text and a day after the decision`);
+      }
+    }
+  }
+  return errors;
+}
+
+const IDEA_TYPES = ['location_arb', 'storage', 'basis', 'quality', 'freight'];
+const BOTS = ['mo', 'carla', 'quinn', 'dan'];
+
+/** DESK scenarios: real/modeled series with sources, 8-12 feed cards, priced ideas. */
+export function validateDesk(c) {
+  const errors = [];
+  const D = c.days?.length ?? 0;
+  if (D < 8 || D > 14) errors.push(`desk needs 8-14 trading days, has ${D}`);
+  if (c.open && c.open.length > OPEN_MAX) errors.push(`open is over ${OPEN_MAX} characters`);
+  const series = c.series ?? {};
+  for (const [k, s] of Object.entries(series)) {
+    if (s.values?.length !== D || s.values.some((v) => !Number.isFinite(v))) errors.push(`series ${k}: needs ${D} numbers`);
+    if (!['real', 'modeled'].includes(s.kind)) errors.push(`series ${k}: kind must be real or modeled`);
+    if (!s.source) errors.push(`series ${k}: missing source`);
+    if (s.kind === 'modeled' && !(s.anchors?.length >= 2 && s.anchors.every((a) => a.source))) errors.push(`series ${k}: modeled series need 2+ cited anchors`);
+  }
+  for (const k of [...(c.chart ?? []), ...Object.keys(c.pitchable ?? {})]) if (!series[k]) errors.push(`unknown series "${k}"`);
+  const steps = c.steps ?? [];
+  if (steps.length < 8 || steps.length > 12) errors.push(`desk needs 8-12 cards, has ${steps.length}`);
+  for (const k of ['idea', 'decision', 'news']) if (!steps.some((s) => s.kind === k)) errors.push(`desk needs at least one ${k} card`);
+  steps.forEach((s, i) => {
+    if (!(s.day >= 0 && s.day < D)) errors.push(`card ${i}: day out of range`);
+    if (i && s.day < steps[i - 1].day) errors.push(`card ${i}: cards must be in day order`);
+    if (s.kind === 'news' && (!s.headline || s.headline.length > 60)) errors.push(`card ${i}: headline must be 1-60 characters`);
+    if (s.kind === 'pitch' && !BOTS.includes(s.by)) errors.push(`card ${i}: pitch needs a bot (${BOTS.join(', ')})`);
+    if (s.kind === 'decision') errors.push(...validateScheduler([{ ...s, id: `card${i}` }], D).map((e) => `card ${i}: ${e}`));
+    if (s.kind === 'idea') {
+      if (!IDEA_TYPES.includes(s.type)) errors.push(`card ${i}: idea type must be one of ${IDEA_TYPES.join(', ')}`);
+      if (!(s.bbl > 0) || !(s.horizon >= 1) || s.day + s.horizon > D - 1 + 1) errors.push(`card ${i}: needs bbl and a horizon inside the scenario`);
+      if (!(s.legs?.length >= 2) || s.legs.some((l) => !series[l.series] || !['buy', 'sell'].includes(l.side) || !['entry', 'exit'].includes(l.at))) errors.push(`card ${i}: legs need a known series, buy/sell and entry/exit`);
+      if (!s.costs?.length) errors.push(`card ${i}: an idea must price its costs`);
+      if (!(s.killers?.length >= 2)) errors.push(`card ${i}: needs at least two "what kills this trade" lines`);
+      if (!s.pitch || s.pitch.length > 140) errors.push(`card ${i}: pitch must be 1-140 characters`);
+    }
+  });
   return errors;
 }
 

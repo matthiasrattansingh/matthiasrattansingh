@@ -3,6 +3,7 @@
 // You pay charter every day the ship works for you, demurrage when it waits at a
 // port beyond laytime, and port costs on arrival.
 import { seeded } from '../lib/format.js';
+import { landSched, schedState, schedUsd } from './scheduler.js';
 
 /** Card + economics config -> cargo session. Basis paths are modeled (seeded, deterministic). */
 export function buildCargo(card, econ, { seed = '' } = {}) {
@@ -63,7 +64,7 @@ export function penaltyAt(c, portId, d) {
 
 export function newCargoState() {
   return { day: 0, dest: null, eta: null, at: null, queue: 0, waited: 0, sold: null,
-    cost: { charter: 0, demurrage: 0, port: 0 }, log: [], delays: 0 };
+    cost: { charter: 0, demurrage: 0, port: 0 }, log: [], delays: 0, ...schedState() };
 }
 
 const remaining = (c, st, portId) => (st.at === portId ? 0 : Math.max(1, portById(c, portId).voyage - st.day + st.delays));
@@ -140,7 +141,7 @@ export function step(c, st, action) {
   }
   out = applyDayEvents(c, out);
   out = arrive(c, out);
-  return out;
+  return landSched(out, out.day); // scheduler consequences due today land
 }
 
 function finishSale(c, st, sale) {
@@ -158,8 +159,10 @@ function finishSale(c, st, sale) {
     basis: Math.round((base - c.load.basis) * bbl),
     costs: -Math.round(st.cost.charter + st.cost.demurrage + st.cost.port + freightToBuyer),
     events: Math.round((shift - pen) * bbl),
+    // Scheduler decisions: what has landed, plus what's still pending (the invoice arrives at settlement).
+    sched: Math.round(schedUsd(st, true)),
   };
-  const pnl = split.flat + split.basis + split.costs + split.events;
+  const pnl = split.flat + split.basis + split.costs + split.events + split.sched;
   return {
     ...st,
     sold: { day: d, port: sale.port, afloat: sale.afloat, price: c.flat[d] + base + shift - pen, split, pnl, freightToBuyer },
@@ -269,8 +272,10 @@ export function sellNegotiated(c, st, { port, diff, term, afloat, nego }) {
     basis: Math.round((diff - shift + pen - c.load.basis) * bbl),
     costs: -Math.round(st.cost.charter + st.cost.demurrage + st.cost.port + freightToBuyer),
     events: Math.round((shift - pen) * bbl),
+    // Scheduler decisions: what has landed, plus what's still pending (the invoice arrives at settlement).
+    sched: Math.round(schedUsd(st, true)),
   };
-  const pnl = split.flat + split.basis + split.costs + split.events;
+  const pnl = split.flat + split.basis + split.costs + split.events + split.sched;
   return {
     ...st,
     sold: { day: d, port, afloat, price: idx.price + diff, split, pnl, freightToBuyer, term, index: idx, diff, nego },

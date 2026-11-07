@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { validateCard } from '../src/lib/validate.js';
 
-const files = { 'callit.json': 'cards', 'concepts.json': 'cards', 'spreads.json': 'cards', 'tapecheck.json': 'instruments', 'cargo.json': 'cards', 'tank.json': 'cards' };
+const files = { 'callit.json': 'cards', 'concepts.json': 'cards', 'spreads.json': 'cards', 'tapecheck.json': 'instruments', 'cargo.json': 'cards', 'tank.json': 'cards', 'desk.json': 'cards' };
 const load = (file) => JSON.parse(readFileSync(new URL(`../src/data/${file}`, import.meta.url)))[files[file]];
 let bad = 0;
 const ids = new Set();

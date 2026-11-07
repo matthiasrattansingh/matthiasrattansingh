@@ -274,7 +274,33 @@
     }
    ],
    "financing_pct_year": 0.025,
-   "financing_source": "Fed funds was cut to 0-0.25% in March 2020; inventory finance ~LIBOR/SOFR + 1.5-2.5%."
+   "financing_source": "Fed funds was cut to 0-0.25% in March 2020; inventory finance ~LIBOR/SOFR + 1.5-2.5%.",
+   "scheduler": [
+    {
+     "id": "pumpover",
+     "day": 1,
+     "title": "Scheduler: Cushing pumpover nomination",
+     "prompt": "Lock pumpover (in/out of tank) at $0.05/bbl for the next two months, or pay spot when you move barrels?",
+     "options": [
+      {
+       "label": "Lock at $0.05/bbl",
+       "now": {
+        "usd": -25000,
+        "text": "Pumpover locked"
+       }
+      },
+      {
+       "label": "Pay spot later",
+       "later": {
+        "day": 5,
+        "usd": -125000,
+        "text": "Spot pumpover as Cushing filled",
+        "calc": "500k × $0.25 spot pumpover (assumed as tanks filled)"
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "tk-thin-carry-2015",
@@ -505,7 +531,35 @@
     }
    ],
    "financing_pct_year": 0.02,
-   "financing_source": "Fed funds was 0-0.25% until the 16 Dec 2015 hike to 0.25-0.50%; inventory finance ~LIBOR + 1.5-2%."
+   "financing_source": "Fed funds was 0-0.25% until the 16 Dec 2015 hike to 0.25-0.50%; inventory finance ~LIBOR + 1.5-2%.",
+   "scheduler": [
+    {
+     "id": "lease",
+     "day": 1,
+     "title": "Scheduler: renew the tank lease",
+     "prompt": "Renew six months at $0.40/bbl/month, or go month-to-month at $0.45?",
+     "options": [
+      {
+       "label": "Six months at $0.40",
+       "later": {
+        "day": 9,
+        "usd": -800000,
+        "text": "Paid the term lease after the carry dried up",
+        "calc": "500k × $0.40 × 4 months left on the term after you're done (assumed)"
+       }
+      },
+      {
+       "label": "Month-to-month at $0.45",
+       "later": {
+        "day": 9,
+        "usd": -50000,
+        "text": "Paid the month-to-month premium",
+        "calc": "500k × $0.05 × 2 months"
+       }
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "tk-backwardation-2021",
@@ -736,7 +790,38 @@
     }
    ],
    "financing_pct_year": 0.02,
-   "financing_source": "Fed funds 0-0.25% through 2021; inventory finance ~SOFR + 1.5-2%."
+   "financing_source": "Fed funds 0-0.25% through 2021; inventory finance ~SOFR + 1.5-2%.",
+   "scheduler": [
+    {
+     "id": "heels",
+     "day": 2,
+     "title": "Scheduler: sell your tank heels?",
+     "prompt": "A refiner wants your 50k bbl tank bottoms at +$0.50 over spot. The tank then needs re-commissioning.",
+     "options": [
+      {
+       "label": "Sell the heels",
+       "now": {
+        "usd": 25000,
+        "text": "Heels sold at +$0.50"
+       },
+       "later": {
+        "day": 6,
+        "usd": -40000,
+        "text": "Tank re-commissioning",
+        "calc": "Cleaning + inspection, $40k (assumed)"
+       }
+      },
+      {
+       "label": "Keep them",
+       "later": {
+        "day": 6,
+        "usd": 0,
+        "text": "Tank stayed in service"
+       }
+      }
+     ]
+    }
+   ]
   }
  ]
 }

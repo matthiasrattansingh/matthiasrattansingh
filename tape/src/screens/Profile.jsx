@@ -46,6 +46,16 @@ function PhysicalTrack({ progress, apply }) {
         <div className="rounded-lg bg-black/40 p-2"><div className="text-[9px] uppercase text-dim">Cargo · tank</div><div className="text-sm font-bold">{ph.cargoes} · {ph.tanks}</div></div>
         <div className="rounded-lg bg-black/40 p-2"><div className="text-[9px] uppercase text-dim">Hedge grade</div><div className="text-sm font-bold text-sky-200">{hedge ? `${hedge.letter} (${hedge.avg.toFixed(1)})` : '—'}</div></div>
       </div>
+      <div className="num mt-2 grid grid-cols-2 gap-2 text-center">
+        <div className="rounded-lg bg-black/40 p-2">
+          <div className="text-[9px] uppercase text-dim">Idea cards · {ph.ideas?.run ?? 0} run · {ph.ideas?.passed ?? 0} passed</div>
+          <div className={`text-sm font-bold ${(ph.ideas?.pnl ?? 0) >= 0 ? 'text-up' : 'text-down'}`}>{fmtMoney(ph.ideas?.pnl ?? 0, { compact: true })}<span className="text-[10.5px] font-normal text-dim"> · right {ph.ideas?.right ?? 0}/{ph.ideas?.calls ?? 0}</span></div>
+        </div>
+        <div className="rounded-lg bg-black/40 p-2">
+          <div className="text-[9px] uppercase text-dim">Desk scenarios</div>
+          <div className="text-sm font-bold">{ph.desks ?? 0}<span className="text-[10.5px] font-normal text-dim"> · calls right {ph.deskRight ?? 0}/{ph.deskCalls ?? 0}</span></div>
+        </div>
+      </div>
       <div className="num mt-2 flex items-center justify-between rounded-lg bg-black/40 px-3 py-2">
         <span className="text-[10px] uppercase tracking-wider text-dim">Negotiation edge</span>
         <span className="text-sm font-bold">
@@ -218,6 +228,8 @@ function ProfileBody({ progress, session, onReset, apply }) {
             <button onClick={() => setConfirm(true)} className="num text-[11px] uppercase tracking-wider text-dim">Reset progress</button>
           )}
         </div>
+        {/* Which deploy is this? Matches the commit and time in GitHub Actions. */}
+        <p className="num mt-3 text-center text-[10px] text-white/30">build {__BUILD__}</p>
     </>
   );
 }

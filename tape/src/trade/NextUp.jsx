@@ -4,6 +4,7 @@ import { buildSession } from './engine.js';
 import { decimalsFor, fmtDate } from '../lib/format.js';
 import { PhysChart } from '../physical/PhysChart.js';
 import { cardDate, cardTitle, isPhysical } from '../lib/cards.js';
+import { DESK_CARDS } from '../data/index.js';
 
 export const AUTOPLAY_MS = 5000;
 
@@ -13,7 +14,9 @@ function Preview({ card }) {
   useEffect(() => {
     if (isPhysical(card)) {
       // Physical sessions: the first few days (cargo) or weeks (tank) of the benchmark draw on a loop.
-      const vals = card.type === 'cargo' ? card.days.map((d) => d.flat) : card.weekly.map((w) => w.curve[0]);
+      const vals = card.type === 'cargo' ? card.days.map((d) => d.flat)
+        : card.type === 'tank' ? card.weekly.map((w) => w.curve[0])
+          : (DESK_CARDS.find((s) => s.id === (card.scenarioId ?? card.id)) ?? card).series[(DESK_CARDS.find((s) => s.id === (card.scenarioId ?? card.id)) ?? card).chart[0]].values;
       const pc = new PhysChart(ref.current, { steps: vals.length, labelOf: () => '' });
       let n = 0;
       const id = setInterval(() => { n = (n + 1) % 5; pc.set([{ name: '', color: '#ffb000', values: vals }], n); }, 700);
