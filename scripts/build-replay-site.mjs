@@ -31,7 +31,7 @@ const buildId = `${sha}-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g
 const indexPath = join(out, 'index.html');
 writeFileSync(indexPath, readFileSync(indexPath, 'utf8').replace('__BUILD_ID__', buildId));
 writeFileSync(join(out, '.nojekyll'), '');
-writeFileSync(join(out, 'version.json'), JSON.stringify({ build: buildId, products: Object.keys(manifest.products), failed: manifest.failed }, null, 2));
+writeFileSync(join(out, 'version.json'), JSON.stringify({ sha: process.env.GITHUB_SHA || sha, build: buildId, products: Object.keys(manifest.products), failed: manifest.failed }, null, 2));
 
 console.log(`REPLAY DESK built into _site/ (build ${buildId}); data files: ${readdirSync(join(out, 'data')).join(', ')}`);
 if (Object.keys(manifest.failed || {}).length) console.warn(`Products missing (download failed): ${Object.keys(manifest.failed).join(', ')}`);

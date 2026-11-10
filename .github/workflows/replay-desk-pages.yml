@@ -1,6 +1,7 @@
-# This repo's GitHub Pages site currently serves TAPE (deployed by tape-pages.yml on another
-# branch). A repo has ONE Pages site, so deploying here would replace it. Until that is decided
-# the deploy runs only on demand (Actions -> REPLAY DESK -> Run workflow); pushes just test + build.
+# Publishes REPLAY DESK at https://matthiasrattansingh.github.io/matthiasrattansingh/
+# NOTE: a repo has ONE Pages site. This replaces TAPE (tape-pages.yml on
+# claude/ecstatic-maxwell-milzer); a later TAPE deploy would replace REPLAY DESK again.
+# The verify job proves the live URL serves THIS commit's page and data, not just that an upload happened.
 name: REPLAY DESK → GitHub Pages
 
 on:
@@ -39,11 +40,36 @@ jobs:
 
   deploy:
     needs: build
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Live site serves this commit's REPLAY DESK page and data
+        env:
+          URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -u
+          for i in $(seq 1 30); do
+            got=$(curl -fsS "${URL}version.json?t=$(date +%s)" | sed -n 's/.*"sha": *"\([0-9a-f]*\)".*/\1/p' || true)
+            echo "attempt $i: live sha=${got:-none} want=$GITHUB_SHA"
+            [ "$got" = "$GITHUB_SHA" ] && break
+            sleep 10
+          done
+          [ "$got" = "$GITHUB_SHA" ] || { echo "::error::live site is not serving $GITHUB_SHA"; exit 1; }
+          html=$(curl -fsS "${URL}?t=$(date +%s)")
+          echo "$html" | grep -q '<title>REPLAY DESK</title>' || { echo "::error::index.html is not REPLAY DESK"; exit 1; }
+          for f in js/app.js js/session.js css/app.css data/manifest.json data/headlines.json data/CL.json data/BZ.json data/NG.json data/RB.json data/HO.json; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${URL}${f}")
+            echo "$code $f"; [ "$code" = 200 ] || { echo "::error::$f returned $code"; exit 1; }
+          done
+          echo "Live: $URL serves REPLAY DESK at $GITHUB_SHA with all data files."

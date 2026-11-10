@@ -5,7 +5,8 @@ execution. Static site (HTML/CSS/JS, no backend) in `site/`, real data baked int
 **Paper money only. Nothing is ever sent anywhere.**
 
 Live: https://matthiasrattansingh.github.io/matthiasrattansingh/ (deployed by
-`.github/workflows/replay-desk-pages.yml` on every push that touches `site/` or `data/`).
+`.github/workflows/replay-desk-pages.yml` on every push that touches `site/` or `data/`; it replaced
+TAPE as this repo's Pages site, and a later TAPE deploy would replace it again).
 
 ```bash
 npm run test:replay      # unit tests (fills, slippage/fees, contract + spread P&L, no-lookahead)
