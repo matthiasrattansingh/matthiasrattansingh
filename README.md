@@ -1,3 +1,64 @@
+# REPLAY DESK (intraday market replay simulator)
+
+Re-trade the last two weeks of real energy futures, one 5-minute candle at a time, with realistic
+execution. Static site (HTML/CSS/JS, no backend) in `site/`, real data baked into `data/`.
+**Paper money only. Nothing is ever sent anywhere.**
+
+Live: https://matthiasrattansingh.github.io/matthiasrattansingh/ (deployed by
+`.github/workflows/replay-desk-pages.yml` on every push that touches `site/` or `data/`).
+
+```bash
+npm run test:replay      # unit tests (fills, slippage/fees, contract + spread P&L, no-lookahead)
+npm run build:replay     # builds _site/ (validates data + headlines.json)
+npm run serve:replay     # build, then serve on http://localhost:8000 (fully offline)
+npm run data:replay      # re-download bars with yfinance (pip install yfinance)
+```
+
+**Data.** `scripts/fetch_replay_data.py` pulls 60 days of 5-minute bars from Yahoo Finance for
+CL=F, BZ=F, NG=F, RB=F, HO=F and keeps the last 10 completed sessions (07:00 to 14:30 CT) in
+`data/<SYM>.json`. A product that fails to download is reported in `data/manifest.json` (`failed`)
+and skipped. Nothing is synthesised. Yahoo's `=F` tickers are continuous front-month series, so a
+roll can show a jump and levels can differ from a specific contract month quoted in the news.
+
+**Headlines.** `data/headlines.json` is hand-editable (see its `_README`). EIA petroleum and
+natural-gas release times and the inventory figures were checked against eia.gov. API figures are
+not included (time only). Hormuz items are summarised from press coverage with approximate times.
+EIA/API items with `"pause": true` auto-pause the replay when their time hits. API prints at
+3:30 pm CT (after the pit close), so they appear at the next session's open as "since prior close".
+
+**Execution model** (`site/js/config.js` holds every number):
+
+| | CL | BZ | NG | RB | HO |
+|---|---|---|---|---|---|
+| Tick | 0.01 | 0.01 | 0.001 | 0.0001 | 0.0001 |
+| Spread (ticks) | 2 | 2 | 3 | 2 | 2 |
+| Contract | 1,000 bbl | 1,000 bbl | 10,000 MMBtu | 42,000 gal | 42,000 gal |
+| $/tick | $10 | $10 | $10 | $4.20 | $4.20 |
+
+- Bid = last − ⌊spread/2⌋ ticks, ask = bid + spread. Market orders lift the ask / hit the bid,
+  then 1 tick of slippage against you. Fees are $4.50 per contract per side (per leg for spreads).
+- Limit orders fill only when a later bar trades **through** the price (touch isn't a fill), at the
+  limit or the open if the bar gapped through. Stops trigger on touch and fill at the stop (or open)
+  plus 1 tick of slippage. If one bar spans both the stop and the target of a bracket, the stop is
+  assumed to fill first.
+- Brackets: stop loss and take profit (in ticks from the entry) are OCO and reduce-only.
+- Margin is an estimate (% of notional per product, spread credit for BZ−CL); orders that would
+  push margin above equity are blocked.
+- Spread mode (BZ−CL): long = long Brent / short WTI in matched contracts, priced from both legs.
+  The spread's intrabar high/low isn't knowable from two OHLC series, so working spread orders are
+  tested against the open/close of the synthetic spread bar.
+- At 14:30 CT any open position is flattened at market and the report card opens.
+
+**No lookahead.** `Session` keeps the day's bars in a private field and only hands out bars up to
+the replay cursor. Indicators (VWAP, EMA 9/21), the chart's y-range, quotes and the order book see
+only revealed bars, and orders are only tested against bars revealed after they were placed. The
+test suite proves it by poisoning every future bar and checking that the state stays identical.
+
+Keys: Space play/pause · B buy market · S sell market · F flatten · → / ↓ step one bar
+(Shift+→ six bars). There is no rewind.
+
+---
+
 # Crack Spread Paper Trader
 
 A live-market **paper-trading game** for Brent and refined products. Each weekday you read a

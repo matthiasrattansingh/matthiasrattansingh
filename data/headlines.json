@@ -1,0 +1,112 @@
+{
+  "_README": [
+    "HAND-EDITABLE FILE. REPLAY DESK prints these on the event tape when replay time passes `date` + `time`.",
+    "Edit, correct or add entries freely; the app re-reads this file on every page load. Keep it valid JSON.",
+    "date: YYYY-MM-DD and time: HH:MM are Chicago wall-clock time (America/Chicago, CT).",
+    "type: EIA | EIA-NG | API | HORMUZ | MACRO | OTHER.  pause: true makes the replay auto-pause when the time hits (EIA and API by default).",
+    "products: which products the item is shown for (omit or [] = all).",
+    "time_precision: 'exact' = scheduled release time; 'approx' = the story broke around then (wire time not verified). Items timestamped before 07:00 CT print at the session open; items after 14:30 CT print at the NEXT session's open as 'since prior close'.",
+    "EIA scheduled times and inventory figures were checked against eia.gov (WPSR schedule page and the weekly stock series, release dates 10/28/2026 and 11/4/2026; natural gas storage released 10/29 and 11/5). API figures are not recorded here: the API report is a paid/press release and the numbers could not be verified, so only the scheduled time is listed; add the figures yourself if you have them.",
+    "Hormuz/geopolitical items are summarized from news coverage found at build time (sources listed per item). Wire timestamps were not available, so they are marked approx. Correct the times if you know them.",
+    "The trading engine never reads prices from this file. Prices come only from the bar files in /data."
+  ],
+  "timezone": "America/Chicago",
+  "headlines": [
+    {
+      "date": "2026-10-27", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "Oil falls for a second session after Iran's supreme leader and top security official discuss conditions to end the war; renewed diplomacy weighs on crude",
+      "source": "CNBC", "url": "https://www.cnbc.com/2026/10/27/oil-today-iran-us-crude-wti-brent-trump.html"
+    },
+    {
+      "date": "2026-10-27", "time": "15:30", "type": "API", "time_precision": "exact", "pause": true,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "API weekly statistical bulletin (crude/gasoline/distillate stocks, week ending Oct 23) scheduled release, 4:30 pm ET. Figures not recorded; add them here.",
+      "source": "API release schedule (Tuesdays 4:30 pm ET)", "url": ""
+    },
+    {
+      "date": "2026-10-28", "time": "09:30", "type": "EIA", "time_precision": "exact", "pause": true,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "EIA Weekly Petroleum Status Report (week ending Oct 23): commercial crude -1.892M bbl to 410.6M; gasoline +3.870M to 209.2M; distillate -1.462M to 102.8M",
+      "source": "EIA WPSR, 10:30 am ET (series WCESTUS1, WGTSTUS1, WDISTUS1)", "url": "https://www.eia.gov/petroleum/supply/weekly/"
+    },
+    {
+      "date": "2026-10-29", "time": "07:30", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "Another attack on a commercial tanker in the Strait of Hormuz renews Middle East supply fears",
+      "source": "EnergyNow / Reuters", "url": "https://energynow.com/2026/10/oil-prices-jump-more-than-2-as-strait-of-hormuz-tanker-attack-renews-middle-east-supply-fears/"
+    },
+    {
+      "date": "2026-10-29", "time": "09:30", "type": "EIA-NG", "time_precision": "exact", "pause": true,
+      "products": ["NG"],
+      "headline": "EIA Weekly Natural Gas Storage Report (week ending Oct 23): Lower 48 working gas +80 Bcf to 3,724 Bcf",
+      "source": "EIA WNGSR, 10:30 am ET", "url": "https://ir.eia.gov/ngs/ngs.html"
+    },
+    {
+      "date": "2026-10-30", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "Tankers defy Iran attacks to keep crude flowing through Hormuz; Gulf export flows recover, but war-risk and freight costs stay elevated",
+      "source": "CNBC / Al Jazeera", "url": "https://www.cnbc.com/2026/10/30/tanker-attack-strait-hormuz-iran-war-oil.html"
+    },
+    {
+      "date": "2026-10-30", "time": "08:00", "type": "OTHER", "time_precision": "approx", "pause": false,
+      "products": ["BZ"],
+      "headline": "December Brent futures expire today; front-month Brent at its highest settlement since April",
+      "source": "Al Jazeera / EnergyNow", "url": "https://www.aljazeera.com/economy/2026/10/30/oil-flows-are-up-as-iran-war-turmoil-eases-why-do-prices-keep-rising"
+    },
+    {
+      "date": "2026-11-02", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "Oil slides on Hormuz deal hopes as Qatar-mediated talks raise hopes of a breakthrough; Trump keeps Iran strikes on the table, attacks on Gulf shipping continue",
+      "source": "Euronews", "url": "https://www.euronews.com/2026/11/02/oil-slides-on-hormuz-deal-hopes-but-trump-keeps-iran-strikes-on-the-table"
+    },
+    {
+      "date": "2026-11-03", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "Mideast oil markets flash signs of abundance as crude keeps flowing through Hormuz; Gulf grade premiums weaken",
+      "source": "Bloomberg", "url": "https://www.bloomberg.com/news/articles/2026-11-03/middle-east-oil-markets-flash-signs-of-abundance-as-flows-rise"
+    },
+    {
+      "date": "2026-11-03", "time": "07:00", "type": "MACRO", "time_precision": "approx", "pause": false,
+      "products": [],
+      "headline": "US midterm election day",
+      "source": "", "url": ""
+    },
+    {
+      "date": "2026-11-03", "time": "15:30", "type": "API", "time_precision": "exact", "pause": true,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "API weekly statistical bulletin (week ending Oct 30) scheduled release, 4:30 pm ET. Figures not recorded; add them here.",
+      "source": "API release schedule (Tuesdays 4:30 pm ET)", "url": ""
+    },
+    {
+      "date": "2026-11-04", "time": "09:30", "type": "EIA", "time_precision": "exact", "pause": true,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "EIA Weekly Petroleum Status Report (week ending Oct 30): commercial crude -0.865M bbl to 409.8M (5th straight draw); gasoline -0.222M to 209.0M; distillate -3.565M to 99.3M, first sub-100M print since 2003",
+      "source": "EIA WPSR, 10:30 am ET (series WCESTUS1, WGTSTUS1, WDISTUS1)", "url": "https://www.eia.gov/petroleum/supply/weekly/"
+    },
+    {
+      "date": "2026-11-05", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "More ships attacked in the Persian Gulf; oil rebounds slightly after its post-midterm plunge, with Brent below $100 for the first time since September",
+      "source": "CBS News live updates", "url": "https://www.cbsnews.com/live-updates/iran-war-us-trump-midterms-strait-of-hormuz/"
+    },
+    {
+      "date": "2026-11-05", "time": "09:30", "type": "EIA-NG", "time_precision": "exact", "pause": true,
+      "products": ["NG"],
+      "headline": "EIA Weekly Natural Gas Storage Report (week ending Oct 30): Lower 48 working gas +77 Bcf to 3,801 Bcf",
+      "source": "EIA WNGSR, 10:30 am ET", "url": "https://ir.eia.gov/ngs/ngs.html"
+    },
+    {
+      "date": "2026-11-08", "time": "12:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "UKMTO: projectile strikes an outbound tanker in Hormuz, found burning; Iran's IRGC says several tankers on fire. Trump says new strikes on Iran are unlikely while talks progress",
+      "source": "Reuters via Business Recorder / Invezz", "url": "https://www.brecorder.com/news/40448086/oil-slides-as-trump-signals-restraint-on-iran-despite-fresh-shipping-attacks"
+    },
+    {
+      "date": "2026-11-09", "time": "09:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
+      "products": ["CL", "BZ", "RB", "HO"],
+      "headline": "Report: Qatar's prime minister heads to the White House with an Iranian interim proposal to reopen the Strait of Hormuz; a Qatari official later disputes the report",
+      "source": "Invezz / Capital Brief", "url": "https://invezz.com/news/2026/11/09/oil-price-today-brent-sinks-qatar-iran-hormuz-plan-trump/"
+    }
+  ]
+}

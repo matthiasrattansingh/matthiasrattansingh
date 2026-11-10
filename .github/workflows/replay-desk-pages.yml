@@ -1,0 +1,45 @@
+name: REPLAY DESK → GitHub Pages
+
+on:
+  push:
+    branches: [claude/replay-desk-simulator-da5dc5, claude/brent-refined-trading-game-5o18st, main]
+    paths: [site/**, data/**, scripts/build-replay-site.mjs, test/replay/**, .github/workflows/replay-desk-pages.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Unit tests (fills, slippage/fees, contract + spread P&L, no-lookahead)
+        run: node --test --test-reporter=spec "test/replay/*.test.js"
+      - name: Build static site
+        run: node scripts/build-replay-site.mjs
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

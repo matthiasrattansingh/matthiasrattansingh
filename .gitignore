@@ -1,6 +1,9 @@
 node_modules/
 web/dist/
-data/
+data/*.sqlite
+data/*.sqlite-*
+data/*.lock
+_site/
 *.sqlite
 *.sqlite-*
 .env
