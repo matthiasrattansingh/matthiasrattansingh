@@ -5,7 +5,7 @@
 // indicators and the order book see comes from revealed*() / quote(), which are
 // bounded by the cursor. Working orders are only tested against bars revealed after
 // they were placed.
-import { PRODUCTS, SPREADS, ACCOUNT, SESSION, PAUSE_TYPES } from './config.js';
+import { PRODUCTS, SPREADS, ACCOUNT, SESSION, PAUSE_TYPES, BAIT_WINDOW_MINUTES } from './config.js';
 import { getInstrument, instrumentQuote, productQuote, slippage, roundTo } from './instruments.js';
 import { marketFillPrice, barFillPrice } from './orders.js';
 import { Account } from './account.js';
@@ -14,6 +14,11 @@ export function addMinutes(hhmm, minutes) {
   const [h, m] = hhmm.split(':').map(Number);
   const t = h * 60 + m + minutes;
   return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+}
+
+export function minutesOf(hhmm) {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
 }
 
 function prevCalendarDay(day) {
@@ -49,6 +54,7 @@ export class Session {
     this.slip = slippage(this.inst, products, account.slippageTicks ?? ACCOUNT.slippageTicks);
     this.orders = [];
     this.tape = [];
+    this.baitEvents = [];       // opening fills taken right after a red herring (revealed post-session only)
     this.equityCurve = [];
     this.nextOrderId = 1;
     this.cursor = 0;            // index of the last revealed (completed) bar
@@ -200,12 +206,38 @@ export class Session {
     order.status = 'FILLED';
     order.fillPrice = price;
     order.fillClock = this.clock();
-    const closed = this.account.fill({ side: order.side, qty: order.qty, price, time: this.clock(), reason });
+    const bait = order.parentId == null ? this.#baitFor(order) : null;
+    const closed = this.account.fill({ side: order.side, qty: order.qty, price, time: this.clock(), reason,
+      lotMeta: bait ? { baitedBy: bait.item } : null });
+    if (bait && this.account.lastOpenedQty > 0) {
+      this.baitEvents.push({ clock: this.clock(), side: order.side, qty: this.account.lastOpenedQty, price,
+        herringClock: bait.clock, headline: bait.item.headline });
+    }
     this.#log('fill', `FILL ${order.side} ${order.qty} ${this.inst.id} @ ${this.fmtPx(price)} (${reason})`, { order, closed });
     if (order.bracket) this.#attachBracket(order);
     if (this.account.position === 0) {
       for (const o of this.workingOrders()) if (o.parentId != null) o.status = 'CANCELLED';
     }
+  }
+
+  /**
+   * Red herring that this order chased, if any: a noise headline that printed at most
+   * BAIT_WINDOW_MINUTES before this fill, implying this order's direction (BUY = up),
+   * where the order was placed at or after the print (a resting order placed earlier
+   * was not a reaction to it). Returns the most recent match.
+   */
+  #baitFor(order) {
+    const dir = order.side === 'BUY' ? 'up' : 'down';
+    const now = minutesOf(this.clock());
+    let hit = null;
+    for (const t of this.tape) {
+      if (t.kind !== 'headline' || t.item.class !== 'noise' || t.item.implies !== dir) continue;
+      const printed = minutesOf(t.clock);
+      if (now - printed < 0 || now - printed > BAIT_WINDOW_MINUTES) continue;
+      if (minutesOf(order.placedClock) < printed) continue;
+      hit = t;
+    }
+    return hit;
   }
 
   #attachBracket(parent) {

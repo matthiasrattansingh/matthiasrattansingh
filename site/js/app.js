@@ -1,10 +1,11 @@
 // REPLAY DESK UI wiring. All market data shown comes from Session's revealed accessors.
-import { PRODUCTS, SPREADS, SPEEDS, ACCOUNT, SESSION } from './config.js';
+import { PRODUCTS, SPREADS, SPEEDS, ACCOUNT, SESSION, BAIT_WINDOW_MINUTES } from './config.js';
 import { Session } from './session.js';
 import { vwap, ema } from './indicators.js';
 import { marginFor, feesFor } from './instruments.js';
 import { drawChart, sessionSlots } from './chart.js';
 import { reportCard, tradesToCsv, loadScores, saveScore, clearScores, aggregate } from './report.js';
+import { headlineHtml, esc } from './tape.js';
 
 const $ = (id) => document.getElementById(id);
 const state = { manifest: null, headlines: [], data: {}, session: null, playing: false, speed: 0, timer: null, hover: null, reported: false, lastCard: null };
@@ -14,7 +15,6 @@ const money = (n, sign = false) => {
   return `${n < 0 ? '−' : sign && n > 0 ? '+' : ''}$${s}`;
 };
 const cls = (n) => (n > 0 ? 'up' : n < 0 ? 'down' : '');
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 async function loadJson(path) {
   const r = await fetch(path, { cache: 'no-cache' });
@@ -237,14 +237,9 @@ function renderOrders() {
 function renderTape() {
   const s = state.session;
   const items = s.tape.slice().reverse().map((t) => {
+    if (t.kind === 'headline') return headlineHtml(t); // class-blind renderer, see tape.js
     let tag, body;
-    if (t.kind === 'headline') {
-      const h = t.item;
-      tag = `<span class="tag tag-${esc(h.type)}">${esc(h.type)}</span>`;
-      const when = t.prior ? `<span class="muted">${esc(h.date.slice(5))} ${esc(h.time)} · since prior close · </span>` : '';
-      const approx = h.time_precision === 'approx' ? ' <span class="muted">(time approx.)</span>' : '';
-      body = `${when}${esc(h.headline)}${approx}${h.source ? ` <span class="muted">· ${h.url ? `<a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.source)}</a>` : esc(h.source)}</span>` : ''}`;
-    } else if (t.kind === 'fill') {
+    if (t.kind === 'fill') {
       tag = '<span class="tag tag-FILL">FILL</span>';
       const pnl = t.closed.reduce((x, c) => x + c.net, 0);
       body = esc(t.text.replace(/^FILL /, '')) + (t.closed.length ? ` <span class="${cls(pnl)}">${money(pnl, true)} net</span>` : '');
@@ -258,11 +253,12 @@ function renderTape() {
 }
 
 function tradeRows(trades, s) {
-  return trades.map((t) => `<tr><td>${t.entryTime}</td><td>${t.exitTime}</td><td>${t.product}</td><td>${t.side}</td><td class="r">${t.size}</td><td class="r">${s.fmtPx(t.entry)}</td><td class="r">${s.fmtPx(t.exit)}</td><td class="r ${cls(t.gross)}">${money(t.gross, true)}</td><td class="r">${money(t.fees)}</td><td class="r ${cls(t.net)}">${money(t.net, true)}</td></tr>`).join('');
+  const tagCell = (t) => `<td>${s.finished && t.baited ? `<span class="tag tag-BAITED" title="${esc(t.baitHeadline)}">BAITED</span>` : ''}</td>`;
+  return trades.map((t) => `<tr><td>${t.entryTime}</td><td>${t.exitTime}</td><td>${t.product}</td><td>${t.side}</td><td class="r">${t.size}</td><td class="r">${s.fmtPx(t.entry)}</td><td class="r">${s.fmtPx(t.exit)}</td><td class="r ${cls(t.gross)}">${money(t.gross, true)}</td><td class="r">${money(t.fees)}</td><td class="r ${cls(t.net)}">${money(t.net, true)}</td>${tagCell(t)}</tr>`).join('');
 }
 function renderTrades() {
   const s = state.session;
-  $('tradeTbl').querySelector('tbody').innerHTML = tradeRows(s.account.trades, s) || '<tr><td colspan="10" class="muted">No closed trades yet.</td></tr>';
+  $('tradeTbl').querySelector('tbody').innerHTML = tradeRows(s.account.trades, s) || '<tr><td colspan="11" class="muted">No closed trades yet.</td></tr>';
 }
 
 function renderMargin() {
@@ -283,10 +279,16 @@ function renderMargin() {
 
 function renderScores() {
   const list = loadScores();
-  const row = (r) => `<tr><td>${esc(r.key)}</td><td class="r">${r.sessions}</td><td class="r">${r.trades}</td><td class="r">${r.beatPassive}/${r.sessions}</td><td class="r ${cls(r.net)}">${money(r.net, true)}</td></tr>`;
-  const empty = '<tr><td colspan="5" class="muted">Finish a session to start scoring.</td></tr>';
-  $('scoreDay').querySelector('tbody').innerHTML = aggregate(list, 'day').map(row).join('') || empty;
-  $('scoreProd').querySelector('tbody').innerHTML = aggregate(list, 'product').map(row).join('') || empty;
+  const row = (r) => `<tr><td>${esc(r.key)}</td><td class="r">${r.sessions}</td><td class="r">${r.trades}</td><td class="r">${r.beatPassive}/${r.sessions}</td><td class="r">${r.herrings}</td><td class="r">${r.baited}</td><td class="r ${cls(r.net)}">${money(r.net, true)}</td></tr>`;
+  const empty = (n) => `<tr><td colspan="${n}" class="muted">Finish a session to start scoring.</td></tr>`;
+  $('scoreDay').querySelector('tbody').innerHTML = aggregate(list, 'day').map(row).join('') || empty(7);
+  $('scoreProd').querySelector('tbody').innerHTML = aggregate(list, 'product').map(row).join('') || empty(7);
+  // per session (newest first) + cumulative totals
+  const tot = list.reduce((t, x) => ({ net: t.net + x.net, trades: t.trades + x.trades, herrings: t.herrings + (x.herrings || 0), baited: t.baited + (x.baited || 0) }), { net: 0, trades: 0, herrings: 0, baited: 0 });
+  const sess = list.slice().reverse().map((x) => `<tr><td>${esc((x.playedAt || '').slice(0, 16).replace('T', ' '))}</td><td>${esc(x.day)}</td><td>${esc(x.product)}</td><td class="r">${x.trades}</td><td class="r">${x.herrings ?? '—'}</td><td class="r">${x.baited ?? '—'}</td><td class="r ${cls(x.net)}">${money(x.net, true)}</td></tr>`).join('');
+  $('scoreSess').querySelector('tbody').innerHTML = sess
+    ? `<tr class="total"><td colspan="3">Cumulative (${list.length} sessions)</td><td class="r">${tot.trades}</td><td class="r">${tot.herrings}</td><td class="r">${tot.baited}</td><td class="r ${cls(tot.net)}">${money(tot.net, true)}</td></tr>${sess}`
+    : empty(7);
 }
 
 // ---------------------------------------------------------------- report
@@ -309,6 +311,9 @@ function showReport() {
     stat('Fees paid', money(c.fees)),
     stat('Best trade', c.best ? money(c.best.net, true) : '—', tr(c.best), c.best ? cls(c.best.net) : ''),
     stat('Worst trade', c.worst ? money(c.worst.net, true) : '—', tr(c.worst), c.worst ? cls(c.worst.net) : ''),
+    stat('Herrings seen', c.herringsSeen, 'red herrings that printed'),
+    stat('Times baited', c.timesBaited, `entries within ${BAIT_WINDOW_MINUTES} min, in the implied direction`, c.timesBaited ? 'down' : ''),
+    stat('Baited trades P&amp;L', c.baitedTrades ? money(c.baitedNet, true) : '—', `${c.baitedTrades} baited · other trades ${money(c.cleanNet, true)}`, c.baitedTrades ? cls(c.baitedNet) : ''),
   ].join('');
   const p = c.passiveLong;
   $('benchTbl').querySelector('tbody').innerHTML = [
@@ -317,12 +322,33 @@ function showReport() {
     [`Passive long ${p.qty} (held all session)`, p.net, `buy ${s.fmtPx(p.entry)} at open ask + slippage, sell ${s.fmtPx(p.exit)} at close; fees ${money(p.fees)}`],
   ].map(([k, v, note]) => `<tr><td>${k}</td><td class="r ${cls(v)}">${money(v, true)}</td><td class="muted">${esc(note)}</td></tr>`).join('')
     + `<tr><td>Edge vs passive long</td><td class="r ${cls(c.totalNet - p.net)}">${money(c.totalNet - p.net, true)}</td><td></td></tr>`;
+  renderAutopsy(c);
+  renderTrades();
   $('reportDlg').showModal();
+}
+
+function renderAutopsy(c) {
+  const s = state.session;
+  const rows = c.autopsy.map((a) => {
+    const label = `<span class="tag ${a.herring ? 'tag-HERRING' : 'tag-REAL'}">${a.label}</span>`;
+    const when = a.prior ? `${esc(a.date.slice(5))} ${esc(a.time)}` : esc(a.time);
+    const src = a.source ? ` <span class="muted">· ${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.source)}</a>` : esc(a.source)}</span>` : '';
+    const note = a.note ? `<div class="muted">${esc(a.note)}</div>` : '';
+    const implied = a.herring && a.implies ? `<div class="muted">Tempts you to ${a.implies === 'up' ? 'BUY' : 'SELL'}.</div>` : '';
+    const baits = a.baits.map((b) => `<div class="down">BAITED: you ${b.side === 'BUY' ? 'bought' : 'sold'} ${b.qty} @ ${s.fmtPx(b.price)} at ${b.clock}</div>`).join('');
+    return `<tr><td>${when}</td><td>${label}</td><td><span class="tag tag-${esc(a.type)}">${esc(a.type)}</span>${esc(a.headline)}${src}${note}${implied}${baits}</td></tr>`;
+  });
+  $('autopsyTbl').querySelector('tbody').innerHTML = rows.join('') || '<tr><td colspan="3" class="muted">No headlines printed in this session.</td></tr>';
+  const real = c.autopsy.length - c.herringsSeen;
+  $('autopsySum').textContent = `${c.autopsy.length} headlines printed: ${real} real, ${c.herringsSeen} red herrings. Times baited: ${c.timesBaited}.`
+    + (c.baitedTrades ? ` Baited trades: ${c.baitedTrades}, ${money(c.baitedNet, true)} net (all other trades ${money(c.cleanNet, true)}).` : '');
 }
 
 function downloadCsv() {
   const s = state.session;
-  const csv = tradesToCsv(s.account.trades, s.day, s.inst.decimals);
+  const c = s.finished ? state.lastCard || reportCard(s) : null;
+  const csv = tradesToCsv(s.account.trades, s.day, s.inst.decimals,
+    c ? { finished: true, herringsSeen: c.herringsSeen, timesBaited: c.timesBaited, product: s.inst.id } : null);
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
   a.download = `replaydesk_${s.day}_${s.inst.id}.csv`;

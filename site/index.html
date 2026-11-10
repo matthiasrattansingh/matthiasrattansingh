@@ -53,7 +53,7 @@
       <div class="card">
         <div class="card-head"><h2>Trade log</h2><button id="csvBtn" class="btn btn-sm">Download CSV</button></div>
         <div class="table-wrap"><table class="tbl" id="tradeTbl">
-          <thead><tr><th>Entry</th><th>Exit</th><th>Product</th><th>Side</th><th class="r">Size</th><th class="r">Entry px</th><th class="r">Exit px</th><th class="r">Gross</th><th class="r">Fees</th><th class="r">Net</th></tr></thead>
+          <thead><tr><th>Entry</th><th>Exit</th><th>Product</th><th>Side</th><th class="r">Size</th><th class="r">Entry px</th><th class="r">Exit px</th><th class="r">Gross</th><th class="r">Fees</th><th class="r">Net</th><th></th></tr></thead>
           <tbody></tbody>
         </table></div>
       </div>
@@ -61,9 +61,11 @@
       <div class="card">
         <div class="card-head"><h2>Scoreboard <span class="muted small">all sessions played on this browser</span></h2><button id="clearScoresBtn" class="btn btn-sm btn-ghost">Clear</button></div>
         <div class="score-grid">
-          <div><h3>By day</h3><table class="tbl" id="scoreDay"><thead><tr><th>Day</th><th class="r">Sessions</th><th class="r">Trades</th><th class="r">Beat passive</th><th class="r">Cum. P&amp;L</th></tr></thead><tbody></tbody></table></div>
-          <div><h3>By product</h3><table class="tbl" id="scoreProd"><thead><tr><th>Product</th><th class="r">Sessions</th><th class="r">Trades</th><th class="r">Beat passive</th><th class="r">Cum. P&amp;L</th></tr></thead><tbody></tbody></table></div>
+          <div class="table-wrap"><h3>By day</h3><table class="tbl" id="scoreDay"><thead><tr><th>Day</th><th class="r">Sessions</th><th class="r">Trades</th><th class="r">Beat passive</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">Cum. P&amp;L</th></tr></thead><tbody></tbody></table></div>
+          <div class="table-wrap"><h3>By product</h3><table class="tbl" id="scoreProd"><thead><tr><th>Product</th><th class="r">Sessions</th><th class="r">Trades</th><th class="r">Beat passive</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">Cum. P&amp;L</th></tr></thead><tbody></tbody></table></div>
         </div>
+        <h3>By session</h3>
+        <div class="table-wrap"><table class="tbl" id="scoreSess"><thead><tr><th>Played (UTC)</th><th>Day</th><th>Product</th><th class="r">Trades</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">P&amp;L</th></tr></thead><tbody></tbody></table></div>
       </div>
     </section>
 
@@ -122,6 +124,9 @@
       <div class="report-grid" id="reportGrid"></div>
       <h3>Compared with</h3>
       <table class="tbl" id="benchTbl"><tbody></tbody></table>
+      <h3>Tape autopsy</h3>
+      <p id="autopsySum" class="small muted"></p>
+      <div class="autopsy-wrap"><table class="tbl" id="autopsyTbl"><thead><tr><th>Time</th><th>Class</th><th>Headline</th></tr></thead><tbody></tbody></table></div>
       <div class="report-btns">
         <button type="button" id="reportCsvBtn" class="btn">Download trade log CSV</button>
         <button class="btn btn-primary">Close</button>
@@ -131,7 +136,7 @@
 
   <footer class="foot small muted">
     Data: Yahoo Finance 5-minute bars (continuous front month) baked into <code>/data</code>. Headlines from hand-editable <code>data/headlines.json</code>.
-    Simulation only. No orders go anywhere. <span id="buildId"></span>
+    Some tape headlines are deliberate red herrings written for training, not real news; which ones is revealed in the tape autopsy after the session. Simulation only. No orders go anywhere. <span id="buildId"></span>
   </footer>
 
   <script type="module" src="js/app.js"></script>

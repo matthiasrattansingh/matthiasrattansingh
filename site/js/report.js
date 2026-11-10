@@ -19,6 +19,25 @@ export function passiveLong(inst, qty, firstQuote, finalQuote, slip, fee) {
   return { qty, entry, exit, gross, fees, net: gross - fees };
 }
 
+/**
+ * TAPE AUTOPSY: every headline that printed, in time order, with its class revealed.
+ * Only available once the session is finished, so the class can never leak mid-session.
+ */
+export function tapeAutopsy(session) {
+  if (!session.finished) throw new Error('The tape autopsy is only available after the session ends');
+  return session.tape.filter((t) => t.kind === 'headline').map((t) => {
+    const h = t.item;
+    const herring = h.class === 'noise';
+    return {
+      clock: t.clock, date: h.date, time: h.time, prior: Boolean(t.prior), type: h.type, headline: h.headline,
+      label: herring ? 'RED HERRING' : 'REAL', herring,
+      implies: herring ? h.implies ?? '' : '', herringType: herring ? h.herring_type ?? '' : '',
+      note: h.autopsy_note ?? '', source: herring ? '' : h.source ?? '', url: herring ? '' : h.url ?? '',
+      baits: herring ? session.baitEvents.filter((b) => b.herringClock === t.clock && b.headline === h.headline) : [],
+    };
+  });
+}
+
 export function reportCard(session) {
   const acct = session.account;
   const trades = acct.trades;
@@ -30,7 +49,15 @@ export function reportCard(session) {
   const worst = trades.reduce((w, t) => (!w || t.net < w.net ? t : w), null);
   const benchQty = Math.max(1, acct.maxAbsPosition);
   const finalQ = session.finalQuote || session.quote();
+  const autopsy = session.finished ? tapeAutopsy(session) : [];
+  const baitedTrades = trades.filter((t) => t.baited);
   return {
+    autopsy,
+    herringsSeen: autopsy.filter((a) => a.herring).length,
+    timesBaited: session.finished ? session.baitEvents.length : 0,
+    baitedTrades: baitedTrades.length,
+    baitedNet: sum(baitedTrades),
+    cleanNet: sum(trades.filter((t) => !t.baited)),
     day: session.day,
     product: session.inst.id,
     totalNet,
@@ -47,16 +74,27 @@ export function reportCard(session) {
   };
 }
 
-const CSV_COLS = ['entryTime', 'exitTime', 'product', 'side', 'size', 'entry', 'exit', 'gross', 'fees', 'net', 'exitReason'];
+const CSV_COLS = ['entryTime', 'exitTime', 'product', 'side', 'size', 'entry', 'exit', 'gross', 'fees', 'net', 'exitReason',
+  'baited', 'baitHeadline', 'sessionHerringsSeen', 'sessionTimesBaited'];
 
-export function tradesToCsv(trades, day, decimals = 4) {
+/**
+ * Trade log CSV. `score` = { finished, herringsSeen, timesBaited, product }. The BAITED tag and the
+ * two herring stats are only written for a finished session (blank before, so a mid-session
+ * download cannot reveal which headlines were herrings). A finished session with no trades
+ * still gets one row carrying the stats.
+ */
+export function tradesToCsv(trades, day, decimals = 4, score = null) {
   const esc = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  const done = Boolean(score?.finished);
+  const stats = done ? [score.herringsSeen, score.timesBaited] : ['', ''];
   const rows = [['date', ...CSV_COLS].join(',')];
   for (const t of trades) {
     rows.push([day, t.entryTime, t.exitTime, t.product, t.side, t.size,
-      t.entry.toFixed(decimals), t.exit.toFixed(decimals), t.gross.toFixed(2), t.fees.toFixed(2), t.net.toFixed(2), t.exitReason]
+      t.entry.toFixed(decimals), t.exit.toFixed(decimals), t.gross.toFixed(2), t.fees.toFixed(2), t.net.toFixed(2), t.exitReason,
+      done ? (t.baited ? 'BAITED' : '') : '', done && t.baited ? t.baitHeadline : '', ...stats]
       .map(esc).join(','));
   }
+  if (done && !trades.length) rows.push([day, '', '', score.product ?? '', 'NO TRADES', 0, '', '', '0.00', '0.00', '0.00', '', '', '', ...stats].map(esc).join(','));
   return rows.join('\n') + '\n';
 }
 
@@ -70,7 +108,8 @@ export function loadScores(storage = globalThis.localStorage) {
 export function saveScore(card, storage = globalThis.localStorage) {
   const list = loadScores(storage);
   list.push({ day: card.day, product: card.product, net: card.totalNet, trades: card.trades,
-    fees: card.fees, passive: card.passiveLong.net, playedAt: new Date().toISOString() });
+    fees: card.fees, passive: card.passiveLong.net, herrings: card.herringsSeen, baited: card.timesBaited,
+    baitedNet: card.baitedNet, playedAt: new Date().toISOString() });
   try { storage.setItem(KEY, JSON.stringify(list)); } catch { /* storage unavailable */ }
   return list;
 }
@@ -83,8 +122,8 @@ export function aggregate(list, key) {
   const m = new Map();
   for (const s of list) {
     const k = s[key];
-    const r = m.get(k) || { key: k, sessions: 0, net: 0, trades: 0, beatPassive: 0 };
-    r.sessions += 1; r.net += s.net; r.trades += s.trades; if (s.net > s.passive) r.beatPassive += 1;
+    const r = m.get(k) || { key: k, sessions: 0, net: 0, trades: 0, beatPassive: 0, herrings: 0, baited: 0 };
+    r.sessions += 1; r.herrings += s.herrings || 0; r.baited += s.baited || 0; r.net += s.net; r.trades += s.trades; if (s.net > s.passive) r.beatPassive += 1;
     m.set(k, r);
   }
   return [...m.values()].sort((a, b) => (a.key < b.key ? -1 : 1));

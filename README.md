@@ -21,11 +21,28 @@ CL=F, BZ=F, NG=F, RB=F, HO=F and keeps the last 10 completed sessions (07:00 to 
 and skipped. Nothing is synthesised. Yahoo's `=F` tickers are continuous front-month series, so a
 roll can show a jump and levels can differ from a specific contract month quoted in the news.
 
-**Headlines.** `data/headlines.json` is hand-editable (see its `_README`). EIA petroleum and
-natural-gas release times and the inventory figures were checked against eia.gov. API figures are
-not included (time only). Hormuz items are summarised from press coverage with approximate times.
-EIA/API items with `"pause": true` auto-pause the replay when their time hits. API prints at
-3:30 pm CT (after the pit close), so they appear at the next session's open as "since prior close".
+**Headlines and red herrings.** `data/headlines.json` is hand-editable (see its `_README`). Every
+entry has `"class": "real"` or `"class": "noise"`. Noise entries are red herrings written for
+training (unconfirmed social-media claims, recycled stories, price-target chatter, vague "deal is
+close" sourcing, geographically impossible facility claims, opinions with no policy action); they
+also carry `implies: "up" | "down"`. During a session the tape renders every headline from the same
+visible fields only (type, time, text), so a herring looks exactly like a real item: no class,
+source, link or note is shown.
+
+Provenance of real entries: EIA times and inventory figures were checked against eia.gov; items
+citing a publication were found in press coverage; items sourced "Desk owner's notes" (API figures,
+Fed, GDP/PCE, jobs, election and settle-level items) were supplied by the desk owner and not
+independently verified. EIA/API items with `"pause": true` auto-pause the replay. API prints at
+3:30 pm CT (after the pit close), so it shows at the next session's open as "since prior close".
+
+**Tape autopsy** (report card, after the session only): every headline that printed, in time order,
+labelled REAL or RED HERRING with its source and why it was a herring. An entry is **BAITED** when
+it opens or adds to a position within 15 minutes after a herring printed (`BAIT_WINDOW_MINUTES` in
+`site/js/config.js`), in the direction the herring implied, with the order placed at or after the
+print (a resting order placed earlier doesn't count; neither do exits). Baited trades are tagged
+in the trade log and CSV and their P&L is shown separately. "Herrings seen" and "Times baited" are
+on the report card, in the scoreboard (per session, by day, by product, cumulative) and in the CSV.
+The headlines file is public on the site, so the honour system applies: don't read it before playing.
 
 **Execution model** (`site/js/config.js` holds every number):
 

@@ -5,108 +5,1196 @@
     "date: YYYY-MM-DD and time: HH:MM are Chicago wall-clock time (America/Chicago, CT).",
     "type: EIA | EIA-NG | API | HORMUZ | MACRO | OTHER.  pause: true makes the replay auto-pause when the time hits (EIA and API by default).",
     "products: which products the item is shown for (omit or [] = all).",
-    "time_precision: 'exact' = scheduled release time; 'approx' = the story broke around then (wire time not verified). Items timestamped before 07:00 CT print at the session open; items after 14:30 CT print at the NEXT session's open as 'since prior close'.",
-    "EIA scheduled times and inventory figures were checked against eia.gov (WPSR schedule page and the weekly stock series, release dates 10/28/2026 and 11/4/2026; natural gas storage released 10/29 and 11/5). API figures are not recorded here: the API report is a paid/press release and the numbers could not be verified, so only the scheduled time is listed; add the figures yourself if you have them.",
-    "Hormuz/geopolitical items are summarized from news coverage found at build time (sources listed per item). Wire timestamps were not available, so they are marked approx. Correct the times if you know them.",
+    "time_precision: 'exact' = scheduled release time; 'approx' = the story broke around then. Items timestamped before 07:00 CT print at the session open; items after 14:30 CT print at the NEXT session's open as 'since prior close'.",
+    "class (REQUIRED on every entry): 'real' = a real driver; 'noise' = a RED HERRING authored for training, not a real headline. The app never shows the class, source, url or autopsy_note during a session: every item renders identically. They are revealed only in the post-session TAPE AUTOPSY.",
+    "noise entries also need implies: 'up' | 'down' (the direction the herring tempts you to trade; used for BAITED detection) and may carry herring_type a-f and autopsy_note (why it is a herring). Never write the word 'noise' or any hint in a headline.",
+    "Keep entries sorted by date, time, then headline text, so file order says nothing about class.",
+    "Provenance of real entries: EIA times and inventory figures were checked against eia.gov. Items whose source lists a publication were found in press coverage at build time. Items whose source is 'Desk owner's notes' (including the API figures, Fed, GDP/PCE, jobs, election and settle-level items) were supplied by the desk owner and were NOT independently verified by the build.",
     "The trading engine never reads prices from this file. Prices come only from the bar files in /data."
   ],
   "timezone": "America/Chicago",
   "headlines": [
     {
-      "date": "2026-10-27", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-10-27",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "Oil falls for a second session after Iran's supreme leader and top security official discuss conditions to end the war; renewed diplomacy weighs on crude",
-      "source": "CNBC", "url": "https://www.cnbc.com/2026/10/27/oil-today-iran-us-crude-wti-brent-trump.html"
+      "source": "CNBC",
+      "url": "https://www.cnbc.com/2026/10/27/oil-today-iran-us-crude-wti-brent-trump.html",
+      "class": "real"
     },
     {
-      "date": "2026-10-27", "time": "15:30", "type": "API", "time_precision": "exact", "pause": true,
-      "products": ["CL", "BZ", "RB", "HO"],
-      "headline": "API weekly statistical bulletin (crude/gasoline/distillate stocks, week ending Oct 23) scheduled release, 4:30 pm ET. Figures not recorded; add them here.",
-      "source": "API release schedule (Tuesdays 4:30 pm ET)", "url": ""
+      "date": "2026-10-27",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Saudi-led coalition says it intercepted 3 ballistic missiles toward the Eastern Region and 4 drones toward the Southern Region; no damage to energy infrastructure reported.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
     },
     {
-      "date": "2026-10-28", "time": "09:30", "type": "EIA", "time_precision": "exact", "pause": true,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-10-27",
+      "time": "08:10",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Videos circulating online purport to show a large fire at Kuwait's Mina Al-Ahmadi refinery; local reports only, no company statement.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "a",
+      "implies": "up",
+      "autopsy_note": "Unconfirmed social-media claim: no wire, company or official confirmation. One unverified video is not a supply outage."
+    },
+    {
+      "date": "2026-10-27",
+      "time": "10:40",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A large Wall Street bank lifts its year-end Brent target to $130 and says crude 'could hit $150' if Gulf flows stay impaired.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "c",
+      "implies": "up",
+      "autopsy_note": "Analyst or bank price call: a forecast is an opinion about the future, not a new fact about today's barrels."
+    },
+    {
+      "date": "2026-10-27",
+      "time": "12:20",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A prominent cable-news host says oil 'is going back to $60 by Christmas' in a segment going viral.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "f",
+      "implies": "down",
+      "autopsy_note": "Opinion with no policy action: a commentator's view with no policy, flow or inventory change behind it."
+    },
+    {
+      "date": "2026-10-27",
+      "time": "15:30",
+      "type": "API",
+      "time_precision": "exact",
+      "pause": true,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "API weekly statistical bulletin (week ending Oct 23): crude -2.03M bbl, gasoline +2.3M, distillates +0.42M; a Reuters poll had expected crude roughly flat",
+      "source": "API, 4:30 pm ET; figures from Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-28",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Houthis claim an attack on Saudi Arabia's Ras Tanura refinery and terminal; Saudi authorities have not confirmed any strike or damage; a contained fire near the terminal is reported.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-28",
+      "time": "07:40",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Sources say a US-Iran deal is 'very close' and could come within days.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "d",
+      "implies": "down",
+      "autopsy_note": "Vague 'deal is close' sourcing: no named parties, no terms, no second source."
+    },
+    {
+      "date": "2026-10-28",
+      "time": "09:30",
+      "type": "EIA",
+      "time_precision": "exact",
+      "pause": true,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "EIA Weekly Petroleum Status Report (week ending Oct 23): commercial crude -1.892M bbl to 410.6M; gasoline +3.870M to 209.2M; distillate -1.462M to 102.8M",
-      "source": "EIA WPSR, 10:30 am ET (series WCESTUS1, WGTSTUS1, WDISTUS1)", "url": "https://www.eia.gov/petroleum/supply/weekly/"
+      "source": "EIA WPSR, 10:30 am ET (series WCESTUS1, WGTSTUS1, WDISTUS1)",
+      "url": "https://www.eia.gov/petroleum/supply/weekly/",
+      "class": "real"
     },
     {
-      "date": "2026-10-29", "time": "07:30", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-10-28",
+      "time": "10:50",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Saudi-led coalition reports intercepting ballistic missiles headed for the Eastern Region and drones over the south; energy sites unaffected.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "b",
+      "implies": "up",
+      "autopsy_note": "Recycled story: this is the Oct 27 interception story reworded. It was already in the price a day earlier."
+    },
+    {
+      "date": "2026-10-28",
+      "time": "11:45",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Local reports: an explosion has halted flows on the Kirkuk-Ceyhan pipeline near Basra.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "e",
+      "implies": "up",
+      "autopsy_note": "Geographically wrong or impossible facility claim: the Kirkuk-Ceyhan line runs from northern Iraq into Turkey. It does not pass anywhere near Basra in the far south."
+    },
+    {
+      "date": "2026-10-28",
+      "time": "13:00",
+      "type": "MACRO",
+      "time_precision": "exact",
+      "pause": false,
+      "products": [],
+      "headline": "Fed holds rates at 3.75% to 4.00% in a 10-2 vote; only two dissenters wanted a hike, fewer hawks than feared.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-28",
+      "time": "13:30",
+      "type": "MACRO",
+      "time_precision": "exact",
+      "pause": false,
+      "products": [],
+      "headline": "Fed Chair Warsh press conference begins.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-29",
+      "time": "06:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Reports: VP Vance wrote to Iranian security chief Rezaei seeking to revive talks; crude slips about 1% in Asia trade on diplomacy hopes.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-29",
+      "time": "07:30",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "Another attack on a commercial tanker in the Strait of Hormuz renews Middle East supply fears",
-      "source": "EnergyNow / Reuters", "url": "https://energynow.com/2026/10/oil-prices-jump-more-than-2-as-strait-of-hormuz-tanker-attack-renews-middle-east-supply-fears/"
+      "source": "EnergyNow / Reuters",
+      "url": "https://energynow.com/2026/10/oil-prices-jump-more-than-2-as-strait-of-hormuz-tanker-attack-renews-middle-east-supply-fears/",
+      "class": "real"
     },
     {
-      "date": "2026-10-29", "time": "09:30", "type": "EIA-NG", "time_precision": "exact", "pause": true,
-      "products": ["NG"],
+      "date": "2026-10-29",
+      "time": "07:30",
+      "type": "MACRO",
+      "time_precision": "exact",
+      "pause": false,
+      "products": [],
+      "headline": "Q3 GDP advance +3.4%; September PCE 3.6% y/y, core 3.1%; December Fed hike odds rise to about 85%, dollar firms.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-29",
+      "time": "08:20",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A European bank's commodities desk cuts its Q4 WTI forecast to $85, calling the war premium 'overdone'.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "c",
+      "implies": "down",
+      "autopsy_note": "Analyst or bank price call: a forecast revision carries no new information about supply or demand."
+    },
+    {
+      "date": "2026-10-29",
+      "time": "09:30",
+      "type": "EIA-NG",
+      "time_precision": "exact",
+      "pause": true,
+      "products": [
+        "NG"
+      ],
       "headline": "EIA Weekly Natural Gas Storage Report (week ending Oct 23): Lower 48 working gas +80 Bcf to 3,724 Bcf",
-      "source": "EIA WNGSR, 10:30 am ET", "url": "https://ir.eia.gov/ngs/ngs.html"
+      "source": "EIA WNGSR, 10:30 am ET",
+      "url": "https://ir.eia.gov/ngs/ngs.html",
+      "class": "real"
     },
     {
-      "date": "2026-10-30", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-10-29",
+      "time": "10:15",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Unverified posts claim a drone strike has set storage tanks ablaze at the UAE's Fujairah oil terminal.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "a",
+      "implies": "up",
+      "autopsy_note": "Unconfirmed social-media claim: social-media posts only. No port authority, company or wire confirmation."
+    },
+    {
+      "date": "2026-10-29",
+      "time": "12:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Trump says the Vance contact with Tehran was not a negotiation restart (concerned medical supplies), pushing back on the letter reports.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-29",
+      "time": "13:10",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A former energy secretary says on a podcast that $150 oil is 'inevitable' this winter.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "f",
+      "implies": "up",
+      "autopsy_note": "Opinion with no policy action: a former official's opinion. No policy action attached."
+    },
+    {
+      "date": "2026-10-30",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A limpet-mine attack on a tanker in the Strait of Hormuz is verified; the premium re-anchors to confirmed shipping risk after days of unconfirmed claims.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-30",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "Tankers defy Iran attacks to keep crude flowing through Hormuz; Gulf export flows recover, but war-risk and freight costs stay elevated",
-      "source": "CNBC / Al Jazeera", "url": "https://www.cnbc.com/2026/10/30/tanker-attack-strait-hormuz-iran-war-oil.html"
+      "source": "CNBC / Al Jazeera",
+      "url": "https://www.cnbc.com/2026/10/30/tanker-attack-strait-hormuz-iran-war-oil.html",
+      "class": "real"
     },
     {
-      "date": "2026-10-30", "time": "08:00", "type": "OTHER", "time_precision": "approx", "pause": false,
-      "products": ["BZ"],
+      "date": "2026-10-30",
+      "time": "07:30",
+      "type": "MACRO",
+      "time_precision": "exact",
+      "pause": false,
+      "products": [],
+      "headline": "Employment Cost Index released 8:30 am ET; a hot print would push December hike odds toward 90% and firm the dollar.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-10-30",
+      "time": "08:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "BZ"
+      ],
       "headline": "December Brent futures expire today; front-month Brent at its highest settlement since April",
-      "source": "Al Jazeera / EnergyNow", "url": "https://www.aljazeera.com/economy/2026/10/30/oil-flows-are-up-as-iran-war-turmoil-eases-why-do-prices-keep-rising"
+      "source": "Al Jazeera / EnergyNow",
+      "url": "https://www.aljazeera.com/economy/2026/10/30/oil-flows-are-up-as-iran-war-turmoil-eases-why-do-prices-keep-rising",
+      "class": "real"
     },
     {
-      "date": "2026-11-02", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
-      "headline": "Oil slides on Hormuz deal hopes as Qatar-mediated talks raise hopes of a breakthrough; Trump keeps Iran strikes on the table, attacks on Gulf shipping continue",
-      "source": "Euronews", "url": "https://www.euronews.com/2026/11/02/oil-slides-on-hormuz-deal-hopes-but-trump-keeps-iran-strikes-on-the-table"
+      "date": "2026-10-30",
+      "time": "08:40",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Houthis say they struck Saudi Arabia's Ras Tanura terminal; a fire is reported near the facility.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "b",
+      "implies": "up",
+      "autopsy_note": "Recycled story: this is the Oct 28 Ras Tanura claim resurfacing two days later as if new. It was never confirmed then either."
     },
     {
-      "date": "2026-11-03", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-10-30",
+      "time": "10:20",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Sources say a framework agreement to reopen the Strait is 'hours away'.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "d",
+      "implies": "down",
+      "autopsy_note": "Vague 'deal is close' sourcing: no named parties, no terms, no second source."
+    },
+    {
+      "date": "2026-10-30",
+      "time": "12:30",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "An independent energy consultancy says Brent 'could hit $140' by December on inventory draws.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "c",
+      "implies": "up",
+      "autopsy_note": "Analyst or bank price call: a 'could hit' price call is an opinion, not an event."
+    },
+    {
+      "date": "2026-11-02",
+      "time": "06:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "OPEC+ on Sunday held December output targets steady, as expected; the meeting changes no barrels.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-02",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Weekend reports of a Qatar-mediated draft proposal to reopen Hormuz hit crude about 4% at the open; Hormuz remains effectively closed and no deal is signed. Trump keeps Iran strikes on the table and attacks on Gulf shipping continue",
+      "source": "Euronews; Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "https://www.euronews.com/2026/11/02/oil-slides-on-hormuz-deal-hopes-but-trump-keeps-iran-strikes-on-the-table",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-02",
+      "time": "07:50",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Social-media reports claim an explosion at the Druzhba pipeline's export terminal on the Persian Gulf coast has cut shipments.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "e",
+      "implies": "up",
+      "autopsy_note": "Geographically wrong or impossible facility claim: Druzhba carries Russian crude overland into central Europe. It has no terminal on the Persian Gulf."
+    },
+    {
+      "date": "2026-11-02",
+      "time": "09:10",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A senator from an oil-producing state says crude prices 'have bottomed' and urges Americans to 'buy energy'.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "f",
+      "implies": "up",
+      "autopsy_note": "Opinion with no policy action: a politician's opinion with no bill, vote or policy attached."
+    },
+    {
+      "date": "2026-11-02",
+      "time": "11:20",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Verified: a tanker in the Strait of Hormuz was hit by a limpet mine, confirming the shipping threat.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "b",
+      "implies": "up",
+      "autopsy_note": "Recycled story: this is the Oct 30 limpet-mine story reworded. It was priced three days earlier."
+    },
+    {
+      "date": "2026-11-02",
+      "time": "12:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Distillate cracks hold near $90 even as flat crude falls over 7%; products are not confirming a physical loosening.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-03",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "Mideast oil markets flash signs of abundance as crude keeps flowing through Hormuz; Gulf grade premiums weaken",
-      "source": "Bloomberg", "url": "https://www.bloomberg.com/news/articles/2026-11-03/middle-east-oil-markets-flash-signs-of-abundance-as-flows-rise"
+      "source": "Bloomberg",
+      "url": "https://www.bloomberg.com/news/articles/2026-11-03/middle-east-oil-markets-flash-signs-of-abundance-as-flows-rise",
+      "class": "real"
     },
     {
-      "date": "2026-11-03", "time": "07:00", "type": "MACRO", "time_precision": "approx", "pause": false,
+      "date": "2026-11-03",
+      "time": "07:00",
+      "type": "MACRO",
+      "time_precision": "approx",
+      "pause": false,
       "products": [],
       "headline": "US midterm election day",
-      "source": "", "url": ""
+      "source": "",
+      "url": "",
+      "class": "real"
     },
     {
-      "date": "2026-11-03", "time": "15:30", "type": "API", "time_precision": "exact", "pause": true,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-11-03",
+      "time": "08:30",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Videos circulating online claim to show a strike on Iraq's Basra oil terminal; local reports say loadings have stopped.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "a",
+      "implies": "up",
+      "autopsy_note": "Unconfirmed social-media claim: unverified video and 'local reports' with no wire, operator or shipping-agent confirmation."
+    },
+    {
+      "date": "2026-11-03",
+      "time": "10:30",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Crude rebounds off the $93.60 low as cracks widen; the deal probability is rising but no barrel has moved and Hormuz transits remain halted.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-03",
+      "time": "11:40",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Sources say a Hormuz deal is 'essentially done' and will be announced within days.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "d",
+      "implies": "down",
+      "autopsy_note": "Vague 'deal is close' sourcing: no named parties, no terms, no second source."
+    },
+    {
+      "date": "2026-11-03",
+      "time": "13:15",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A US investment bank trims its 2027 Brent forecast by $10, citing 'demand destruction'.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "c",
+      "implies": "down",
+      "autopsy_note": "Analyst or bank price call: a long-dated forecast change says nothing new about this week's barrels."
+    },
+    {
+      "date": "2026-11-03",
+      "time": "15:30",
+      "type": "API",
+      "time_precision": "exact",
+      "pause": true,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "API weekly statistical bulletin (week ending Oct 30) scheduled release, 4:30 pm ET. Figures not recorded; add them here.",
-      "source": "API release schedule (Tuesdays 4:30 pm ET)", "url": ""
+      "source": "API release schedule (Tuesdays 4:30 pm ET)",
+      "url": "",
+      "class": "real"
     },
     {
-      "date": "2026-11-04", "time": "09:30", "type": "EIA", "time_precision": "exact", "pause": true,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-11-04",
+      "time": "06:00",
+      "type": "MACRO",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [],
+      "headline": "Election results: Democrats take the Senate and clinch the House (Talarico defeats Paxton in Texas; Hinojosa defeats Abbott for governor). Markets reprice the war premium lower across the board.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-04",
+      "time": "07:45",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A newly elected lawmaker says in a victory interview that 'the era of $100 oil is over'.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "f",
+      "implies": "down",
+      "autopsy_note": "Opinion with no policy action: a victory-night soundbite. No legislation or policy action attached."
+    },
+    {
+      "date": "2026-11-04",
+      "time": "09:30",
+      "type": "EIA",
+      "time_precision": "exact",
+      "pause": true,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "EIA Weekly Petroleum Status Report (week ending Oct 30): commercial crude -0.865M bbl to 409.8M (5th straight draw); gasoline -0.222M to 209.0M; distillate -3.565M to 99.3M, first sub-100M print since 2003",
-      "source": "EIA WPSR, 10:30 am ET (series WCESTUS1, WGTSTUS1, WDISTUS1)", "url": "https://www.eia.gov/petroleum/supply/weekly/"
+      "source": "EIA WPSR, 10:30 am ET (series WCESTUS1, WGTSTUS1, WDISTUS1)",
+      "url": "https://www.eia.gov/petroleum/supply/weekly/",
+      "class": "real",
+      "autopsy_note": "Price FELL through this bullish print: the election repricing of the war premium outweighed a fifth straight crude draw and the first sub-100M distillate reading since 2003."
     },
     {
-      "date": "2026-11-05", "time": "06:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-11-04",
+      "time": "10:30",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Another commercial tanker has been attacked in the Strait of Hormuz, reviving Middle East supply fears.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "b",
+      "implies": "up",
+      "autopsy_note": "Recycled story: this is the Oct 29 tanker-attack story reworded as if it had just happened."
+    },
+    {
+      "date": "2026-11-04",
+      "time": "11:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "JPMorgan note: global balances already ran a surplus of about +1.4 MMb/d in October; Middle East exports recovering toward 20.7 MMb/d.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-04",
+      "time": "12:40",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Local reports of an explosion at Saudi Arabia's Abqaiq processing plant; videos online show smoke on the horizon.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "a",
+      "implies": "up",
+      "autopsy_note": "Unconfirmed social-media claim: unverifiable video and 'local reports'. No Aramco, official or wire confirmation."
+    },
+    {
+      "date": "2026-11-05",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "More ships attacked in the Persian Gulf; oil rebounds slightly after its post-midterm plunge, with Brent below $100 for the first time since September",
-      "source": "CBS News live updates", "url": "https://www.cbsnews.com/live-updates/iran-war-us-trump-midterms-strait-of-hormuz/"
+      "source": "CBS News live updates",
+      "url": "https://www.cbsnews.com/live-updates/iran-war-us-trump-midterms-strait-of-hormuz/",
+      "class": "real"
     },
     {
-      "date": "2026-11-05", "time": "09:30", "type": "EIA-NG", "time_precision": "exact", "pause": true,
-      "products": ["NG"],
+      "date": "2026-11-05",
+      "time": "08:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Prediction markets cut the odds of a negotiated US-Iran settlement to about 10%; the tape was oversold after a 12% weekly collapse and shorts cover.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-05",
+      "time": "08:45",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Sources say talks have produced a 'breakthrough' and a signing ceremony is being planned.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "d",
+      "implies": "down",
+      "autopsy_note": "Vague 'deal is close' sourcing: no named parties, no terms, no second source."
+    },
+    {
+      "date": "2026-11-05",
+      "time": "09:30",
+      "type": "EIA-NG",
+      "time_precision": "exact",
+      "pause": true,
+      "products": [
+        "NG"
+      ],
       "headline": "EIA Weekly Natural Gas Storage Report (week ending Oct 30): Lower 48 working gas +77 Bcf to 3,801 Bcf",
-      "source": "EIA WNGSR, 10:30 am ET", "url": "https://ir.eia.gov/ngs/ngs.html"
+      "source": "EIA WNGSR, 10:30 am ET",
+      "url": "https://ir.eia.gov/ngs/ngs.html",
+      "class": "real"
     },
     {
-      "date": "2026-11-08", "time": "12:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-11-05",
+      "time": "10:50",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A trading-house executive says crude 'could fall to $70' by year-end as the war premium unwinds.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "c",
+      "implies": "down",
+      "autopsy_note": "Analyst or bank price call: a 'could fall' price call is an opinion, not an event."
+    },
+    {
+      "date": "2026-11-05",
+      "time": "12:15",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Posts claim a missile has hit the Sumed pipeline at the Strait of Hormuz, halting Gulf crude exports.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "e",
+      "implies": "up",
+      "autopsy_note": "Geographically wrong or impossible facility claim: Sumed runs across Egypt from the Red Sea to the Mediterranean. It is nowhere near the Strait of Hormuz."
+    },
+    {
+      "date": "2026-11-06",
+      "time": "06:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Brent spikes through $100 in early trade on overnight tanker attack reports.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-06",
+      "time": "07:30",
+      "type": "MACRO",
+      "time_precision": "exact",
+      "pause": false,
+      "products": [],
+      "headline": "US jobs report beats expectations; dollar and December hike odds rise, capping crude's spike.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-06",
+      "time": "08:15",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Prediction markets now put the chance of a negotiated US-Iran settlement at only about 10%.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "b",
+      "implies": "up",
+      "autopsy_note": "Recycled story: this is the Nov 5 prediction-market story repeated a day later. Shorts had already covered on it."
+    },
+    {
+      "date": "2026-11-06",
+      "time": "10:10",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO",
+        "NG"
+      ],
+      "headline": "Videos circulating online purport to show a fire at Qatar's Ras Laffan LNG complex; local reports only.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "a",
+      "implies": "up",
+      "autopsy_note": "Unconfirmed social-media claim: unverified video with no operator, official or wire confirmation."
+    },
+    {
+      "date": "2026-11-06",
+      "time": "12:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "The $100 Brent spike fades into the settle: the market is pricing de-escalation, not the tanker attacks; spec length is near record lows.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-06",
+      "time": "12:45",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A billionaire investor posts that he is 'buying oil here' and calls the selloff 'insane'.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "f",
+      "implies": "up",
+      "autopsy_note": "Opinion with no policy action: a social-media opinion. No position disclosed and no change in supply or demand."
+    },
+    {
+      "date": "2026-11-08",
+      "time": "12:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "UKMTO: projectile strikes an outbound tanker in Hormuz, found burning; Iran's IRGC says several tankers on fire. Trump says new strikes on Iran are unlikely while talks progress",
-      "source": "Reuters via Business Recorder / Invezz", "url": "https://www.brecorder.com/news/40448086/oil-slides-as-trump-signals-restraint-on-iran-despite-fresh-shipping-attacks"
+      "source": "Reuters via Business Recorder / Invezz",
+      "url": "https://www.brecorder.com/news/40448086/oil-slides-as-trump-signals-restraint-on-iran-despite-fresh-shipping-attacks",
+      "class": "real"
     },
     {
-      "date": "2026-11-09", "time": "09:00", "type": "HORMUZ", "time_precision": "approx", "pause": false,
-      "products": ["CL", "BZ", "RB", "HO"],
+      "date": "2026-11-09",
+      "time": "07:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [],
+      "headline": "Natural gas decouples: Henry Hub jumps toward $3.21 on record LNG feedgas and early cold while crude sells off.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-09",
+      "time": "07:35",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "A bank's commodities team raises its Q1 Brent target to $110, saying the selloff 'has gone too far'.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "c",
+      "implies": "up",
+      "autopsy_note": "Analyst or bank price call: a price target is an opinion, not new information."
+    },
+    {
+      "date": "2026-11-09",
+      "time": "08:20",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Local reports claim an attack in the Gulf of Oman has shut the Baku-Tbilisi-Ceyhan pipeline.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "e",
+      "implies": "up",
+      "autopsy_note": "Geographically wrong or impossible facility claim: BTC runs from Azerbaijan through Georgia to Turkey's Mediterranean coast. It does not touch the Gulf of Oman."
+    },
+    {
+      "date": "2026-11-09",
+      "time": "09:00",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
       "headline": "Report: Qatar's prime minister heads to the White House with an Iranian interim proposal to reopen the Strait of Hormuz; a Qatari official later disputes the report",
-      "source": "Invezz / Capital Brief", "url": "https://invezz.com/news/2026/11/09/oil-price-today-brent-sinks-qatar-iran-hormuz-plan-trump/"
+      "source": "Invezz / Capital Brief",
+      "url": "https://invezz.com/news/2026/11/09/oil-price-today-brent-sinks-qatar-iran-hormuz-plan-trump/",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-09",
+      "time": "10:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Israel Hayom reports Iran offered to reopen Hormuz in exchange for release of $8bn in frozen funds held in Qatar; unconfirmed, two unnamed diplomatic sources.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-09",
+      "time": "11:00",
+      "type": "OTHER",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Trump meets Qatar's PM at the White House; Trump says new strikes on Iran are highly unlikely; Rubio says the sides are not on the verge of a breakthrough; no deal announced.",
+      "source": "Desk owner's notes (supplied by the user; not independently verified at build time)",
+      "url": "",
+      "class": "real"
+    },
+    {
+      "date": "2026-11-09",
+      "time": "12:30",
+      "type": "HORMUZ",
+      "time_precision": "approx",
+      "pause": false,
+      "products": [
+        "CL",
+        "BZ",
+        "RB",
+        "HO"
+      ],
+      "headline": "Overnight tanker attack reports send Brent back toward $100.",
+      "source": "Authored red herring (training item, not a real headline)",
+      "url": "",
+      "class": "noise",
+      "herring_type": "b",
+      "implies": "up",
+      "autopsy_note": "Recycled story: this is the Nov 6 spike story resurfacing. That spike had already faded by the Nov 6 settle."
     }
   ]
 }

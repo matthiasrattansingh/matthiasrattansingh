@@ -50,7 +50,7 @@ export class Account {
   }
 
   /** Apply a fill; returns the closed trades it produced. */
-  fill({ side, qty, price, time, reason = '' }) {
+  fill({ side, qty, price, time, reason = '', lotMeta = null }) {
     const inst = this.inst;
     const signed = side === 'BUY' ? qty : -qty;
     const feePerUnit = feesFor(inst, 1, this.fee);
@@ -70,6 +70,7 @@ export class Account {
         product: inst.id, side: dir > 0 ? 'LONG' : 'SHORT', size: matched,
         entryTime: lot.time, exitTime: time, entry: lot.price, exit: price,
         gross, fees, net: gross - fees, exitReason: reason,
+        baited: Boolean(lot.meta?.baitedBy), baitHeadline: lot.meta?.baitedBy?.headline ?? '',
       };
       this.trades.push(trade);
       closed.push(trade);
@@ -77,7 +78,9 @@ export class Account {
       remaining += dir * matched;
       if (lot.qty === 0) this.lots.shift();
     }
-    if (remaining !== 0) this.lots.push({ qty: remaining, price, time, feePerUnit });
+    // qty of this fill that opened or added exposure (0 for a pure reduction)
+    this.lastOpenedQty = Math.abs(remaining);
+    if (remaining !== 0) this.lots.push({ qty: remaining, price, time, feePerUnit, meta: lotMeta });
     this.maxAbsPosition = Math.max(this.maxAbsPosition, Math.abs(this.position));
     return closed;
   }

@@ -42,3 +42,7 @@ export const SPEEDS = [
 
 // Headline types that auto-pause the replay when their timestamp is reached.
 export const PAUSE_TYPES = ['EIA', 'EIA-NG', 'API'];
+
+// TAPE AUTOPSY: an opening/adding fill counts as BAITED when it happens within this many
+// minutes after a red herring printed, in the direction the herring implied.
+export const BAIT_WINDOW_MINUTES = 15;

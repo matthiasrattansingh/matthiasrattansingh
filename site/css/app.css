@@ -143,3 +143,11 @@ input[type=number] { width: 100%; }
   #chart { height: 280px; }
 }
 #benchTbl td { white-space: normal; }
+.tag-BAITED, .tag-HERRING { color: var(--down); }
+.tag-REAL { color: var(--up); }
+.autopsy-wrap { max-height: 300px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; }
+#autopsyTbl td { white-space: normal; font-family: var(--sans); vertical-align: top; }
+#autopsyTbl td:first-child { font-family: var(--mono); white-space: nowrap; }
+.report { max-height: calc(100vh - 32px); overflow-y: auto; }
+.tbl tr.total td { font-weight: 600; border-bottom: 2px solid var(--line); }
+.tag { white-space: nowrap; }

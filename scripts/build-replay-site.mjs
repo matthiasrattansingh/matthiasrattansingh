@@ -23,6 +23,9 @@ for (const h of headlines) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(h.date) || !/^\d{2}:\d{2}$/.test(h.time) || !h.headline) {
     throw new Error(`headlines.json: bad entry ${JSON.stringify(h)}`);
   }
+  if (h.class !== 'real' && h.class !== 'noise') throw new Error(`headlines.json: entry needs "class": "real" | "noise": ${h.date} ${h.time} ${h.headline}`);
+  if (h.class === 'noise' && h.implies !== 'up' && h.implies !== 'down') throw new Error(`headlines.json: noise entry needs "implies": "up" | "down": ${h.date} ${h.time}`);
+  if (/noise|herring/i.test(h.headline)) throw new Error(`headlines.json: headline text hints at its class: ${h.headline}`);
 }
 
 let sha = 'local';
