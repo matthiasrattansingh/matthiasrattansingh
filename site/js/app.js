@@ -52,7 +52,8 @@ async function boot() {
   $('speeds').innerHTML = SPEEDS.map((s, i) => `<button class="btn btn-sm" data-speed="${i}">${s.label}</button>`).join('');
   setSpeed(0);
   coachUi = initCoachUi({ state, $, money, cls, msg, play, stop, renderScores, submit: submitSpec, loadDay,
-    priorClose, dayBars: (s) => dayBarsFor(s.inst.id, s.day), scheduled: scheduledFor });
+    priorClose, dayBars: (s) => dayBarsFor(s.inst.id, s.day), scheduled: scheduledFor,
+    prevDay: (s) => { const d = availableDays(s.inst.id); return d[d.indexOf(s.day) - 1] ?? null; } });
   $('modeSel').value = state.mode;
   wire();
   if (state.mode === 'train') { const next = coachUi.renderPath(); if (next && days.includes(next)) $('daySel').value = next; }
@@ -381,6 +382,7 @@ function showReport() {
     ['Doing nothing', 0, 'stay flat all session'],
     [`Passive long ${p.qty} (held all session)`, p.net, `buy ${s.fmtPx(p.entry)} at open ask + slippage, sell ${s.fmtPx(p.exit)} at close; fees ${money(p.fees)}`],
   ].map(([k, v, note]) => `<tr><td>${k}</td><td class="r ${cls(v)}">${money(v, true)}</td><td class="muted">${esc(note)}</td></tr>`).join('')
+    + coachRow(s)
     + `<tr><td>Edge vs passive long</td><td class="r ${cls(c.totalNet - p.net)}">${money(c.totalNet - p.net, true)}</td><td></td></tr>`;
   renderAutopsy(c);
   coachUi.renderProcess(c);
@@ -404,6 +406,16 @@ function renderAutopsy(c) {
   const real = c.autopsy.length - c.herringsSeen;
   $('autopsySum').textContent = `${c.autopsy.length} headlines printed: ${real} real, ${c.herringsSeen} red herrings. Times baited: ${c.timesBaited}.`
     + (c.baitedTrades ? ` Baited trades: ${c.baitedTrades}, ${money(c.baitedNet, true)} net (all other trades ${money(c.cleanNet, true)}).` : '');
+}
+
+/** Benchmark row: the coach's best realistic trade (view + trigger rules) on the same tape. */
+function coachRow(s) {
+  let r;
+  try { r = coachUi.coachRun(); } catch (e) { console.warn('coach run', e); return ''; }
+  const t = r.trade;
+  const note = t ? `view ${t.view}: ${t.side.toLowerCase()} on Signal ${t.signal}, ${t.entryClock} @ ${s.fmtPx(t.entry)} to ${t.exitClock} @ ${s.fmtPx(t.exit)} (${t.exitReason})`
+    : `no trade: view ${r.openView} at the open, ${r.finalView} at the close`;
+  return `<tr><td>Best realistic (coach rules, 1 contract)</td><td class="r ${cls(r.net)}">${money(r.net, true)}</td><td class="muted">${esc(note)}</td></tr>`;
 }
 
 function downloadCsv() {

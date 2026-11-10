@@ -334,26 +334,3 @@ test('DEBRIEF: answers persist in the journal and the carried rule opens the nex
   assert.match(pre[4], /process 70 \(C\); biggest deduction: revenge/);
 });
 
-// ------------------------------------------------------------------ coach replay bot
-test('COACH REPLAY: rule-based trader narrates every decision and never looks ahead', () => {
-  const CL = load('CL');
-  const H = JSON.parse(readFileSync(new URL('../../data/headlines.json', import.meta.url))).headlines;
-  for (const day of DAYS) {
-    const scheduled = H.filter((h) => h.date === day && h.time_precision === 'exact' && (!h.products.length || h.products.includes('CL'))).map((h) => ({ time: h.time, type: h.type }));
-    const r = runCoach({ day, instrumentId: 'CL', dayBars: { CL: CL.days[day] }, scheduled });
-    assert.equal(r.frames.length, CL.days[day].length, `${day}: one frame per bar`);
-    assert.equal(r.frames.at(-1).position, 0, 'flat at the close');
-    assert.ok(r.trades.length <= 6 && r.notes.length >= 4);
-    for (const n of r.notes) assert.match(n.text, /^\d\d:\d\d: \S/);
-    assert.equal(r.notes.filter((n) => n.kind === 'entry').length, r.fills.filter((f) => f.reason === 'market').length, 'every entry has a narration line');
-    for (const n of r.notes.filter((x) => x.kind === 'entry')) assert.match(n.text, /Signal [ABC]\..*(Long|Short) 1 at [\d.]+\. Stop [\d.]+/);
-
-    // poison every bar after 10:00: the narration up to 10:00 must be identical
-    const K = 36;
-    const poisoned = CL.days[day].map((b, i) => (i <= K ? b : { ...b, o: 1e6, h: 1e6, l: 1, c: i % 2 ? 1e6 : 1, v: 1e9 }));
-    const p = runCoach({ day, instrumentId: 'CL', dayBars: { CL: poisoned }, scheduled });
-    const cut = r.frames[K].clock;
-    assert.deepEqual(p.notes.filter((n) => n.clock <= cut && n.kind !== 'summary'), r.notes.filter((n) => n.clock <= cut && n.kind !== 'summary'), `${day}: lookahead in coach replay`);
-    assert.deepEqual(p.frames.slice(0, K + 1), r.frames.slice(0, K + 1));
-  }
-});

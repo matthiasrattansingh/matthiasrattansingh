@@ -188,7 +188,8 @@
 
   <dialog id="coachDlg" class="report coach-replay">
     <h2>Watch the coach trade <span id="crSub" class="muted small"></span></h2>
-    <p class="small muted">Same day, same fills and costs, one contract, rules only. Your own fills are marked YOU.</p>
+    <p class="small muted">Two layers: the VIEW (real headlines as they printed, weighted) decides which side counts; the TRIGGER (price signals A, B, C) decides when. Same fills and costs, one contract, one trade. Your own fills are marked YOU.</p>
+    <div id="crView" class="crview" aria-label="Coach view: bias meter and the events that set it"></div>
     <canvas id="crChart" aria-label="Coach replay chart"></canvas>
     <div class="cr-controls"><button type="button" id="crBack" class="btn btn-sm">◂ Back</button><button type="button" id="crStep" class="btn btn-sm">Step bar ▸</button><button type="button" id="crNext" class="btn btn-sm btn-primary">Next decision ▸▸</button><span id="crState" class="mono small"></span></div>
     <ol id="crNotes" class="tape cr-notes"></ol>

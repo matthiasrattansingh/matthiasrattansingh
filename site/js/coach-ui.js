@@ -215,9 +215,17 @@ export function initCoachUi(ctx) {
   };
 
   // ------------------------------------------------------------ coach replay
+  /** The coach's own day on this tape (post-session only). Cached per session. */
+  function coachRun() {
+    const s = state.session;
+    if (!s.finished) throw new Error('The coach replay is only available after the session ends');
+    if (!ui.run) ui.run = runCoach({ day: s.day, instrumentId: s.inst.id, dayBars: ctx.dayBars(s), headlines: state.headlines, prevDay: ctx.prevDay(s) });
+    return ui.run;
+  }
+
   function openCoachReplay() {
     const s = state.session;
-    if (!ui.run) ui.run = runCoach({ day: s.day, instrumentId: s.inst.id, dayBars: ctx.dayBars(s), scheduled: ctx.scheduled(s) });
+    coachRun();
     ui.k = 0;
     $('crSub').textContent = `${s.day} · ${s.inst.id}`;
     $('coachDlg').showModal();
@@ -238,6 +246,11 @@ export function initCoachUi(ctx) {
       .filter((n) => n.clock <= f.clock).sort((a, b) => (a.clock < b.clock ? -1 : a.clock > b.clock ? 1 : 0));
     $('crNotes').innerHTML = lines.map((n) => `<li><span class="t">${n.clock}</span><span><span class="tag tag-${n.who}">${n.who}</span>${esc(n.text.replace(/^\d\d:\d\d: /, ''))}</span></li>`).join('');
     $('crNotes').scrollTop = $('crNotes').scrollHeight;
+    const v = f.view;
+    const chip = (e, extra = '') => `<span class="vchip ${e.bias > 0 ? 'up' : 'down'}${e.overruled ? ' off' : ''}" title="${esc(e.headline)}">${esc(e.prior ? 'overnight' : e.time)} ${e.bias > 0 ? '+' : '−'}${e.weight} ${esc(e.headline.length > 46 ? e.headline.slice(0, 45) + '…' : e.headline)}${extra}</span>`;
+    $('crView').innerHTML = `<span class="vmeter ${v.dir > 0 ? 'up' : v.dir < 0 ? 'down' : ''}">VIEW ${v.label} ${v.sum > 0 ? '+' : v.sum < 0 ? '−' : ''}${Math.abs(v.sum)}</span>`
+      + (v.events.map((e) => chip(e, e.overruled ? ' (overruled)' : e.viaHierarchy ? ' (confirmed by price)' : '')).join('') || '<span class="muted small">No event has set a view yet.</span>')
+      + v.pending.map((e) => chip(e, ` (held back: needs ${e.bias > 0 ? 'above' : 'below'} ${s.fmtPx(e.px)} for 3 bars, ${e.count}/3)`)).join('');
     $('crState').textContent = `${f.clock} CT · coach ${f.position ? (f.position > 0 ? 'long 1' : 'short 1') : 'flat'} · coach day ${money(f.equity - s.account.startingCash, true)}${k === r.frames.length - 1 ? ` · final ${money(r.net, true)}` : ''}`;
     $('crBack').disabled = k === 0;
     $('crStep').disabled = $('crNext').disabled = k >= r.frames.length - 1;
@@ -254,7 +267,7 @@ export function initCoachUi(ctx) {
   $('debriefBtn').onclick = openDebrief;
   $('coachReplayBtn').onclick = openCoachReplay;
 
-  return { showBriefing, openTicket, queueCards, reset, blocked, renderPath, renderProcess };
+  return { showBriefing, openTicket, queueCards, reset, blocked, renderPath, renderProcess, coachRun };
 }
 
 function fmtMs(ms) { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }

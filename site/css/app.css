@@ -188,3 +188,8 @@ input[type=number] { width: 100%; }
 #processTbl td { white-space: normal; }
 .report-btns { align-items: center; }
 .pickers select { max-width: 100%; }
+.crview { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 0; }
+.vmeter { font-family: var(--mono); font-weight: 700; border: 1px solid currentColor; border-radius: 4px; padding: 2px 8px; }
+.vchip { font-size: 11px; border: 1px solid var(--line); border-radius: 10px; padding: 1px 8px; color: var(--muted); }
+.vchip.up { border-color: var(--up); } .vchip.down { border-color: var(--down); }
+.vchip.off { text-decoration: line-through; opacity: .6; }

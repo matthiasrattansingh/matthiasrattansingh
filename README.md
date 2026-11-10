@@ -69,12 +69,14 @@ The headlines file is public on the site, so the honour system applies: don't re
   Grades: A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60. P&L grade thresholds are in `COACH.pnlGrade`.
 - **Guided debrief**: five one-line answers saved to a journal in localStorage and to the CSV; the
   day's driver is revealed after you answer question 1. Your rule opens the next briefing.
-- **Coach replay** (`site/js/coachbot.js`): a rule-based trader steps through the same day with
-  the same fills and costs, narrating each decision. Its three signals are defined in that file:
-  A range break (first close outside 07:00 to 07:30), B failed extreme (new extreme outside the
-  range that closes back inside within 3 bars), C VWAP flip (close across VWAP after 6 bars on the
-  other side, EMA 9/21 agreeing). It is a consistent playbook, not a best-possible trader: it loses
-  on some days.
+- **Coach replay** (`site/js/coachbot.js`, `site/js/view.js`, spec in `BEST_TRADE_SPEC.md`): the
+  best realistic trade, stepped through on the same tape with narration. Two layers: the VIEW (a
+  weighted bias from real headlines as they print; scheduled prints scored against consensus; one
+  print cannot flip a weight-3 regime view unless price holds 3 bars) and the TRIGGER (signals
+  A range break, B failed extreme, C VWAP flip, taken only with the view or as an A plus C fade
+  of an exhausted move). One trade a session; stop, stall rule, flat at 14:30. A bias meter shows
+  the view and the events that set it. It is a consistent playbook, not a hindsight-optimal
+  trader: it loses on some days.
 - **Trained** = briefing read, at least one ticket or pass, debrief saved. The scoreboard shows
   status, process grade, P&L grade and totals by signal.
 

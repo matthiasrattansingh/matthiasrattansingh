@@ -3,7 +3,8 @@
     "HAND-EDITABLE. One entry per trading day, keyed by date. Read by the coach layer of REPLAY DESK.",
     "briefing, lesson, lesson_text, events and scenarios are shown BEFORE the session, so they must be written as of that morning: no outcomes, no settle prices for that day, no hindsight ('fell to', 'rallied to', 'settled'). A unit test enforces this.",
     "driver_summary and driver_keywords are used ONLY in the guided debrief after the session (keywords auto-mark whether your answer named the driver). Never shown before or during a session.",
-    "Briefing text and lessons were supplied by the desk owner. Events, scenarios and driver summaries were written at build time from the real items in headlines.json."
+    "Briefing text and lessons were supplied by the desk owner. Events, scenarios and driver summaries were written at build time from the real items in headlines.json.",
+    "events[].consensus: what the market expected for a scheduled print, known before the print. The coach's view scores prints against it ('not recorded' = no figure was available at build time; add one if you have it)."
   ],
   "days": {
     "2026-10-27": {
@@ -13,7 +14,8 @@
       "events": [
         {
           "time": "15:30",
-          "label": "API weekly bulletin (after the pit close)"
+          "label": "API weekly bulletin (after the pit close)",
+          "consensus": "Reuters poll: crude roughly flat"
         }
       ],
       "scenarios": [
@@ -51,11 +53,13 @@
       "events": [
         {
           "time": "09:30",
-          "label": "EIA Weekly Petroleum Status Report"
+          "label": "EIA Weekly Petroleum Status Report",
+          "consensus": "poll: crude +0.5M, distillates -0.9M; API showed crude -2.03M"
         },
         {
           "time": "13:00",
-          "label": "Fed rate decision"
+          "label": "Fed rate decision",
+          "consensus": "hold expected; the dissent count is the tell"
         },
         {
           "time": "13:30",
@@ -97,11 +101,13 @@
       "events": [
         {
           "time": "07:30",
-          "label": "Q3 GDP (advance) and September PCE"
+          "label": "Q3 GDP (advance) and September PCE",
+          "consensus": "not recorded"
         },
         {
           "time": "09:30",
-          "label": "EIA natural gas storage"
+          "label": "EIA natural gas storage",
+          "consensus": "not recorded"
         }
       ],
       "scenarios": [
@@ -139,7 +145,8 @@
       "events": [
         {
           "time": "07:30",
-          "label": "Employment Cost Index"
+          "label": "Employment Cost Index",
+          "consensus": "not recorded"
         },
         {
           "time": "all day",
@@ -227,7 +234,8 @@
         },
         {
           "time": "15:30",
-          "label": "API weekly bulletin (after the pit close)"
+          "label": "API weekly bulletin (after the pit close)",
+          "consensus": "not recorded"
         }
       ],
       "scenarios": [
@@ -265,7 +273,8 @@
       "events": [
         {
           "time": "09:30",
-          "label": "EIA Weekly Petroleum Status Report"
+          "label": "EIA Weekly Petroleum Status Report",
+          "consensus": "crude -1.7M (calendar forecast); distillates not recorded"
         }
       ],
       "scenarios": [
@@ -303,7 +312,8 @@
       "events": [
         {
           "time": "09:30",
-          "label": "EIA natural gas storage"
+          "label": "EIA natural gas storage",
+          "consensus": "not recorded"
         }
       ],
       "scenarios": [
@@ -341,7 +351,8 @@
       "events": [
         {
           "time": "07:30",
-          "label": "US jobs report"
+          "label": "US jobs report",
+          "consensus": "not recorded"
         },
         {
           "time": "14:30",

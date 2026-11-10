@@ -194,7 +194,7 @@ export function briefingHtml({ day, product, coachDay, carried, priorClose, over
   return `${rule}
 <h3>Where we are, and what is priced in</h3>${prior}<p>${esc(c.briefing || 'No briefing written for this day. Add one in data/coach.json.')}</p>
 <h3>Overnight headlines</h3><ul>${li(overnight.map((h) => `<span class="mono muted">${esc(h.when)}</span> ${esc(h.text)}`)) || '<li class="muted">None on the tape.</li>'}</ul>
-<h3>Scheduled today (CT)</h3><ul>${li((c.events || []).map((e) => `<span class="mono">${esc(e.time)}</span> ${esc(e.label)}`)) || '<li class="muted">Nothing scheduled.</li>'}</ul>
+<h3>Scheduled today (CT)</h3><ul>${li((c.events || []).map((e) => `<span class="mono">${esc(e.time)}</span> ${esc(e.label)}${e.consensus ? ` <span class="muted">(consensus: ${esc(e.consensus)})</span>` : ''}`)) || '<li class="muted">Nothing scheduled.</li>'}</ul>
 <h3>Scenarios, and what each looks like on the tape</h3><ol>${li((c.scenarios || []).map((s) => `<strong>${esc(s.name)}</strong> (if ${esc(s.if)}). ${esc(s.tape)}`))}</ol>
 <h3>Lesson of the day</h3><p class="lesson"><strong>${esc(c.lesson || '')}</strong> ${esc(c.lesson_text || '')}</p>
 <p class="muted small">Before your first order: which scenario are you trading, and what on the tape tells you it is the wrong one?</p>`;
