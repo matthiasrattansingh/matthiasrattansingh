@@ -46,3 +46,17 @@ export const PAUSE_TYPES = ['EIA', 'EIA-NG', 'API'];
 // TAPE AUTOPSY: an opening/adding fill counts as BAITED when it happens within this many
 // minutes after a red herring printed, in the direction the herring implied.
 export const BAIT_WINDOW_MINUTES = 15;
+
+// COACH layer (Training path mode). Times are in milliseconds of REAL time unless noted.
+export const COACH = {
+  lockoutMs: 3 * 60 * 1000,     // re-entry lockout after a stop-out (real time)
+  revengeMinutes: 30,           // session minutes after a stop-out in which a re-entry counts as revenge
+  noSignalDelayMs: 5000,        // forced wait on a ticket with signal = None
+  headlinePauseMs: 5000,        // the "ticket pause" offered when a headline printed on the current bar
+  printFollowBars: 3,           // bars after a scheduled print before "held or faded?"
+  reunderwriteAt: '11:30',
+  lastHourAt: '13:30',
+  maxCardWords: 40,
+  // P&L grade thresholds, as % of starting equity: A >= a, B >= b, C >= c, D >= d, else F
+  pnlGrade: { a: 1.0, b: 0.25, c: -0.25, d: -1.0 },
+};

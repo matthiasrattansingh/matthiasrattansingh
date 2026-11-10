@@ -15,6 +15,7 @@
       <span class="badge-paper">PAPER MONEY ONLY</span>
     </div>
     <div class="pickers">
+      <label>Mode <select id="modeSel"><option value="train">Training path (coach on)</option><option value="free">Free play (untrained)</option></select></label>
       <label>Day <select id="daySel"></select></label>
       <label>Product <select id="instSel"></select></label>
       <button id="loadBtn" class="btn">Load session</button>
@@ -38,8 +39,17 @@
     <button id="resumeBtn" class="btn btn-primary">Resume ▶</button>
   </div>
 
+  <div id="coachCard" class="banner coach-card" hidden>
+    <div><strong>COACH</strong> <span id="coachText"></span></div>
+    <div id="coachBtns" class="coach-btns"></div>
+  </div>
+
   <main class="layout">
     <section class="col-main">
+      <div class="card" id="pathCard">
+        <div class="card-head"><h2>Training path <span class="muted small" id="pathSum"></span></h2></div>
+        <ol class="path" id="pathList"></ol>
+      </div>
       <div class="card chart-card">
         <div class="chart-head">
           <div><span id="instName" class="inst-name">—</span> <span id="ohlc" class="mono small muted"></span></div>
@@ -65,7 +75,9 @@
           <div class="table-wrap"><h3>By product</h3><table class="tbl" id="scoreProd"><thead><tr><th>Product</th><th class="r">Sessions</th><th class="r">Trades</th><th class="r">Beat passive</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">Cum. P&amp;L</th></tr></thead><tbody></tbody></table></div>
         </div>
         <h3>By session</h3>
-        <div class="table-wrap"><table class="tbl" id="scoreSess"><thead><tr><th>Played (UTC)</th><th>Day</th><th>Product</th><th class="r">Trades</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">P&amp;L</th></tr></thead><tbody></tbody></table></div>
+        <div class="table-wrap"><table class="tbl" id="scoreSess"><thead><tr><th>Played (UTC)</th><th>Day</th><th>Product</th><th>Status</th><th class="r">Trades</th><th class="r">Passes</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">Process</th><th class="r">P&amp;L grade</th><th class="r">P&amp;L</th></tr></thead><tbody></tbody></table></div>
+        <h3>By signal <span class="muted">which of your signals makes money</span></h3>
+        <div class="table-wrap"><table class="tbl" id="scoreSig"><thead><tr><th>Signal</th><th class="r">Trades</th><th class="r">Win rate</th><th class="r">Avg / trade</th><th class="r">Net P&amp;L</th></tr></thead><tbody></tbody></table></div>
       </div>
     </section>
 
@@ -95,6 +107,7 @@
           <button id="buyBtn" class="btn btn-buy" title="B">BUY</button>
           <button id="sellBtn" class="btn btn-sell" title="S">SELL</button>
         </div>
+        <div id="lockInfo" class="small msg err" hidden></div>
         <div id="marginInfo" class="small muted"></div>
         <div id="ticketMsg" class="small msg" role="status"></div>
       </div>
@@ -112,7 +125,7 @@
       </div>
 
       <div class="card small muted keys">
-        <strong>Keys</strong> Space play/pause · B buy mkt · S sell mkt · F flatten · → / ↓ step 1 bar · Shift+→ step 6 bars. No rewind: like the real thing.
+        <strong>Keys</strong> Space play/pause · B buy mkt · S sell mkt (entries open the trade ticket in Training path) · F flatten · → / ↓ step 1 bar · Shift+→ step 6 bars. No rewind: like the real thing.
       </div>
     </aside>
   </main>
@@ -122,16 +135,64 @@
       <h2>Session report card</h2>
       <p id="reportSub" class="muted"></p>
       <div class="report-grid" id="reportGrid"></div>
+      <div id="processBox" hidden>
+        <h3>Process <span class="muted">graded separately from P&amp;L</span></h3>
+        <p id="coachVerdict" class="coach-line"></p>
+        <table class="tbl" id="processTbl"><tbody></tbody></table>
+        <h3>By signal</h3>
+        <table class="tbl" id="sigTbl"><thead><tr><th>Signal</th><th class="r">Trades</th><th class="r">Wins</th><th class="r">Net</th></tr></thead><tbody></tbody></table>
+      </div>
       <h3>Compared with</h3>
       <table class="tbl" id="benchTbl"><tbody></tbody></table>
       <h3>Tape autopsy</h3>
       <p id="autopsySum" class="small muted"></p>
       <div class="autopsy-wrap"><table class="tbl" id="autopsyTbl"><thead><tr><th>Time</th><th>Class</th><th>Headline</th></tr></thead><tbody></tbody></table></div>
       <div class="report-btns">
+        <span id="trainedTag" class="tag"></span>
+        <button type="button" id="debriefBtn" class="btn btn-primary">Guided debrief</button>
+        <button type="button" id="coachReplayBtn" class="btn">Coach replay</button>
         <button type="button" id="reportCsvBtn" class="btn">Download trade log CSV</button>
-        <button class="btn btn-primary">Close</button>
+        <button class="btn">Close</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="briefDlg" class="report">
+    <h2>Morning briefing <span id="briefSub" class="muted small"></span></h2>
+    <div id="briefBody" class="brief-body" tabindex="0"></div>
+    <div class="report-btns"><span id="briefHint" class="small muted">Scroll to the end to unlock trading.</span><button type="button" id="briefOk" class="btn btn-primary" disabled>Start session</button></div>
+  </dialog>
+
+  <dialog id="ticketDlg" class="report ticket-dlg">
+    <h2>Trade ticket</h2>
+    <p id="tkSub" class="mono small"></p>
+    <label>1. What is the market pricing right now? <input id="tkPricing" type="text" maxlength="160" autocomplete="off"></label>
+    <label>2. My signal <select id="tkSignal"></select></label>
+    <p id="tkWarn" class="small msg err" hidden></p>
+    <label>3. What proves me wrong? (price) <input id="tkWrong" type="number" step="any" class="mono"></label>
+    <label class="chk"><input id="tkAttach" type="checkbox" checked> Attach it as my stop order</label>
+    <label>4. Size vs plan <select id="tkSize"></select></label>
+    <p id="tkPause" class="small coach-line" hidden></p>
+    <p id="tkLock" class="small msg err" hidden></p>
+    <p id="tkErr" class="small msg err" role="status"></p>
+    <div class="report-btns"><button type="button" id="tkCancel" class="btn">Cancel</button><button type="button" id="tkOk" class="btn btn-primary">Place order</button></div>
+  </dialog>
+
+  <dialog id="debriefDlg" class="report">
+    <h2>Guided debrief <span id="dbSub" class="muted small"></span></h2>
+    <p class="small muted">Five answers, one line each. They save to your journal and the CSV. Required for the session to count as trained.</p>
+    <div id="dbBody"></div>
+    <p id="dbErr" class="small msg err" role="status"></p>
+    <div class="report-btns"><button type="button" id="dbCancel" class="btn">Later</button><button type="button" id="dbSave" class="btn btn-primary">Save debrief</button></div>
+  </dialog>
+
+  <dialog id="coachDlg" class="report coach-replay">
+    <h2>Watch the coach trade <span id="crSub" class="muted small"></span></h2>
+    <p class="small muted">Same day, same fills and costs, one contract, rules only. Your own fills are marked YOU.</p>
+    <canvas id="crChart" aria-label="Coach replay chart"></canvas>
+    <div class="cr-controls"><button type="button" id="crBack" class="btn btn-sm">◂ Back</button><button type="button" id="crStep" class="btn btn-sm">Step bar ▸</button><button type="button" id="crNext" class="btn btn-sm btn-primary">Next decision ▸▸</button><span id="crState" class="mono small"></span></div>
+    <ol id="crNotes" class="tape cr-notes"></ol>
+    <div class="report-btns"><button type="button" id="crClose" class="btn">Close</button></div>
   </dialog>
 
   <footer class="foot small muted">

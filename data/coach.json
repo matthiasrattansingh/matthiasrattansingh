@@ -1,0 +1,422 @@
+{
+  "_README": [
+    "HAND-EDITABLE. One entry per trading day, keyed by date. Read by the coach layer of REPLAY DESK.",
+    "briefing, lesson, lesson_text, events and scenarios are shown BEFORE the session, so they must be written as of that morning: no outcomes, no settle prices for that day, no hindsight ('fell to', 'rallied to', 'settled'). A unit test enforces this.",
+    "driver_summary and driver_keywords are used ONLY in the guided debrief after the session (keywords auto-mark whether your answer named the driver). Never shown before or during a session.",
+    "Briefing text and lessons were supplied by the desk owner. Events, scenarios and driver summaries were written at build time from the real items in headlines.json."
+  ],
+  "days": {
+    "2026-10-27": {
+      "briefing": "Settles Mon: WTI 101.76, Brent 115.81, near last week's highs. Weekend: first high-level Tehran meeting (Iran, Saudi, Pakistan, Turkey). No barrels restored by any headline so far. API after the close.",
+      "lesson": "TRADE THE SURPRISE, NOT THE HEADLINE",
+      "lesson_text": "What matters is what is already in the price.",
+      "events": [
+        {
+          "time": "15:30",
+          "label": "API weekly bulletin (after the pit close)"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Diplomacy gets paid",
+          "if": "follow-through from the Tehran meeting",
+          "tape": "Lower highs, bounces sold under VWAP, Brent leading the way down."
+        },
+        {
+          "name": "Talk, no barrels",
+          "if": "no concrete terms emerge",
+          "tape": "An early dip gets bought, price reclaims VWAP and stays inside Monday's range."
+        },
+        {
+          "name": "Risk returns",
+          "if": "a confirmed strike or attack",
+          "tape": "A fast spike that is still above the prior high three bars later."
+        }
+      ],
+      "driver_summary": "Renewed diplomacy drove the day: Iran's leadership discussing conditions to end the war pushed crude lower for a second session. The Saudi interception report involved no damage to energy infrastructure and did not reverse the move. API came after the close.",
+      "driver_keywords": [
+        "diplom",
+        "talks",
+        "end the war",
+        "conditions",
+        "supreme leader",
+        "negotiat",
+        "peace"
+      ]
+    },
+    "2026-10-28": {
+      "briefing": "Unconfirmed Houthi claim of a Ras Tanura strike overnight, no Saudi confirmation. EIA 09:30 CT (poll: crude +0.5M, distillates -0.9M; API showed crude -2.03M). Fed decision 13:00 CT, hold expected, the dissent count is the tell.",
+      "lesson": "SEPARATE CLAIM FROM CONFIRMATION",
+      "lesson_text": "Price the claim at a discount until someone verifies it.",
+      "events": [
+        {
+          "time": "09:30",
+          "label": "EIA Weekly Petroleum Status Report"
+        },
+        {
+          "time": "13:00",
+          "label": "Fed rate decision"
+        },
+        {
+          "time": "13:30",
+          "label": "Fed chair press conference"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Claim confirmed",
+          "if": "Saudi authorities verify damage",
+          "tape": "The overnight gap holds, pullbacks stay shallow, Brent leads."
+        },
+        {
+          "name": "Claim fades",
+          "if": "no confirmation, or a denial",
+          "tape": "The overnight premium bleeds back toward VWAP before the EIA."
+        },
+        {
+          "name": "The prints decide",
+          "if": "neither side of the claim is resolved",
+          "tape": "Direction comes from the EIA versus the poll, then the Fed. Judge each first move after three bars."
+        }
+      ],
+      "driver_summary": "An unconfirmed Houthi claim on Ras Tanura put a bid under crude overnight, and the 09:30 EIA showed a 1.892M crude draw against a poll looking for a small build. The Fed held with only two hawkish dissents, fewer than feared.",
+      "driver_keywords": [
+        "ras tanura",
+        "houthi",
+        "eia",
+        "draw",
+        "inventor",
+        "fed",
+        "claim"
+      ]
+    },
+    "2026-10-29": {
+      "briefing": "Reports overnight that VP Vance wrote to Tehran's security chief about reviving talks knocked about 1% off crude in Asia. GDP and PCE at 07:30 CT. Gas storage 09:30 CT.",
+      "lesson": "THE REACTION IS THE NEWS",
+      "lesson_text": "If price falls through a bullish headline, the headline was already paid for.",
+      "events": [
+        {
+          "time": "07:30",
+          "label": "Q3 GDP (advance) and September PCE"
+        },
+        {
+          "time": "09:30",
+          "label": "EIA natural gas storage"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Diplomacy builds",
+          "if": "more contact headlines",
+          "tape": "Lower highs, rallies fail at VWAP."
+        },
+        {
+          "name": "Diplomacy denied",
+          "if": "a pushback or denial of the letter",
+          "tape": "Shorts cover and price takes back the Asia drop."
+        },
+        {
+          "name": "Macro in charge",
+          "if": "a hot PCE",
+          "tape": "Dollar up, crude heavy whatever the Gulf headlines say."
+        }
+      ],
+      "driver_summary": "Diplomacy hopes faded crude: reports that VP Vance wrote to Tehran's security chief outweighed a fresh tanker attack in the Strait. Hot GDP and PCE lifted hike odds and the dollar. Trump's midday pushback on the letter reports was the counter-headline.",
+      "driver_keywords": [
+        "diplom",
+        "vance",
+        "letter",
+        "talks",
+        "pce",
+        "gdp",
+        "dollar"
+      ]
+    },
+    "2026-10-30": {
+      "briefing": "Yesterday's fade met a VERIFIED limpet-mine attack on a Hormuz tanker. December Brent expires today. ECI at 07:30 CT. OPEC+ meets Sunday.",
+      "lesson": "DO NOT FADE CONFIRMED RISK",
+      "lesson_text": "Unconfirmed claims get discounted; verified attacks re-anchor the premium.",
+      "events": [
+        {
+          "time": "07:30",
+          "label": "Employment Cost Index"
+        },
+        {
+          "time": "all day",
+          "label": "December Brent futures expire"
+        },
+        {
+          "time": "Sunday",
+          "label": "OPEC+ meeting"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Confirmed risk repriced",
+          "if": "the verified attack stays the story",
+          "tape": "Buyers defend dips, higher lows above VWAP."
+        },
+        {
+          "name": "Sell the news",
+          "if": "no new highs in the first hour",
+          "tape": "Longs take profit and price drifts back to VWAP."
+        },
+        {
+          "name": "Weekend squaring",
+          "if": "nothing new before OPEC+",
+          "tape": "The range compresses in the afternoon as positions are cut into the weekend."
+        }
+      ],
+      "driver_summary": "A verified limpet-mine attack on a Hormuz tanker re-anchored the premium to confirmed shipping risk after days of unconfirmed claims. Steady flows, December Brent expiry and the ECI print were secondary.",
+      "driver_keywords": [
+        "limpet",
+        "mine",
+        "verified",
+        "confirmed",
+        "tanker",
+        "attack",
+        "hormuz"
+      ]
+    },
+    "2026-11-02": {
+      "briefing": "Weekend: Qatar-mediated draft proposal headlines knocked crude about 4% pre-open. OPEC+ held December steady Sunday, no new barrels. Hormuz still effectively closed; distillate cracks near $90.",
+      "lesson": "PREMIUM UNWIND IS NOT PHYSICAL LOOSENING",
+      "lesson_text": "Watch the cracks; they tell you whether barrels actually moved.",
+      "events": [
+        {
+          "time": "none",
+          "label": "No scheduled data in the session"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Unwind extends",
+          "if": "more deal headlines",
+          "tape": "The gap down holds, bounces fail under VWAP, and cracks soften too."
+        },
+        {
+          "name": "Gap fill",
+          "if": "no signed deal, no follow-through",
+          "tape": "The pre-open drop is bought and price works back toward Friday's range."
+        },
+        {
+          "name": "Flat price only",
+          "if": "crude sells but products do not",
+          "tape": "Crude trends lower while cracks hold. That is premium coming out, not barrels arriving."
+        }
+      ],
+      "driver_summary": "A diplomacy unwind: weekend reports of a Qatar-mediated draft to reopen Hormuz hit crude at the open and the selling kept going, with no deal signed. OPEC+ changed no barrels. Distillate cracks held near $90, so products did not confirm a physical loosening.",
+      "driver_keywords": [
+        "diplom",
+        "qatar",
+        "draft",
+        "deal",
+        "unwind",
+        "premium",
+        "proposal"
+      ]
+    },
+    "2026-11-03": {
+      "briefing": "Election day. Monday was a 7% washout on diplomacy headlines with no deal signed. EIA tomorrow.",
+      "lesson": "AFTER A WASHOUT, SIZE DOWN",
+      "lesson_text": "Whipsaw days hurt both sides; the correct position is often smaller or none.",
+      "events": [
+        {
+          "time": "all day",
+          "label": "US midterm elections (results after the close)"
+        },
+        {
+          "time": "15:30",
+          "label": "API weekly bulletin (after the pit close)"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Two-way chop",
+          "if": "no new information",
+          "tape": "Breaks fail in both directions and price keeps crossing VWAP."
+        },
+        {
+          "name": "Continuation",
+          "if": "Monday's low gives way",
+          "tape": "Price stays under Monday's low for three bars or more."
+        },
+        {
+          "name": "Retrace",
+          "if": "sellers are done",
+          "tape": "Higher lows, VWAP reclaimed, cracks widening."
+        }
+      ],
+      "driver_summary": "A whipsaw day with no decisive driver: signs of abundance in Mideast grades on one side, a rebound off the low as cracks widened on the other. Deal probability was rising but no barrel had moved, and election day kept conviction low.",
+      "driver_keywords": [
+        "whipsaw",
+        "chop",
+        "no driver",
+        "two-way",
+        "abundance",
+        "cracks",
+        "election"
+      ]
+    },
+    "2026-11-04": {
+      "briefing": "Election results are repricing the war premium politically. EIA 09:30 CT after four straight crude draws; distillates near multi-year lows. JPMorgan says October already ran a surplus.",
+      "lesson": "KNOW THE THESIS HIERARCHY",
+      "lesson_text": "On regime days, politics and positioning outrank inventories; a bullish print can be sold.",
+      "events": [
+        {
+          "time": "09:30",
+          "label": "EIA Weekly Petroleum Status Report"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Politics outranks barrels",
+          "if": "the repricing keeps running",
+          "tape": "Selling persists and any bounce on the EIA fails within three bars."
+        },
+        {
+          "name": "Inventories reassert",
+          "if": "a large draw at 09:30",
+          "tape": "Price holds above its pre-print level and reclaims VWAP."
+        },
+        {
+          "name": "Exhaustion",
+          "if": "the early flush finds no new sellers",
+          "tape": "A base forms with higher lows into the afternoon."
+        }
+      ],
+      "driver_summary": "Political repricing: the election results cut the war premium across the board. Crude fell through a bullish EIA (a fifth straight crude draw, distillates under 100M for the first time since 2003), and JPMorgan's surplus note reinforced the move.",
+      "driver_keywords": [
+        "election",
+        "politic",
+        "repric",
+        "premium",
+        "democrat",
+        "senate",
+        "midterm"
+      ]
+    },
+    "2026-11-05": {
+      "briefing": "Crude is down about 12% on the week, deal odds cut to about 10%, more ship attacks reported, Brent has traded under $100. Gas storage 09:30 CT.",
+      "lesson": "OVERSOLD IS A CONDITION, NOT A SIGNAL",
+      "lesson_text": "Bounces after washouts are short-covering until a real catalyst confirms them.",
+      "events": [
+        {
+          "time": "09:30",
+          "label": "EIA natural gas storage"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Short-covering bounce",
+          "if": "no news at all",
+          "tape": "A grind higher on light pullbacks that stalls at yesterday's breakdown levels."
+        },
+        {
+          "name": "Bounce fails",
+          "if": "sellers reload",
+          "tape": "An early pop is sold back under VWAP and the lows are retested."
+        },
+        {
+          "name": "Real catalyst",
+          "if": "a confirmed escalation",
+          "tape": "A spike that holds, with Brent back above $100."
+        }
+      ],
+      "driver_summary": "A short-covering reversal: prediction markets cut the odds of a negotiated settlement to about 10% after a 12% weekly collapse, and more ship attacks were reported in the Gulf. There was no new physical catalyst.",
+      "driver_keywords": [
+        "short",
+        "cover",
+        "oversold",
+        "bounce",
+        "reversal",
+        "odds",
+        "prediction"
+      ]
+    },
+    "2026-11-06": {
+      "briefing": "Jobs report 07:30 CT. Brent spiked through $100 overnight on attack reports. Spec length is near record lows. COT after the close.",
+      "lesson": "DO NOT CHASE THE SPIKE",
+      "lesson_text": "The first move on a headline is the most expensive one; make the market prove it can hold the level.",
+      "events": [
+        {
+          "time": "07:30",
+          "label": "US jobs report"
+        },
+        {
+          "time": "14:30",
+          "label": "CFTC Commitments of Traders (after the pit close)"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Spike holds",
+          "if": "the attack reports are confirmed",
+          "tape": "Brent stays above $100 after the jobs data and dips to the level are bought."
+        },
+        {
+          "name": "Spike fades",
+          "if": "no confirmation",
+          "tape": "Brent cannot hold $100 through the first hour; lower highs back toward yesterday's range."
+        },
+        {
+          "name": "Macro cap",
+          "if": "a strong jobs number",
+          "tape": "Dollar up, crude pinned in a range."
+        }
+      ],
+      "driver_summary": "An overnight Brent spike through $100 on tanker-attack reports faded through the session. A strong jobs report lifted the dollar and hike odds, and the market priced de-escalation rather than the attacks, with spec length near record lows.",
+      "driver_keywords": [
+        "spike",
+        "fade",
+        "jobs",
+        "dollar",
+        "de-escalation",
+        "$100",
+        "payroll"
+      ]
+    },
+    "2026-11-09": {
+      "briefing": "Weekend: a tanker was hit exiting Hormuz, no Sunday transits reported, Qatar's PM goes to the White House today. Unverified reports will fly. CPI and the EIA outlook land Tuesday.",
+      "lesson": "TWO SOURCES OR IT IS A RUMOR",
+      "lesson_text": "On unverified deal reports, the spread and the second hour tell the truth.",
+      "events": [
+        {
+          "time": "today",
+          "label": "Qatar's PM at the White House (time not announced)"
+        },
+        {
+          "time": "Tuesday",
+          "label": "CPI and the EIA Short-Term Energy Outlook"
+        }
+      ],
+      "scenarios": [
+        {
+          "name": "Deal hopes",
+          "if": "the White House meeting produces progress",
+          "tape": "Brent sells harder than WTI, the spread narrows, bounces fail."
+        },
+        {
+          "name": "Attack premium",
+          "if": "the weekend tanker hit stays the story",
+          "tape": "The opening bid holds and the Brent-WTI spread widens."
+        },
+        {
+          "name": "Rumor whipsaw",
+          "if": "unverified reports with no second source",
+          "tape": "Spikes both ways that reverse inside the hour. The second hour sets the direction."
+        }
+      ],
+      "driver_summary": "Deal headlines drove it: the report of Qatar's PM carrying an Iranian interim proposal, the unconfirmed Israel Hayom report of an $8bn offer, and Trump saying new strikes were highly unlikely. Brent fell harder than WTI and the spread narrowed sharply. Natural gas decoupled higher on LNG feedgas and cold.",
+      "driver_keywords": [
+        "deal",
+        "qatar",
+        "proposal",
+        "diplom",
+        "israel hayom",
+        "white house",
+        "talks"
+      ]
+    }
+  }
+}

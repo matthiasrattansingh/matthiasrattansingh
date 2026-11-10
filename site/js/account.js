@@ -71,6 +71,7 @@ export class Account {
         entryTime: lot.time, exitTime: time, entry: lot.price, exit: price,
         gross, fees, net: gross - fees, exitReason: reason,
         baited: Boolean(lot.meta?.baitedBy), baitHeadline: lot.meta?.baitedBy?.headline ?? '',
+        meta: lot.meta ?? null,
       };
       this.trades.push(trade);
       closed.push(trade);

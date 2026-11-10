@@ -95,6 +95,12 @@ test('NO LEAK: a red herring renders byte-identically to a real item on the sess
   const noise = { ...visible, class: 'noise', implies: 'up', herring_type: 'a', autopsy_note: 'unverified', source: 'Authored red herring', url: '', pause: false, products: ['CL'] };
   for (const prior of [false, true]) {
     assert.equal(headlineHtml({ clock: '08:10', kind: 'headline', item: noise, prior }), headlineHtml({ clock: '08:10', kind: 'headline', item: real, prior }));
+    // coach mode adds the PASS control: still identical for both classes, passed or not
+    for (const passed of [undefined, { reason: '' }, { reason: 'Unconfirmed' }]) {
+      const a = headlineHtml({ clock: '08:10', kind: 'headline', item: noise, prior, passed }, { index: 7 });
+      assert.equal(a, headlineHtml({ clock: '08:10', kind: 'headline', item: real, prior, passed }, { index: 7 }));
+      assert.match(a, /data-pass="7"/);
+    }
   }
 
   // every item in the real file, rendered the way a session renders it: structure depends only on
@@ -216,11 +222,11 @@ test('scoreboard and CSV carry herrings seen and times baited', () => {
 
   const csv = tradesToCsv(s.account.trades, s.day, 2, { finished: true, herringsSeen: c.herringsSeen, timesBaited: c.timesBaited, product: 'CL' });
   const [head, r1, r2] = csv.trim().split('\n');
-  assert.match(head, /,baited,baitHeadline,sessionHerringsSeen,sessionTimesBaited$/);
-  assert.match(r1, /,BAITED,Videos circulating online purport to show a fire,2,1$/);
-  assert.match(r2, /,,,2,1$/);
+  assert.match(head, /,baited,baitHeadline,sessionHerringsSeen,sessionTimesBaited,/);
+  assert.match(r1, /,BAITED,Videos circulating online purport to show a fire,2,1,/);
+  assert.match(r2, /,flatten,,,2,1,|,session close,,,2,1,/);
   const none = tradesToCsv([], s.day, 2, { finished: true, herringsSeen: 2, timesBaited: 0, product: 'CL' });
-  assert.match(none.trim().split('\n')[1], /NO TRADES.*,2,0$/);
+  assert.match(none.trim().split('\n')[1], /NO TRADES.*,,,2,0,/);
 
   const mem = new Map();
   const storage = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k) };

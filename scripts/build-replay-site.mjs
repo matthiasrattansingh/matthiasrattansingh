@@ -12,7 +12,7 @@ cpSync(join(root, 'site'), out, { recursive: true });
 mkdirSync(join(out, 'data'));
 
 const manifest = JSON.parse(readFileSync(join(root, 'data/manifest.json'), 'utf8'));
-const files = ['manifest.json', 'headlines.json', ...Object.values(manifest.products).map((p) => p.file)];
+const files = ['manifest.json', 'headlines.json', 'coach.json', ...Object.values(manifest.products).map((p) => p.file)];
 for (const f of files) {
   const text = readFileSync(join(root, 'data', f), 'utf8');
   JSON.parse(text); // throws on invalid JSON (e.g. a bad hand edit of headlines.json)

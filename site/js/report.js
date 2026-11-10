@@ -1,5 +1,6 @@
 // End-of-session scoring, trade-log CSV, and the localStorage scoreboard.
 import { feesFor, pnlDollars, roundTo } from './instruments.js';
+import { processScore, pnlGrade, signalStats } from './coach.js';
 
 export function maxDrawdown(curve) {
   let peak = -Infinity, dd = 0;
@@ -33,6 +34,7 @@ export function tapeAutopsy(session) {
       label: herring ? 'RED HERRING' : 'REAL', herring,
       implies: herring ? h.implies ?? '' : '', herringType: herring ? h.herring_type ?? '' : '',
       note: h.autopsy_note ?? '', source: herring ? '' : h.source ?? '', url: herring ? '' : h.url ?? '',
+      passed: t.passed ? (t.passed.reason || 'no reason given') : '',
       baits: herring ? session.baitEvents.filter((b) => b.herringClock === t.clock && b.headline === h.headline) : [],
     };
   });
@@ -51,7 +53,13 @@ export function reportCard(session) {
   const finalQ = session.finalQuote || session.quote();
   const autopsy = session.finished ? tapeAutopsy(session) : [];
   const baitedTrades = trades.filter((t) => t.baited);
+  const proc = session.coach ? processScore(session) : null;
   return {
+    process: proc,
+    pnlGrade: pnlGrade(totalNet, acct.startingCash),
+    bySignal: signalStats(trades),
+    passes: session.passes.length,
+    mode: session.coach ? 'train' : 'free',
     autopsy,
     herringsSeen: autopsy.filter((a) => a.herring).length,
     timesBaited: session.finished ? session.baitEvents.length : 0,
@@ -75,26 +83,38 @@ export function reportCard(session) {
 }
 
 const CSV_COLS = ['entryTime', 'exitTime', 'product', 'side', 'size', 'entry', 'exit', 'gross', 'fees', 'net', 'exitReason',
-  'baited', 'baitHeadline', 'sessionHerringsSeen', 'sessionTimesBaited'];
+  'baited', 'baitHeadline', 'sessionHerringsSeen', 'sessionTimesBaited',
+  'signal', 'pricedIn', 'provesMeWrong', 'sizeVsPlan',
+  'sessionMode', 'sessionTrained', 'sessionPasses', 'sessionProcessScore', 'sessionProcessGrade', 'sessionPnlGrade',
+  'debrief1Driver', 'debriefNamedDriver', 'debrief2TapeToldYou', 'debrief3FirstTrade', 'debrief4Turn', 'debrief5Rule'];
 
 /**
- * Trade log CSV. `score` = { finished, herringsSeen, timesBaited, product }. The BAITED tag and the
- * two herring stats are only written for a finished session (blank before, so a mid-session
- * download cannot reveal which headlines were herrings). A finished session with no trades
- * still gets one row carrying the stats.
+ * Trade log CSV. `score` = { finished, herringsSeen, timesBaited, product, mode, trained, passes,
+ * processScore, processGrade, pnlGrade, debrief: { answers[5], named } }. The BAITED tag and every
+ * session-level column are only written for a finished session (blank before, so a mid-session
+ * download cannot reveal which headlines were herrings). Ticket columns are the trader's own
+ * inputs and are always written. A finished session with no trades still gets one row.
  */
 export function tradesToCsv(trades, day, decimals = 4, score = null) {
   const esc = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const done = Boolean(score?.finished);
+  const d = score?.debrief;
+  const a = d?.answers || [];
+  const sess = done
+    ? [score.mode ?? '', score.trained ? 'TRAINED' : 'untrained', score.passes ?? 0, score.processScore ?? '', score.processGrade ?? '', score.pnlGrade ?? '',
+      a[0] ?? '', d ? (d.named ? 'YES' : 'NO') : '', a[1] ?? '', a[2] ?? '', a[3] ?? '', a[4] ?? '']
+    : Array(12).fill('');
   const stats = done ? [score.herringsSeen, score.timesBaited] : ['', ''];
   const rows = [['date', ...CSV_COLS].join(',')];
   for (const t of trades) {
+    const k = t.meta?.ticket;
     rows.push([day, t.entryTime, t.exitTime, t.product, t.side, t.size,
       t.entry.toFixed(decimals), t.exit.toFixed(decimals), t.gross.toFixed(2), t.fees.toFixed(2), t.net.toFixed(2), t.exitReason,
-      done ? (t.baited ? 'BAITED' : '') : '', done && t.baited ? t.baitHeadline : '', ...stats]
+      done ? (t.baited ? 'BAITED' : '') : '', done && t.baited ? t.baitHeadline : '', ...stats,
+      k?.signal ?? '', k?.pricing ?? '', k ? k.wrong.toFixed(decimals) : '', k?.size ?? '', ...sess]
       .map(esc).join(','));
   }
-  if (done && !trades.length) rows.push([day, '', '', score.product ?? '', 'NO TRADES', 0, '', '', '0.00', '0.00', '0.00', '', '', '', ...stats].map(esc).join(','));
+  if (done && !trades.length) rows.push([day, '', '', score.product ?? '', 'NO TRADES', 0, '', '', '0.00', '0.00', '0.00', '', '', '', ...stats, '', '', '', '', ...sess].map(esc).join(','));
   return rows.join('\n') + '\n';
 }
 
@@ -107,11 +127,23 @@ export function loadScores(storage = globalThis.localStorage) {
 
 export function saveScore(card, storage = globalThis.localStorage) {
   const list = loadScores(storage);
-  list.push({ day: card.day, product: card.product, net: card.totalNet, trades: card.trades,
+  list.push({ mode: card.mode, trained: false, passes: card.passes, pnlGrade: card.pnlGrade,
+    process: card.process ? card.process.score : null, processGrade: card.process ? card.process.grade : null,
+    bySignal: card.bySignal, day: card.day, product: card.product, net: card.totalNet, trades: card.trades,
     fees: card.fees, passive: card.passiveLong.net, herrings: card.herringsSeen, baited: card.timesBaited,
     baitedNet: card.baitedNet, playedAt: new Date().toISOString() });
   try { storage.setItem(KEY, JSON.stringify(list)); } catch { /* storage unavailable */ }
   return list;
+}
+
+/** Patch the saved session whose playedAt matches (used when the debrief completes). */
+export function updateScore(playedAt, patch, storage = globalThis.localStorage) {
+  const list = loadScores(storage);
+  const row = list.find((x) => x.playedAt === playedAt);
+  if (!row) return false;
+  Object.assign(row, patch);
+  try { storage.setItem(KEY, JSON.stringify(list)); } catch { /* storage unavailable */ }
+  return true;
 }
 
 export function clearScores(storage = globalThis.localStorage) {

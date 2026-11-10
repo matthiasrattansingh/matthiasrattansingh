@@ -70,7 +70,7 @@ jobs:
           [ "$got" = "$GITHUB_SHA" ] || { echo "::error::live site is not serving $GITHUB_SHA"; exit 1; }
           html=$(curl -fsS "${URL}?t=$(date +%s)")
           echo "$html" | grep -q '<title>REPLAY DESK</title>' || { echo "::error::index.html is not REPLAY DESK"; exit 1; }
-          for f in js/app.js js/session.js css/app.css data/manifest.json data/headlines.json data/CL.json data/BZ.json data/NG.json data/RB.json data/HO.json; do
+          for f in js/app.js js/session.js css/app.css js/coach.js js/coach-ui.js js/coachbot.js data/manifest.json data/headlines.json data/coach.json data/CL.json data/BZ.json data/NG.json data/RB.json data/HO.json; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "${URL}${f}")
             echo "$code $f"; [ "$code" = 200 ] || { echo "::error::$f returned $code"; exit 1; }
           done

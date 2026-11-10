@@ -5,7 +5,8 @@
 // indicators and the order book see comes from revealed*() / quote(), which are
 // bounded by the cursor. Working orders are only tested against bars revealed after
 // they were placed.
-import { PRODUCTS, SPREADS, ACCOUNT, SESSION, PAUSE_TYPES, BAIT_WINDOW_MINUTES } from './config.js';
+import { PRODUCTS, SPREADS, ACCOUNT, SESSION, PAUSE_TYPES, BAIT_WINDOW_MINUTES, COACH } from './config.js';
+import { validateTicket, CARD_TEXT, CARD_ANSWERS, NO_SIGNAL, PRINT_SIGNAL, PASS_REASONS } from './coach.js';
 import { getInstrument, instrumentQuote, productQuote, slippage, roundTo } from './instruments.js';
 import { marketFillPrice, barFillPrice } from './orders.js';
 import { Account } from './account.js';
@@ -37,7 +38,7 @@ export class Session {
   #times;
 
   constructor({ day, instrumentId, dayBars, headlines = [], prevDay = null,
-    products = PRODUCTS, spreads = SPREADS, account = {} }) {
+    products = PRODUCTS, spreads = SPREADS, account = {}, coach = false, now = null }) {
     this.day = day;
     this.products = products;
     this.inst = getInstrument(instrumentId, products, spreads);
@@ -54,6 +55,20 @@ export class Session {
     this.slip = slippage(this.inst, products, account.slippageTicks ?? ACCOUNT.slippageTicks);
     this.orders = [];
     this.tape = [];
+    // ---- coach layer (Training path). With coach=false none of the gates apply.
+    this.coach = Boolean(coach);
+    this.now = now || (() => Date.now());
+    this.briefingViewed = !this.coach;
+    this.entries = [];          // ticketed fills that opened or added exposure
+    this.ticketsLogged = 0;     // complete tickets accepted (filled or still working)
+    this.passes = [];           // headlines the trader explicitly passed on
+    this.coachLog = [];         // every coach card shown, with the answer given
+    this.stopOuts = [];
+    this.printsHeld = [];       // scheduled prints a position was carried through unplanned
+    this.lock = null;           // { untilMs, signal, clock } after a stop-out
+    this.pendingCards = [];
+    this.followUps = [];
+    this.firstHeadlineDone = false;
     this.baitEvents = [];       // opening fills taken right after a red herring (revealed post-session only)
     this.equityCurve = [];
     this.nextOrderId = 1;
@@ -148,7 +163,23 @@ export class Session {
       price = roundTo(price, this.inst.tick);
     } else if (type !== 'MKT') return { ok: false, error: `Unknown order type ${type}` };
 
-    const bracket = this.#validateBracket(side, type, price, spec.bracket);
+    let ticket = null;
+    let bracketSpec = spec.bracket;
+    if (this.coach) {
+      if (!this.briefingViewed) return { ok: false, error: 'Read the morning briefing first. Trading unlocks when you reach the end.' };
+      if (this.isEntry(side, qty)) {
+        const v = validateTicket(spec.ticket, { side, ref: price ?? this.mark(), tick: this.inst.tick });
+        if (!v.ok) return { ok: false, needsTicket: true, ticketErrors: v.errors, error: `Ticket incomplete: ${v.errors.join('; ')}.` };
+        ticket = v.ticket;
+        const lock = this.lockout();
+        if (lock && (lock.signal == null || ticket.signal === lock.signal)) {
+          return { ok: false, locked: true, error: `Locked out ${fmtMs(lock.remainingMs)} after the ${lock.clock} stop-out. Same idea again needs a NEW signal: a ticket with a different signal overrides.` };
+        }
+        if (ticket.attachStop) bracketSpec = { ...(bracketSpec || {}), stop: ticket.wrong };
+      }
+    }
+
+    const bracket = this.#validateBracket(side, type, price, bracketSpec);
     if (bracket.error) return { ok: false, error: bracket.error };
 
     const m = this.account.checkMargin(side, qty, this.mark(), this.lastByProduct());
@@ -157,8 +188,9 @@ export class Session {
     }
 
     const order = { id: this.nextOrderId++, side, type, qty, price, status: 'WORKING',
-      placedAt: this.cursor, placedClock: this.clock(), bracket: bracket.value, parentId: null, oco: null, tag: spec.tag || '' };
+      placedAt: this.cursor, placedClock: this.clock(), bracket: bracket.value, parentId: null, oco: null, tag: spec.tag || '', ticket };
     this.orders.push(order);
+    if (ticket) this.ticketsLogged += 1;
 
     if (type === 'MKT') {
       const fillPrice = marketFillPrice(side, this.quote(), this.slip, this.inst.tick);
@@ -207,8 +239,15 @@ export class Session {
     order.fillPrice = price;
     order.fillClock = this.clock();
     const bait = order.parentId == null ? this.#baitFor(order) : null;
+    const rec = order.ticket ? this.#entryRecord(order, price) : null;
     const closed = this.account.fill({ side: order.side, qty: order.qty, price, time: this.clock(), reason,
-      lotMeta: bait ? { baitedBy: bait.item } : null });
+      lotMeta: bait || rec ? { baitedBy: bait?.item ?? null, ticket: order.ticket ?? null, entry: rec } : null });
+    for (const t of closed) {   // the exit price counts toward the closed lot's best/worst excursion
+      const e = t.meta?.entry;
+      if (e) { const long = t.side === 'LONG'; e.best = long ? Math.max(e.best, price) : Math.min(e.best, price); e.worst = long ? Math.min(e.worst, price) : Math.max(e.worst, price); }
+    }
+    if (rec && this.account.lastOpenedQty > 0) { rec.qty = this.account.lastOpenedQty; this.entries.push(rec); }
+    if (order.type === 'STP' && closed.length && this.account.lastOpenedQty === 0) this.#stopOut(order, price, closed);
     if (bait && this.account.lastOpenedQty > 0) {
       this.baitEvents.push({ clock: this.clock(), side: order.side, qty: this.account.lastOpenedQty, price,
         herringClock: bait.clock, headline: bait.item.headline });
@@ -238,6 +277,116 @@ export class Session {
       hit = t;
     }
     return hit;
+  }
+
+  /** True when this order would open or add exposure (so it needs a ticket in coach mode). */
+  isEntry(side, qty) {
+    const pos = this.account.position;
+    const signed = side === 'BUY' ? qty : -qty;
+    return pos === 0 || Math.sign(signed) === Math.sign(pos) || Math.abs(signed) > Math.abs(pos);
+  }
+
+  /** Active stop-out lockout, or null. Real time, from the injected clock. */
+  lockout() {
+    if (!this.lock) return null;
+    const remainingMs = this.lock.untilMs - this.now();
+    return remainingMs > 0 ? { ...this.lock, remainingMs } : null;
+  }
+
+  #entryRecord(order, price) {
+    const t = order.ticket;
+    const now = minutesOf(this.clock());
+    const last = this.stopOuts.at(-1);
+    const sinceStop = last ? now - minutesOf(last.clock) : Infinity;
+    const onHeadlineBar = this.tape.some((x) => x.kind === 'headline' && !x.prior && x.clock === order.placedClock);
+    return {
+      orderId: order.id, ticket: t, side: order.side, type: order.type, placedClock: order.placedClock, fillClock: this.clock(),
+      price, qty: order.qty, stop: order.bracket?.stop ?? null, R: Math.max(Math.abs(price - t.wrong), this.inst.tick),
+      best: price, worst: price, warned1R: false,
+      flags: {
+        noSignal: t.signal === NO_SIGNAL,
+        noStop: order.bracket?.stop == null,
+        revenge: sinceStop >= 0 && sinceStop <= COACH.revengeMinutes,
+        impulse: onHeadlineBar && !t.headlinePause,
+        lockOverride: Boolean(this.lockout()),
+      },
+    };
+  }
+
+  #stopOut(order, price, closed) {
+    const signal = closed[0].meta?.ticket?.signal ?? null;
+    this.stopOuts.push({ clock: this.clock(), price, signal });
+    if (!this.coach) return;
+    this.lock = { untilMs: this.now() + COACH.lockoutMs, signal, clock: this.clock() };
+    this.#card('stopOut', `${this.clock()}: out at ${this.fmtPx(price)}. Re-entry locked 3 minutes.`);
+  }
+
+  #card(key, context, extra = {}) {
+    const card = { id: this.coachLog.length + 1, key, clock: this.clock(), text: `${context} ${CARD_TEXT[key]}`.trim(),
+      answers: CARD_ANSWERS[key] || [], answer: null, dismissed: false, ...extra };
+    this.coachLog.push(card);
+    this.pendingCards.push(card);
+    return card;
+  }
+
+  /** Log the trader's one-tap answer (or a plain dismissal) for a coach card. */
+  answerCard(id, answer = null) {
+    const c = this.coachLog.find((x) => x.id === id);
+    if (!c) return false;
+    c.answer = answer; c.dismissed = true; c.answeredClock = this.clock();
+    return true;
+  }
+
+  /** "Passed on this headline": tapeIndex is the index in this.tape. Reason is optional. */
+  pass(tapeIndex, reason = '') {
+    const t = this.tape[tapeIndex];
+    if (this.finished || !t || t.kind !== 'headline') return false;
+    if (!PASS_REASONS.includes(reason)) reason = '';
+    const existing = this.passes.find((p) => p.tapeIndex === tapeIndex);
+    if (existing) existing.reason = reason || existing.reason;
+    else this.passes.push({ tapeIndex, clock: this.clock(), printedClock: t.clock, headline: t.item.headline, reason });
+    t.passed = { reason: reason || existing?.reason || '' };
+    return true;
+  }
+
+  #coachStep(printed) {
+    const bar = this.#instBarAt(this.cursor);
+    const mark = this.mark();
+    const lots = this.account.lots.filter((l) => l.meta?.entry);
+    for (const l of lots) {
+      const e = l.meta.entry, long = l.qty > 0;
+      e.best = long ? Math.max(e.best, bar.h) : Math.min(e.best, bar.l);
+      e.worst = long ? Math.min(e.worst, bar.l) : Math.max(e.worst, bar.h);
+    }
+    if (!this.coach) return;
+    const clock = this.clock();
+    const pos = this.account.position;
+    const posText = pos === 0 ? 'flat' : `${pos > 0 ? 'Long' : 'Short'} ${Math.abs(pos)} from ${this.fmtPx(this.account.avgEntry)}`;
+    if (printed.length && !this.firstHeadlineDone) {
+      this.firstHeadlineDone = true;
+      this.#card('firstHeadline', `${clock}: first headline of the day. You are ${posText}.`);
+    }
+    for (const t of printed.filter((x) => x.item.time_precision === 'exact')) {
+      const h = t.item;
+      this.#card('print', `${h.type} ${h.time} CT, last ${this.fmtPx(mark)}.`, { print: `${h.type} ${h.time}` });
+      this.followUps.push({ cursor: this.cursor + COACH.printFollowBars, type: h.type, time: h.time, px: mark });
+      if (pos !== 0 && lots.some((l) => l.meta.ticket && l.meta.ticket.signal !== PRINT_SIGNAL)) {
+        this.printsHeld.push({ type: h.type, time: h.time, clock, position: posText.toLowerCase() });
+      }
+    }
+    for (const f of this.followUps.filter((x) => x.cursor === this.cursor)) {
+      this.#card('printFollow', `${f.type} ${f.time}: ${this.fmtPx(f.px)} at the print, ${this.fmtPx(mark)} now.`, { print: `${f.type} ${f.time}` });
+    }
+    for (const l of lots) {
+      const e = l.meta.entry, long = l.qty > 0;
+      const against = long ? e.price - mark : mark - e.price;
+      if (!e.warned1R && against >= e.R - 1e-9) {
+        e.warned1R = true;
+        this.#card('oneR', `${long ? 'Long' : 'Short'} ${Math.abs(l.qty)} from ${this.fmtPx(e.price)} at ${e.fillClock}, now ${this.fmtPx(mark)}: 1R against.`);
+      }
+    }
+    if (pos !== 0 && clock === COACH.reunderwriteAt) this.#card('reunderwrite', `${clock}. ${posText}, now ${this.fmtPx(mark)}.`);
+    if (pos !== 0 && clock === COACH.lastHourAt) this.#card('lastHour', `${clock}. ${posText}, now ${this.fmtPx(mark)}.`);
   }
 
   #attachBracket(parent) {
@@ -291,10 +440,11 @@ export class Session {
     this.pauseEvent = null;
     this.cursor += 1;
     this.#processOrders(this.cursor);
-    this.#printHeadlines(false);
+    const printed = this.#printHeadlines(false);
+    this.#coachStep(printed);
     this.#recordEquity();
     if (this.isLastBar) this.#log('system', `${SESSION.close} CT: session close. Flatten or press step to finish.`);
-    return { done: false, pauseEvent: this.pauseEvent };
+    return { done: false, pauseEvent: this.pauseEvent, cards: this.pendingCards.splice(0) };
   }
 
   /** End the session: cancel orders, flatten at the final bar, freeze the account. */
@@ -310,12 +460,15 @@ export class Session {
   #printHeadlines(initial) {
     const nowKey = this.clockKey();
     const openKey = `${this.day} ${SESSION.open}`;
+    const printed = [];
     while (this.headlineIdx < this.headlines.length && this.headlines[this.headlineIdx].key <= nowKey) {
       const h = this.headlines[this.headlineIdx++];
       const prior = h.key < openKey;
       this.#log('headline', h.headline, { item: h, prior });
+      if (!initial && !prior) printed.push(this.tape.at(-1));
       if (!initial && !prior && h.date === this.day && (h.pause ?? PAUSE_TYPES.includes(h.type))) this.pauseEvent = h;
     }
+    return printed;
   }
 
   #recordEquity() { this.equityCurve.push({ clock: this.clock(), equity: this.equity() }); }
@@ -326,3 +479,4 @@ export class Session {
 }
 
 function fmt$(n) { return `$${Math.round(n).toLocaleString('en-US')}`; }
+function fmtMs(ms) { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }

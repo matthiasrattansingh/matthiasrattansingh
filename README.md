@@ -44,6 +44,40 @@ in the trade log and CSV and their P&L is shown separately. "Herrings seen" and 
 on the report card, in the scoreboard (per session, by day, by product, cumulative) and in the CSV.
 The headlines file is public on the site, so the honour system applies: don't read it before playing.
 
+**Coach (Training path mode).** The mode switch in the top bar chooses between *Training path*
+(coach on) and *Free play* (the simulator as before, no gates, sessions labelled untrained).
+
+- **Morning briefing** (`data/coach.json`, hand-editable): prior close and what is priced in,
+  overnight headlines, the day's scheduled events, 2 to 3 scenarios with what each looks like on
+  the tape, and the lesson of the day. Trading unlocks when you scroll to the end. Briefings are
+  written as of that morning; a test rejects outcome wording and the day's own settle levels.
+  `driver_summary` is used only in the debrief.
+- **Trade ticket**: every order that opens or adds exposure needs four fields (what is priced,
+  signal, the price that proves you wrong, size vs plan). The wrong-price becomes the stop order
+  unless you untick it. Signal "None" shows a warning and a 5-second wait. Exits need no ticket.
+- **PASS** on any headline, with an optional one-tap reason. Passing is scored.
+- **Coach cards** (pause the replay, logged): first headline of the day; every scheduled print
+  (Surprise / In line, then Held / Faded three bars later); 1R against you; stop-out; 11:30 and
+  13:30 when a position is on. Cards cite your position and prices and stay under 40 words.
+- **Stop-out lockout**: 3 minutes of real time on re-entry; only a new ticket with a different
+  signal overrides it.
+- **Process score** (separate from P&L): starts at 100. Per entry: no signal −10, no stop order
+  −10, re-entry within 30 session minutes of a stop-out −15, entering on the bar a headline printed
+  without taking the ticket's 5-second pause −5. Per print: a position carried through a scheduled
+  print whose ticket signal was not "Scheduled print reaction" −5. Once per session: 3+ passes +5,
+  a loser exited at or before the planned stop +5, a winner that reached 2R +5. Clamped to 0..100.
+  Grades: A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60. P&L grade thresholds are in `COACH.pnlGrade`.
+- **Guided debrief**: five one-line answers saved to a journal in localStorage and to the CSV; the
+  day's driver is revealed after you answer question 1. Your rule opens the next briefing.
+- **Coach replay** (`site/js/coachbot.js`): a rule-based trader steps through the same day with
+  the same fills and costs, narrating each decision. Its three signals are defined in that file:
+  A range break (first close outside 07:00 to 07:30), B failed extreme (new extreme outside the
+  range that closes back inside within 3 bars), C VWAP flip (close across VWAP after 6 bars on the
+  other side, EMA 9/21 agreeing). It is a consistent playbook, not a best-possible trader: it loses
+  on some days.
+- **Trained** = briefing read, at least one ticket or pass, debrief saved. The scoreboard shows
+  status, process grade, P&L grade and totals by signal.
+
 **Execution model** (`site/js/config.js` holds every number):
 
 | | CL | BZ | NG | RB | HO |

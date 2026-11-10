@@ -5,10 +5,14 @@ import { vwap, ema } from './indicators.js';
 import { marginFor, feesFor } from './instruments.js';
 import { drawChart, sessionSlots } from './chart.js';
 import { reportCard, tradesToCsv, loadScores, saveScore, clearScores, aggregate } from './report.js';
+import { mergeSignalStats } from './coach.js';
+import { initCoachUi } from './coach-ui.js';
 import { headlineHtml, esc } from './tape.js';
 
 const $ = (id) => document.getElementById(id);
-const state = { manifest: null, headlines: [], data: {}, session: null, playing: false, speed: 0, timer: null, hover: null, reported: false, lastCard: null };
+const state = { manifest: null, headlines: [], data: {}, session: null, playing: false, speed: 0, timer: null, hover: null, reported: false, lastCard: null,
+  coach: {}, mode: 'train', scoreId: null, debrief: null, trained: false };
+let coachUi = null;
 
 const money = (n, sign = false) => {
   const s = Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -30,6 +34,8 @@ async function boot() {
     return;
   }
   try { state.headlines = (await loadJson('data/headlines.json')).headlines || []; } catch (e) { console.warn('headlines.json', e); }
+  try { state.coach = (await loadJson('data/coach.json')).days || {}; } catch (e) { console.warn('coach.json', e); }
+  try { state.mode = localStorage.getItem('replaydesk.mode') === 'free' ? 'free' : 'train'; } catch { /* default */ }
   const syms = Object.keys(state.manifest.products);
   await Promise.all(syms.map(async (s) => { state.data[s] = await loadJson(`data/${state.manifest.products[s].file}`); }));
 
@@ -45,7 +51,11 @@ async function boot() {
 
   $('speeds').innerHTML = SPEEDS.map((s, i) => `<button class="btn btn-sm" data-speed="${i}">${s.label}</button>`).join('');
   setSpeed(0);
+  coachUi = initCoachUi({ state, $, money, cls, msg, play, stop, renderScores, submit: submitSpec, loadDay,
+    priorClose, dayBars: (s) => dayBarsFor(s.inst.id, s.day), scheduled: scheduledFor });
+  $('modeSel').value = state.mode;
   wire();
+  if (state.mode === 'train') { const next = coachUi.renderPath(); if (next && days.includes(next)) $('daySel').value = next; }
   newSession();
   renderScores();
 }
@@ -55,16 +65,41 @@ function availableDays(inst) {
   return legs.map((p) => state.manifest.products[p].days).reduce((a, b) => a.filter((d) => b.includes(d)));
 }
 
+const legsOf = (inst) => (PRODUCTS[inst] ? [inst] : SPREADS[inst].legs.map((l) => l.product));
+const dayBarsFor = (inst, day) => Object.fromEntries(legsOf(inst).map((p) => [p, state.data[p].days[day]]));
+
+/** Last trade of the previous session in the data for this instrument (past data only). */
+function priorClose(s) {
+  const days = availableDays(s.inst.id);
+  const prev = days[days.indexOf(s.day) - 1];
+  if (!prev) return null;
+  const v = s.inst.legs.reduce((sum, l) => sum + l.ratio * state.data[l.product].days[prev].at(-1).c, 0);
+  return { day: prev, value: v.toFixed(s.inst.decimals) };
+}
+
+/** Scheduled (exact-time) prints for this session: public calendar items. */
+function scheduledFor(s) {
+  return s.headlines.filter((h) => h.date === s.day && h.time_precision === 'exact').map((h) => ({ time: h.time, type: h.type }));
+}
+
+function loadDay(day) {
+  const s = state.session;
+  if (s && !s.finished && (s.account.position || s.account.fills.length) && !confirm('Abandon the current session? It will not be scored.')) return;
+  $('daySel').value = day;
+  newSession();
+}
+
 function newSession() {
   stop();
+  coachUi.reset();
   const day = $('daySel').value, inst = $('instSel').value;
   const days = availableDays(inst);
   if (!days.includes(day)) { msg(`${inst} has no data for ${day}`, true); return; }
   const legs = PRODUCTS[inst] ? [inst] : SPREADS[inst].legs.map((l) => l.product);
   const dayBars = Object.fromEntries(legs.map((p) => [p, state.data[p].days[day]]));
   const prevDay = days[days.indexOf(day) - 1] ?? null;
-  state.session = new Session({ day, instrumentId: inst, dayBars, headlines: state.headlines, prevDay });
-  state.reported = false; state.lastCard = null;
+  state.session = new Session({ day, instrumentId: inst, dayBars, headlines: state.headlines, prevDay, coach: state.mode === 'train' });
+  state.reported = false; state.lastCard = null; state.scoreId = null; state.debrief = null; state.trained = false;
   $('banner').hidden = true;
   $('clockDay').textContent = day;
   $('instName').textContent = `${state.session.inst.id} · ${state.session.inst.name}`;
@@ -72,8 +107,11 @@ function newSession() {
   $('ordPrice').step = String(step);
   buildProgressTicks();
   prefillPrices(true);
-  msg('Session loaded. Flat, $' + ACCOUNT.startingCash.toLocaleString() + ' paper account.');
+  msg('Session loaded. Flat, $' + ACCOUNT.startingCash.toLocaleString() + ' paper account.' + (state.mode === 'free' ? ' Free play: untrained.' : ''));
+  $('pathCard').classList.toggle('free', state.mode === 'free');
+  coachUi.renderPath();
   render();
+  if (state.session.coach) coachUi.showBriefing();
 }
 
 function buildProgressTicks() {
@@ -102,7 +140,7 @@ function setSpeed(i) {
 
 function play() {
   const s = state.session;
-  if (!s || s.finished) return;
+  if (!s || s.finished || coachUi.blocked()) return;
   $('banner').hidden = true;
   state.playing = true; schedule(); renderControls();
 }
@@ -112,13 +150,15 @@ function schedule() { state.timer = setTimeout(() => { advance(1); if (state.pla
 
 function advance(n) {
   const s = state.session;
-  if (!s || s.finished) return;
+  if (!s || s.finished || coachUi.blocked()) return;
   $('banner').hidden = true;
   for (let k = 0; k < n; k++) {
     const r = s.step();
     if (s.isLastBar) { s.finish(); }
     if (s.finished) { stop(); render(); showReport(); return; }
-    if (r.pauseEvent) { stop(); showBanner(r.pauseEvent); break; }
+    if (s.coach) {
+      if (r.cards && r.cards.length) { const was = state.playing; stop(); render(); coachUi.queueCards(r.cards, was); return; }
+    } else if (r.pauseEvent) { stop(); showBanner(r.pauseEvent); break; }
   }
   render();
 }
@@ -140,12 +180,25 @@ function readTicket(side, forceMarket = false) {
 
 function send(side, forceMarket = false) {
   const s = state.session;
-  if (!s) return;
-  const r = s.submit(readTicket(side, forceMarket));
+  if (!s || s.finished) return;
+  const spec = readTicket(side, forceMarket);
+  if (s.coach && s.briefingViewed && Number.isInteger(spec.qty) && spec.qty > 0 && s.isEntry(side, spec.qty)) {
+    if (spec.type !== 'MKT' && !Number.isFinite(Number(spec.price))) { msg(`${spec.type} order needs a price`, true); return; }
+    coachUi.openTicket(spec);
+    return;
+  }
+  submitSpec(spec);
+}
+
+function submitSpec(spec) {
+  const s = state.session;
+  const side = spec.side;
+  const r = s.submit(spec);
   if (!r.ok) msg(r.error, true);
   else if (r.order.status === 'FILLED') msg(`Filled ${side} ${r.order.qty} @ ${s.fmtPx(r.order.fillPrice)}`);
   else msg(`${side} ${r.order.type} #${r.order.id} working`);
   render();
+  return r;
 }
 
 function flatten() {
@@ -237,7 +290,7 @@ function renderOrders() {
 function renderTape() {
   const s = state.session;
   const items = s.tape.slice().reverse().map((t) => {
-    if (t.kind === 'headline') return headlineHtml(t); // class-blind renderer, see tape.js
+    if (t.kind === 'headline') return headlineHtml(t, s.coach ? { index: s.tape.indexOf(t) } : {}); // class-blind renderer, see tape.js
     let tag, body;
     if (t.kind === 'fill') {
       tag = '<span class="tag tag-FILL">FILL</span>';
@@ -284,11 +337,17 @@ function renderScores() {
   $('scoreDay').querySelector('tbody').innerHTML = aggregate(list, 'day').map(row).join('') || empty(7);
   $('scoreProd').querySelector('tbody').innerHTML = aggregate(list, 'product').map(row).join('') || empty(7);
   // per session (newest first) + cumulative totals
-  const tot = list.reduce((t, x) => ({ net: t.net + x.net, trades: t.trades + x.trades, herrings: t.herrings + (x.herrings || 0), baited: t.baited + (x.baited || 0) }), { net: 0, trades: 0, herrings: 0, baited: 0 });
-  const sess = list.slice().reverse().map((x) => `<tr><td>${esc((x.playedAt || '').slice(0, 16).replace('T', ' '))}</td><td>${esc(x.day)}</td><td>${esc(x.product)}</td><td class="r">${x.trades}</td><td class="r">${x.herrings ?? '—'}</td><td class="r">${x.baited ?? '—'}</td><td class="r ${cls(x.net)}">${money(x.net, true)}</td></tr>`).join('');
+  const tot = list.reduce((t, x) => ({ net: t.net + x.net, trades: t.trades + x.trades, herrings: t.herrings + (x.herrings || 0), baited: t.baited + (x.baited || 0), passes: t.passes + (x.passes || 0) }), { net: 0, trades: 0, herrings: 0, baited: 0, passes: 0 });
+  const scored = list.filter((x) => x.process != null);
+  const avgProc = scored.length ? Math.round(scored.reduce((t, x) => t + x.process, 0) / scored.length) : null;
+  const status = (x) => `<span class="tag ${x.trained ? 'tag-TRAINED' : 'tag-UNTRAINED'}">${x.trained ? 'TRAINED' : x.mode === 'train' ? 'UNTRAINED' : 'FREE PLAY'}</span>`;
+  const sess = list.slice().reverse().map((x) => `<tr><td>${esc((x.playedAt || '').slice(0, 16).replace('T', ' '))}</td><td>${esc(x.day)}</td><td>${esc(x.product)}</td><td>${status(x)}</td><td class="r">${x.trades}</td><td class="r">${x.passes ?? '—'}</td><td class="r">${x.herrings ?? '—'}</td><td class="r">${x.baited ?? '—'}</td><td class="r">${x.process != null ? `${x.processGrade} (${x.process})` : '—'}</td><td class="r">${x.pnlGrade ?? '—'}</td><td class="r ${cls(x.net)}">${money(x.net, true)}</td></tr>`).join('');
   $('scoreSess').querySelector('tbody').innerHTML = sess
-    ? `<tr class="total"><td colspan="3">Cumulative (${list.length} sessions)</td><td class="r">${tot.trades}</td><td class="r">${tot.herrings}</td><td class="r">${tot.baited}</td><td class="r ${cls(tot.net)}">${money(tot.net, true)}</td></tr>${sess}`
-    : empty(7);
+    ? `<tr class="total"><td colspan="3">Cumulative (${list.length} sessions)</td><td>${list.filter((x) => x.trained).length} trained</td><td class="r">${tot.trades}</td><td class="r">${tot.passes}</td><td class="r">${tot.herrings}</td><td class="r">${tot.baited}</td><td class="r">${avgProc != null ? `avg ${avgProc}` : '—'}</td><td></td><td class="r ${cls(tot.net)}">${money(tot.net, true)}</td></tr>${sess}`
+    : empty(11);
+  const sig = Object.entries(mergeSignalStats(list.map((x) => x.bySignal))).sort((a, b2) => b2[1].net - a[1].net);
+  $('scoreSig').querySelector('tbody').innerHTML = sig.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r">${v.trades}</td><td class="r">${Math.round((v.wins / v.trades) * 100)}%</td><td class="r ${cls(v.net)}">${money(v.net / v.trades, true)}</td><td class="r ${cls(v.net)}">${money(v.net, true)}</td></tr>`).join('') || empty(5);
+  if (coachUi) coachUi.renderPath();
 }
 
 // ---------------------------------------------------------------- report
@@ -296,13 +355,14 @@ function showReport() {
   const s = state.session;
   const c = reportCard(s);
   state.lastCard = c;
-  if (!state.reported) { saveScore(c); state.reported = true; renderScores(); }
+  if (!state.reported) { state.scoreId = saveScore(c).at(-1).playedAt; state.reported = true; renderScores(); }
   const pct = (x) => `${(x * 100).toFixed(0)}%`;
   const stat = (k, v, sub = '', klass = '') => `<div class="stat"><div class="k">${k}</div><div class="v ${klass}">${v}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div>`;
   const tr = (t) => (t ? `${t.side} ${t.size} ${t.entryTime}→${t.exitTime}` : '');
   $('reportSub').textContent = `${s.day} · ${s.inst.id} · ${SESSION.open}–${SESSION.close} CT · open positions were flattened at the close`;
   $('reportGrid').innerHTML = [
-    stat('Total P&amp;L (net)', money(c.totalNet, true), '', cls(c.totalNet)),
+    stat('Total P&amp;L (net)', money(c.totalNet, true), `P&amp;L grade ${c.pnlGrade}`, cls(c.totalNet)),
+    stat('Process', c.process ? `${c.process.grade} · ${c.process.score}` : 'n/a', c.process ? 'graded separately from P&amp;L' : 'free play: coach off'),
     stat('Trades', c.trades),
     stat('Win rate', pct(c.winRate)),
     stat('Avg win / avg loss', `${money(c.avgWin)} / ${money(c.avgLoss)}`, c.avgLoss ? `ratio ${(c.avgWin / Math.abs(c.avgLoss)).toFixed(2)}` : ''),
@@ -323,6 +383,7 @@ function showReport() {
   ].map(([k, v, note]) => `<tr><td>${k}</td><td class="r ${cls(v)}">${money(v, true)}</td><td class="muted">${esc(note)}</td></tr>`).join('')
     + `<tr><td>Edge vs passive long</td><td class="r ${cls(c.totalNet - p.net)}">${money(c.totalNet - p.net, true)}</td><td></td></tr>`;
   renderAutopsy(c);
+  coachUi.renderProcess(c);
   renderTrades();
   $('reportDlg').showModal();
 }
@@ -336,7 +397,8 @@ function renderAutopsy(c) {
     const note = a.note ? `<div class="muted">${esc(a.note)}</div>` : '';
     const implied = a.herring && a.implies ? `<div class="muted">Tempts you to ${a.implies === 'up' ? 'BUY' : 'SELL'}.</div>` : '';
     const baits = a.baits.map((b) => `<div class="down">BAITED: you ${b.side === 'BUY' ? 'bought' : 'sold'} ${b.qty} @ ${s.fmtPx(b.price)} at ${b.clock}</div>`).join('');
-    return `<tr><td>${when}</td><td>${label}</td><td><span class="tag tag-${esc(a.type)}">${esc(a.type)}</span>${esc(a.headline)}${src}${note}${implied}${baits}</td></tr>`;
+    const passed = a.passed ? `<div class="${a.herring ? 'up' : 'muted'}">You passed (${esc(a.passed)}).${a.herring ? ' Correct: nothing to trade.' : ''}</div>` : '';
+    return `<tr><td>${when}</td><td>${label}</td><td><span class="tag tag-${esc(a.type)}">${esc(a.type)}</span>${esc(a.headline)}${src}${note}${implied}${baits}${passed}</td></tr>`;
   });
   $('autopsyTbl').querySelector('tbody').innerHTML = rows.join('') || '<tr><td colspan="3" class="muted">No headlines printed in this session.</td></tr>';
   const real = c.autopsy.length - c.herringsSeen;
@@ -348,7 +410,8 @@ function downloadCsv() {
   const s = state.session;
   const c = s.finished ? state.lastCard || reportCard(s) : null;
   const csv = tradesToCsv(s.account.trades, s.day, s.inst.decimals,
-    c ? { finished: true, herringsSeen: c.herringsSeen, timesBaited: c.timesBaited, product: s.inst.id } : null);
+    c ? { finished: true, herringsSeen: c.herringsSeen, timesBaited: c.timesBaited, product: s.inst.id, mode: c.mode, trained: state.trained,
+      passes: c.passes, processScore: c.process?.score, processGrade: c.process?.grade, pnlGrade: c.pnlGrade, debrief: state.debrief } : null);
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
   a.download = `replaydesk_${s.day}_${s.inst.id}.csv`;
@@ -358,13 +421,21 @@ function downloadCsv() {
 
 // ---------------------------------------------------------------- events
 function wire() {
-  $('loadBtn').onclick = () => {
-    const s = state.session;
-    if (s && !s.finished && (s.account.position || s.account.fills.length) && !confirm('Abandon the current session? It will not be scored.')) return;
-    newSession();
+  $('loadBtn').onclick = () => loadDay($('daySel').value);
+  $('modeSel').onchange = () => {
+    state.mode = $('modeSel').value;
+    try { localStorage.setItem('replaydesk.mode', state.mode); } catch { /* not persisted */ }
+    loadDay($('daySel').value);
+    $('modeSel').value = state.session.coach ? 'train' : 'free';
+    state.mode = $('modeSel').value;
+  };
+  $('tape').onclick = (e) => {
+    const b = e.target.closest('[data-pass]');
+    if (!b) return;
+    if (state.session.pass(Number(b.dataset.pass), b.dataset.reason || '')) render();
   };
   $('playBtn').onclick = toggle;
-  $('stepBtn').onclick = () => { stop(); advance(1); };
+  $('stepBtn').onclick = () => { if (coachUi.blocked()) return; stop(); advance(1); };
   $('resumeBtn').onclick = play;
   $('endBtn').onclick = () => { const s = state.session; if (!s || s.finished) return; if (!confirm('End the session now? Open positions are flattened at the current bar.')) return; stop(); s.finish(); render(); showReport(); };
   $('speeds').onclick = (e) => { const b = e.target.closest('[data-speed]'); if (b) setSpeed(Number(b.dataset.speed)); };
@@ -392,8 +463,9 @@ function wire() {
 
   document.addEventListener('keydown', (e) => {
     if (e.target.closest('input, select, textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
-    if ($('reportDlg').open) return;
+    if (document.querySelector('dialog[open]')) return;
     const k = e.key;
+    if (coachUi.blocked() && k !== 'f' && k !== 'F') { if (k === ' ') e.preventDefault(); return; }
     if (k === ' ') { e.preventDefault(); toggle(); }
     else if (k === 'b' || k === 'B') send('BUY', true);
     else if (k === 's' || k === 'S') send('SELL', true);
