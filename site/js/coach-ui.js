@@ -251,7 +251,7 @@ export function initCoachUi(ctx) {
     $('crView').innerHTML = `<span class="vmeter ${v.dir > 0 ? 'up' : v.dir < 0 ? 'down' : ''}">VIEW ${v.label} ${v.sum > 0 ? '+' : v.sum < 0 ? '−' : ''}${Math.abs(v.sum)}</span>`
       + (v.events.map((e) => chip(e, e.overruled ? ' (overruled)' : e.viaHierarchy ? ' (confirmed by price)' : '')).join('') || '<span class="muted small">No event has set a view yet.</span>')
       + v.pending.map((e) => chip(e, ` (held back: needs ${e.bias > 0 ? 'above' : 'below'} ${s.fmtPx(e.px)} for 3 bars, ${e.count}/3)`)).join('');
-    $('crState').textContent = `${f.clock} CT · coach ${f.position ? (f.position > 0 ? 'long 1' : 'short 1') : 'flat'} · coach day ${money(f.equity - s.account.startingCash, true)}${k === r.frames.length - 1 ? ` · final ${money(r.net, true)}` : ''}`;
+    $('crState').textContent = `${f.clock} CT · coach ${f.position ? `${f.position > 0 ? 'long' : 'short'} ${Math.abs(f.position)}` : 'flat'} · coach day ${money(f.equity - s.account.startingCash, true)}${k === r.frames.length - 1 ? ` · final ${r.three ?? 'no trade, $0'}` : ''}`;
     $('crBack').disabled = k === 0;
     $('crStep').disabled = $('crNext').disabled = k >= r.frames.length - 1;
   }

@@ -54,7 +54,11 @@ export function reportCard(session) {
   const autopsy = session.finished ? tapeAutopsy(session) : [];
   const baitedTrades = trades.filter((t) => t.baited);
   const proc = session.coach ? processScore(session) : null;
+  // risk per trade = contracts x stop distance x contract multiplier, measured at entry (needs a ticket)
+  const risks = session.entries.map((e) => e.qty * e.R * session.inst.multiplier);
+  const avgRisk = risks.length ? risks.reduce((a, b) => a + b, 0) / risks.length : null;
   return {
+    avgRisk, avgRiskPct: avgRisk == null ? null : (avgRisk / acct.startingCash) * 100,
     process: proc,
     pnlGrade: pnlGrade(totalNet, acct.startingCash),
     bySignal: signalStats(trades),

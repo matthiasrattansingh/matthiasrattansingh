@@ -2,7 +2,7 @@
 //   LAYER 1  THE VIEW     running fundamental bias from real headlines already printed (view.js)
 //   LAYER 2  THE TRIGGER  price signals A/B/C, taken only when the view allows them
 // It trades the same day through the same execution engine (same spread, slippage, fees),
-// one contract, one trade a session, deciding only on bars and headlines already revealed.
+// COACH_CONTRACTS contracts (10), one trade a session, deciding only on bars and headlines already revealed.
 //
 // Signals:
 //   A  Range break     first 5-minute close outside the 07:00-07:30 range. Stop: range midpoint.
@@ -17,6 +17,7 @@ import { Session, minutesOf } from './session.js';
 import { vwap, ema } from './indicators.js';
 import { roundTo } from './instruments.js';
 import { View, viewLabel } from './view.js';
+import { COACH_CONTRACTS, PRODUCTS } from './config.js';
 
 export const BOT = { rangeBars: 6, failBars: 3, vwapSideBars: 6, vwapFrom: '08:30', lastEntry: '13:30', stallBars: 6,
   exhaustedMultiple: 2, noRiskBeforePrintMin: 10, barsAfterPrint: 3 };
@@ -35,6 +36,9 @@ export function runCoach({ day, instrumentId, dayBars, headlines = [], prevDay =
   const frame = () => frames.push({ clock: s.clock(), position: s.account.position, entry: pos?.entry ?? null, stop: pos?.stop ?? null,
     equity: s.equity(), view: view.snapshot() });
 
+  const unit = PRODUCTS[s.inst.legs[0].product].unit;
+  const usd = (n) => `${n < 0 ? '-' : ''}$${Math.abs(Math.round(n)).toLocaleString('en-US')}`;
+  const three = (t) => `${t.net >= 0 ? '+' : ''}${usd(t.net)} at ${t.contracts} lots, ${t.perUnit >= 0 ? '+' : '-'}$${Math.abs(t.perUnit).toFixed(Math.min(4, s.inst.decimals + 1))}/${unit}, ${t.r >= 0 ? '+' : ''}${t.r.toFixed(2)}R`;
   let range = null, pos = null, traded = false, trade = null, regimeMid = false, lastHourNote = '';
   let brokeUp = false, brokeDown = false;
   const fired = { A: { 1: -1, [-1]: -1 }, C: { 1: -1, [-1]: -1 } };   // bar index each signal last fired, per direction
@@ -74,8 +78,10 @@ export function runCoach({ day, instrumentId, dayBars, headlines = [], prevDay =
   const closeOut = (reason, text) => {
     const t = s.account.trades.at(-1);
     const r = ((t.exit - t.entry) * pos.dir) / pos.R;
-    trade = { ...trade, exit: t.exit, exitClock: s.clock(), exitReason: reason, net: t.net, r };
-    say(`${text(t, r)} One trade a session: done for the day.`, 'exit');
+    // the three numbers: dollars at size, dollars per unit, and R (profit / initial stop risk in dollars)
+    trade = { ...trade, exit: t.exit, exitClock: s.clock(), exitReason: reason, net: t.net, gross: t.gross, fees: t.fees,
+      perUnit: t.net / (trade.contracts * s.inst.multiplier), r: t.net / trade.riskDollars, priceR: r };
+    say(`${text(t, r)} ${three(trade)}. One trade a session: done for the day.`, 'exit');
     pos = null; traded = true;
   };
 
@@ -179,20 +185,25 @@ export function runCoach({ day, instrumentId, dayBars, headlines = [], prevDay =
       if (take && blocked) { say(`${sig.why} ${how} ${blocked} Pass.`, 'pass'); take = false; }
       if (take && clock > BOT.lastEntry) { say(`${sig.why} ${how} Too late in the day to start a new idea. Pass.`, 'pass'); take = false; }
       if (take) {
-        const r = s.submit({ side: sig.dir > 0 ? 'BUY' : 'SELL', type: 'MKT', qty: 1, bracket: { stop: sig.stop } });
+        const side = sig.dir > 0 ? 'BUY' : 'SELL';
+        let qty = COACH_CONTRACTS;
+        while (qty > 1 && !s.account.checkMargin(side, qty, s.mark(), s.lastByProduct()).ok) qty -= 1;
+        const r = s.submit({ side, type: 'MKT', qty, bracket: { stop: sig.stop } });
         if (!r.ok) say(`${sig.why} ${how} Order refused (${r.error}). No trade.`, 'pass');
         else {
           const entry = r.order.fillPrice;
           pos = { dir: sig.dir, entry, stop: roundTo(sig.stop, tick), R: Math.max(Math.abs(entry - sig.stop), tick), signal: sig.signal, bestClose: b.c, sinceBest: 0 };
-          trade = { side: sig.dir > 0 ? 'LONG' : 'SHORT', signal: sig.signal, entry, entryClock: clock, stop: pos.stop, view: viewLabel(v) };
-          say(`${sig.why} ${how} ${sig.dir > 0 ? 'Long' : 'Short'} 1 at ${px(entry)}. Stop ${px(pos.stop)}: ${px(pos.R)} of risk.`, 'entry');
+          // risk per trade = contracts x stop distance x contract multiplier, measured at entry
+          trade = { side: sig.dir > 0 ? 'LONG' : 'SHORT', signal: sig.signal, entry, entryClock: clock, stop: pos.stop, view: viewLabel(v),
+            contracts: qty, unit, riskDollars: qty * pos.R * s.inst.multiplier };
+          say(`${sig.why} ${how} ${sig.dir > 0 ? 'Long' : 'Short'} ${qty} at ${px(entry)}. Stop ${px(pos.stop)}: ${px(pos.R)} per ${unit}, ${usd(trade.riskDollars)} of risk.${qty < COACH_CONTRACTS ? ` (${COACH_CONTRACTS} lots would exceed the account's margin; ${qty} fits.)` : ''}`, 'entry');
         }
       }
     } else if (clock.endsWith(':00') && clock !== lastHourNote && range && !traded) {
       lastHourNote = clock;
       if (pos) {
         const r = ((b.c - pos.entry) * pos.dir) / pos.R;
-        say(`${pos.dir > 0 ? 'Long' : 'Short'} from ${px(pos.entry)}, stop ${px(pos.stop)}, ${r >= 0 ? '+' : ''}${r.toFixed(1)}R. View still ${view.label}, no stall yet. Holding is the trade.`, 'hold');
+        say(`${pos.dir > 0 ? 'Long' : 'Short'} ${trade.contracts} from ${px(pos.entry)}, stop ${px(pos.stop)}, ${r >= 0 ? '+' : ''}${r.toFixed(1)}R. View still ${view.label}, no stall yet. Holding is the trade.`, 'hold');
       } else say(`Price ${px(b.c)}, VWAP ${px(vw)}, view ${view.label}. No valid setup. Flat is a position.`, 'hold');
     }
     frame();
@@ -204,7 +215,7 @@ export function runCoach({ day, instrumentId, dayBars, headlines = [], prevDay =
   frames[frames.length - 1].position = 0;
   frames[frames.length - 1].equity = s.equity();
   const net = s.equity() - s.account.startingCash;
-  notes.push({ clock: s.clock(), kind: 'summary', text: `${s.clock()}: ${trade ? `Day done. One ${trade.side.toLowerCase()} on Signal ${trade.signal}: ${px(trade.entry)} to ${px(trade.exit)}, ${net >= 0 ? '+' : '-'}$${Math.abs(net).toFixed(0)} after fees.` : `No trade today. ${openDir === 0 && !regimeMid ? 'The view was neutral.' : 'No setup agreed with the view.'} That is a result, not a failure.`}` });
-  return { notes, frames, trade, trades: s.account.trades, fills: s.account.fills, net, bars: s.revealedBars(),
+  notes.push({ clock: s.clock(), kind: 'summary', text: `${s.clock()}: ${trade ? `Day done. One ${trade.side.toLowerCase()} on Signal ${trade.signal}: ${px(trade.entry)} to ${px(trade.exit)}. ${three(trade)}, after fees.` : `No trade today. ${openDir === 0 && !regimeMid ? 'The view was neutral.' : 'No setup agreed with the view.'} That is a result, not a failure.`}` });
+  return { three: trade ? three(trade) : null, notes, frames, trade, trades: s.account.trades, fills: s.account.fills, net, bars: s.revealedBars(),
     openView: viewLabel(openDir), finalView: view.label, view: view.snapshot() };
 }

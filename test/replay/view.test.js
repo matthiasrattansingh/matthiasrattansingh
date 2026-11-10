@@ -209,3 +209,49 @@ test('REAL TIME ONLY: view and trades up to 10:00 are identical when every later
     assert.deepEqual(p.notes.filter((n) => n.clock <= cut && n.kind !== 'summary'), r.notes.filter((n) => n.clock <= cut && n.kind !== 'summary'), `${day}: narration`);
   }
 });
+
+// ------------------------------------------------------------------ coach size
+test('COACH SIZE: the coach trades 10 contracts and reports dollars, dollars per barrel and R', async () => {
+  const { COACH_CONTRACTS, ACCOUNT } = await import('../../site/js/config.js');
+  const { Session } = await import('../../site/js/session.js');
+  const { reportCard } = await import('../../site/js/report.js');
+  assert.equal(COACH_CONTRACTS, 10);
+  const r = run('2026-10-29');
+  const t = r.trade;
+  assert.equal(t.contracts, 10);
+  assert.deepEqual(r.fills.map((f) => f.qty), [10, 10], 'entry and exit are both 10 lots');
+  // same fills, slippage and per-contract fees as one lot: short 100.61, out 100.38
+  assert.deepEqual([t.entry, t.exit], [100.61, 100.38]);
+  const gross = (100.61 - 100.38) * 1000 * 10;
+  const fees = 10 * 2 * ACCOUNT.feePerContractPerSide;
+  assert.ok(Math.abs(t.gross - gross) < 1e-6 && t.fees === fees && fees === 90);
+  assert.ok(Math.abs(r.net - (gross - fees)) < 1e-6, 'dollars at 10 lots = 2,210');
+  assert.ok(Math.abs(t.perUnit - 0.221) < 1e-9, 'dollars per barrel = net / 10,000 bbl');
+  // risk per trade = contracts x stop distance x contract multiplier, measured at entry
+  assert.ok(Math.abs(t.riskDollars - 10 * (t.stop - t.entry) * 1000) < 1e-6);
+  assert.ok(Math.abs(t.riskDollars - 2900) < 1e-6);
+  assert.ok(Math.abs(t.r - 2210 / 2900) < 1e-9, 'R = profit / initial stop risk in dollars');
+  assert.equal(r.three, '+$2,210 at 10 lots, +$0.221/bbl, +0.76R');
+  assert.match(r.notes.at(-1).text, /One short on Signal C: 100\.61 to 100\.38\. \+\$2,210 at 10 lots, \+\$0\.221\/bbl, \+0\.76R, after fees\.$/);
+  assert.match(r.notes.find((n) => n.kind === 'entry').text, /Short 10 at 100\.61\. Stop 100\.90: 0\.29 per bbl, \$2,900 of risk\./);
+  assert.ok(r.frames.some((f) => f.position === -10));
+  // a losing day shows all three with the right signs
+  assert.equal(run('2026-10-27').three, '-$3,990 at 10 lots, -$0.399/bbl, -1.05R');
+  // where 10 lots would exceed the margin estimate, the coach takes the largest size that fits
+  for (const day of DAYS) { const h = run(day, 'HO').trade; if (h) { assert.ok(h.contracts >= 1 && h.contracts < 10, `HO ${day}: ${h.contracts}`); } }
+
+  // the trader's side of the report-card risk line: average of contracts x stop distance x multiplier
+  const bars = DATA.CL.days['2026-10-29'];
+  const s = new Session({ day: '2026-10-29', instrumentId: 'CL', dayBars: { CL: bars }, headlines: [], coach: true });
+  s.briefingViewed = true;
+  const tk = (wrong) => ({ pricing: 'x', signal: 'Range break', wrong, size: 'Normal' });
+  const a = s.submit({ side: 'SELL', qty: 10, ticket: tk(102.5) }); s.flatten();
+  const b = s.submit({ side: 'SELL', qty: 4, ticket: tk(102.3) }); s.flatten();
+  s.finish();
+  const c = reportCard(s);
+  const expect = (10 * (102.5 - a.order.fillPrice) * 1000 + 4 * (102.3 - b.order.fillPrice) * 1000) / 2;
+  assert.ok(Math.abs(c.avgRisk - expect) < 1e-6, `${c.avgRisk} vs ${expect}`);
+  assert.ok(Math.abs(c.avgRiskPct - (expect / 100000) * 100) < 1e-9);
+  const none = new Session({ day: '2026-10-29', instrumentId: 'CL', dayBars: { CL: bars }, headlines: [] }); none.finish();
+  assert.equal(reportCard(none).avgRisk, null);
+});

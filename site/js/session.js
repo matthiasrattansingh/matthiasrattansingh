@@ -318,7 +318,7 @@ export class Session {
     this.stopOuts.push({ clock: this.clock(), price, signal });
     if (!this.coach) return;
     this.lock = { untilMs: this.now() + COACH.lockoutMs, signal, clock: this.clock() };
-    this.#card('stopOut', `${this.clock()}: out at ${this.fmtPx(price)}. Re-entry locked 3 minutes.`);
+    this.#card('stopOut', `${this.clock()}: stopped out at ${this.fmtPx(price)}. Re-entry locked 3 minutes.`);
   }
 
   #card(key, context, extra = {}) {

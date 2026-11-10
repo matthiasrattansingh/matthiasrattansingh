@@ -216,9 +216,9 @@ test('COACH CARDS: fire at the right moments, cite the trade, stay under 40 word
   const hc = stepTo(held, '13:30');
   const oneR = hc.filter((c) => c.key === 'oneR');
   assert.equal(oneR.length, 1);
-  assert.match(oneR[0].text, /^Long 1 from 80\.02 at 07:30, now 79\.60: 1R against\. Thesis check/);
-  assert.match(hc.find((c) => c.key === 'reunderwrite').text, /^11:30\. Long 1 from 80\.02, now 79\.60\. Re-underwrite/);
-  assert.match(hc.find((c) => c.key === 'lastHour').text, /^13:30\. Long 1 from 80\.02, now 79\.60\. Last hour/);
+  assert.match(oneR[0].text, /^Long 1 from 80\.02 at 07:30, now 79\.60: 1R against\. What has changed since entry: the story, or only the price\?$/);
+  assert.match(hc.find((c) => c.key === 'reunderwrite').text, /^11:30\. Long 1 from 80\.02, now 79\.60\. If you were flat now, would you put this on at this price\?$/);
+  assert.match(hc.find((c) => c.key === 'lastHour').text, /^13:30\. Long 1 from 80\.02, now 79\.60\. What is this position still for: the original thesis, or hope\?$/);
   const flat = coachSession();
   assert.deepEqual(stepTo(flat, '14:00'), [], 'no position, no time cards');
 

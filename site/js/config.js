@@ -43,6 +43,10 @@ export const SPEEDS = [
 // Headline types that auto-pause the replay when their timestamp is reached.
 export const PAUSE_TYPES = ['EIA', 'EIA-NG', 'API'];
 
+// The coach / best realistic trade trades this many contracts (the desk's standard clip). If the
+// account's margin estimate cannot carry it for a product, the coach takes the largest size that fits.
+export const COACH_CONTRACTS = 10;
+
 // TAPE AUTOPSY: an opening/adding fill counts as BAITED when it happens within this many
 // minutes after a red herring printed, in the direction the herring implied.
 export const BAIT_WINDOW_MINUTES = 15;

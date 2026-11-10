@@ -10,13 +10,13 @@ export const PRINT_SIGNAL = 'Scheduled print reaction';
 export const SIZES = ['Normal', 'Reduced', 'Too big'];
 
 export const CARD_TEXT = {
-  firstHeadline: 'New information, or already in the price? What would the other side of this trade say?',
-  print: 'Surprise or in line? First move: is it holding or fading after 3 bars?',
+  firstHeadline: 'New information, or already in the price? What would the other side say?',
+  print: 'Surprise or in line? First move holding or fading after 3 bars?',
   printFollow: 'Three bars on. Did the first move hold or fade?',
-  oneR: 'Thesis check: what has changed since entry, the story or only the price?',
-  stopOut: 'Stopped out. Same idea again needs a NEW signal, not the same hope.',
-  reunderwrite: 'Re-underwrite: if you were flat right now, would you put this position on at this price? If not, why are you holding it?',
-  lastHour: 'Last hour. What is this position still for: the original thesis, or hope?',
+  oneR: 'What has changed since entry: the story, or only the price?',
+  stopOut: 'Same idea again needs a NEW signal, not the same hope.',
+  reunderwrite: 'If you were flat now, would you put this on at this price?',
+  lastHour: 'What is this position still for: the original thesis, or hope?',
 };
 export const CARD_ANSWERS = { print: ['Surprise', 'In line'], printFollow: ['Held', 'Faded'] };
 export const NO_SIGNAL_WARNING = 'No signal. This is the trade type that has cost you the most.';

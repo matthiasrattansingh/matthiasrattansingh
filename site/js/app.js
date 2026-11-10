@@ -1,5 +1,5 @@
 // REPLAY DESK UI wiring. All market data shown comes from Session's revealed accessors.
-import { PRODUCTS, SPREADS, SPEEDS, ACCOUNT, SESSION, BAIT_WINDOW_MINUTES } from './config.js';
+import { PRODUCTS, SPREADS, SPEEDS, ACCOUNT, SESSION, BAIT_WINDOW_MINUTES, COACH_CONTRACTS } from './config.js';
 import { Session } from './session.js';
 import { vwap, ema } from './indicators.js';
 import { marginFor, feesFor } from './instruments.js';
@@ -384,6 +384,7 @@ function showReport() {
   ].map(([k, v, note]) => `<tr><td>${k}</td><td class="r ${cls(v)}">${money(v, true)}</td><td class="muted">${esc(note)}</td></tr>`).join('')
     + coachRow(s)
     + `<tr><td>Edge vs passive long</td><td class="r ${cls(c.totalNet - p.net)}">${money(c.totalNet - p.net, true)}</td><td></td></tr>`;
+  renderRiskLine(c);
   renderAutopsy(c);
   coachUi.renderProcess(c);
   renderTrades();
@@ -408,6 +409,15 @@ function renderAutopsy(c) {
     + (c.baitedTrades ? ` Baited trades: ${c.baitedTrades}, ${money(c.baitedNet, true)} net (all other trades ${money(c.cleanNet, true)}).` : '');
 }
 
+function renderRiskLine(c) {
+  let coach = 'not available';
+  try { const t = coachUi.coachRun().trade; coach = t ? `${money(t.riskDollars)} (${t.contracts} contracts)` : 'no trade, $0.00'; } catch (e) { console.warn('coach run', e); }
+  const you = c.avgRisk == null
+    ? (c.mode === 'free' ? 'not measured (free play has no ticket stop)' : 'not measured (no entries)')
+    : `${money(c.avgRisk)} (${c.avgRiskPct.toFixed(1)}% of account)`;
+  $('riskLine').textContent = `Your average risk per trade this session was ${you}; the coach's was ${coach}.`;
+}
+
 /** Benchmark row: the coach's best realistic trade (view + trigger rules) on the same tape. */
 function coachRow(s) {
   let r;
@@ -415,7 +425,7 @@ function coachRow(s) {
   const t = r.trade;
   const note = t ? `view ${t.view}: ${t.side.toLowerCase()} on Signal ${t.signal}, ${t.entryClock} @ ${s.fmtPx(t.entry)} to ${t.exitClock} @ ${s.fmtPx(t.exit)} (${t.exitReason})`
     : `no trade: view ${r.openView} at the open, ${r.finalView} at the close`;
-  return `<tr><td>Best realistic (coach rules, 1 contract)</td><td class="r ${cls(r.net)}">${money(r.net, true)}</td><td class="muted">${esc(note)}</td></tr>`;
+  return `<tr><td>Best realistic (coach rules, ${t ? t.contracts : COACH_CONTRACTS} contracts)</td><td class="r ${cls(r.net)}">${money(r.net, true)}</td><td class="muted">${esc(t ? `${r.three}. ` : '')}${esc(note)}</td></tr>`;
 }
 
 function downloadCsv() {

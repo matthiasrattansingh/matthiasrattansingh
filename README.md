@@ -74,9 +74,11 @@ The headlines file is public on the site, so the honour system applies: don't re
   weighted bias from real headlines as they print; scheduled prints scored against consensus; one
   print cannot flip a weight-3 regime view unless price holds 3 bars) and the TRIGGER (signals
   A range break, B failed extreme, C VWAP flip, taken only with the view or as an A plus C fade
-  of an exhausted move). One trade a session; stop, stall rule, flat at 14:30. A bias meter shows
+  of an exhausted move). 10 contracts, one trade a session; stop, stall rule, flat at 14:30. Results
+  are shown as dollars at 10 lots, dollars per barrel and R. A bias meter shows
   the view and the events that set it. It is a consistent playbook, not a hindsight-optimal
   trader: it loses on some days.
+- The full coaching spec is in `COACH_SPEC.md`.
 - **Trained** = briefing read, at least one ticket or pass, debrief saved. The scoreboard shows
   status, process grade, P&L grade and totals by signal.
 

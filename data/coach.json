@@ -8,7 +8,7 @@
   ],
   "days": {
     "2026-10-27": {
-      "briefing": "Settles Mon: WTI 101.76, Brent 115.81, near last week's highs. Weekend: first high-level Tehran meeting (Iran, Saudi, Pakistan, Turkey). No barrels restored by any headline so far. API after the close.",
+      "briefing": "Settles Mon: WTI 101.76, Brent 115.81. Weekend: first high-level Tehran meeting. No headline has restored a single barrel. API after the close.",
       "lesson": "TRADE THE SURPRISE, NOT THE HEADLINE",
       "lesson_text": "What matters is what is already in the price.",
       "events": [
@@ -47,7 +47,7 @@
       ]
     },
     "2026-10-28": {
-      "briefing": "Unconfirmed Houthi claim of a Ras Tanura strike overnight, no Saudi confirmation. EIA 09:30 CT (poll: crude +0.5M, distillates -0.9M; API showed crude -2.03M). Fed decision 13:00 CT, hold expected, the dissent count is the tell.",
+      "briefing": "Unconfirmed Houthi claim of a Ras Tanura strike, no Saudi confirmation. EIA 09:30 CT (poll crude +0.5M, distillates -0.9M; API crude -2.03M). Fed 13:00 CT, hold expected, dissents are the tell.",
       "lesson": "SEPARATE CLAIM FROM CONFIRMATION",
       "lesson_text": "Price the claim at a discount until someone verifies it.",
       "events": [
@@ -95,7 +95,7 @@
       ]
     },
     "2026-10-29": {
-      "briefing": "Reports overnight that VP Vance wrote to Tehran's security chief about reviving talks knocked about 1% off crude in Asia. GDP and PCE at 07:30 CT. Gas storage 09:30 CT.",
+      "briefing": "Reports that VP Vance wrote to Tehran's security chief about reviving talks knocked about 1% off crude in Asia. GDP and PCE 07:30 CT. Gas storage 09:30 CT.",
       "lesson": "THE REACTION IS THE NEWS",
       "lesson_text": "If price falls through a bullish headline, the headline was already paid for.",
       "events": [
@@ -139,7 +139,7 @@
       ]
     },
     "2026-10-30": {
-      "briefing": "Yesterday's fade met a VERIFIED limpet-mine attack on a Hormuz tanker. December Brent expires today. ECI at 07:30 CT. OPEC+ meets Sunday.",
+      "briefing": "Yesterday's fade met a VERIFIED limpet-mine attack on a Hormuz tanker. December Brent expires today. ECI 07:30 CT. OPEC+ Sunday.",
       "lesson": "DO NOT FADE CONFIRMED RISK",
       "lesson_text": "Unconfirmed claims get discounted; verified attacks re-anchor the premium.",
       "events": [
@@ -186,7 +186,7 @@
       ]
     },
     "2026-11-02": {
-      "briefing": "Weekend: Qatar-mediated draft proposal headlines knocked crude about 4% pre-open. OPEC+ held December steady Sunday, no new barrels. Hormuz still effectively closed; distillate cracks near $90.",
+      "briefing": "Weekend Qatar-mediated draft headlines knocked crude about 4% pre-open. OPEC+ held December steady. Hormuz still effectively closed; distillate cracks near $90.",
       "lesson": "PREMIUM UNWIND IS NOT PHYSICAL LOOSENING",
       "lesson_text": "Watch the cracks; they tell you whether barrels actually moved.",
       "events": [
@@ -224,7 +224,7 @@
       ]
     },
     "2026-11-03": {
-      "briefing": "Election day. Monday was a 7% washout on diplomacy headlines with no deal signed. EIA tomorrow.",
+      "briefing": "Election day. Monday was a 7% washout on diplomacy headlines, no deal signed. EIA tomorrow.",
       "lesson": "AFTER A WASHOUT, SIZE DOWN",
       "lesson_text": "Whipsaw days hurt both sides; the correct position is often smaller or none.",
       "events": [
@@ -267,7 +267,7 @@
       ]
     },
     "2026-11-04": {
-      "briefing": "Election results are repricing the war premium politically. EIA 09:30 CT after four straight crude draws; distillates near multi-year lows. JPMorgan says October already ran a surplus.",
+      "briefing": "Election results are repricing the war premium politically. EIA 09:30 CT after four straight crude draws; distillates near multi-year lows; JPMorgan says October ran a surplus.",
       "lesson": "KNOW THE THESIS HIERARCHY",
       "lesson_text": "On regime days, politics and positioning outrank inventories; a bullish print can be sold.",
       "events": [
@@ -306,7 +306,7 @@
       ]
     },
     "2026-11-05": {
-      "briefing": "Crude is down about 12% on the week, deal odds cut to about 10%, more ship attacks reported, Brent has traded under $100. Gas storage 09:30 CT.",
+      "briefing": "Crude down about 12% on the week, deal odds cut to about 10%, more ship attacks reported, Brent has traded under $100. Gas storage 09:30 CT.",
       "lesson": "OVERSOLD IS A CONDITION, NOT A SIGNAL",
       "lesson_text": "Bounces after washouts are short-covering until a real catalyst confirms them.",
       "events": [
@@ -345,7 +345,7 @@
       ]
     },
     "2026-11-06": {
-      "briefing": "Jobs report 07:30 CT. Brent spiked through $100 overnight on attack reports. Spec length is near record lows. COT after the close.",
+      "briefing": "Jobs report 07:30 CT. Brent spiked through $100 overnight on attack reports. Spec length near record lows. COT after the close.",
       "lesson": "DO NOT CHASE THE SPIKE",
       "lesson_text": "The first move on a headline is the most expensive one; make the market prove it can hold the level.",
       "events": [
@@ -388,7 +388,7 @@
       ]
     },
     "2026-11-09": {
-      "briefing": "Weekend: a tanker was hit exiting Hormuz, no Sunday transits reported, Qatar's PM goes to the White House today. Unverified reports will fly. CPI and the EIA outlook land Tuesday.",
+      "briefing": "Weekend: a tanker hit exiting Hormuz, no Sunday transits reported, Qatar's PM at the White House today. Unverified reports will fly. CPI and the EIA outlook Tuesday.",
       "lesson": "TWO SOURCES OR IT IS A RUMOR",
       "lesson_text": "On unverified deal reports, the spread and the second hour tell the truth.",
       "events": [
