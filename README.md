@@ -1,3 +1,120 @@
+# REPLAY DESK (intraday market replay simulator)
+
+Re-trade the last two weeks of real energy futures, one 5-minute candle at a time, with realistic
+execution. Static site (HTML/CSS/JS, no backend) in `site/`, real data baked into `data/`.
+**Paper money only. Nothing is ever sent anywhere.**
+
+Live: https://matthiasrattansingh.github.io/matthiasrattansingh/ (deployed by
+`.github/workflows/replay-desk-pages.yml` on every push that touches `site/` or `data/`; it replaced
+TAPE as this repo's Pages site, and a later TAPE deploy would replace it again).
+
+```bash
+npm run test:replay      # unit tests (fills, slippage/fees, contract + spread P&L, no-lookahead)
+npm run build:replay     # builds _site/ (validates data + headlines.json)
+npm run serve:replay     # build, then serve on http://localhost:8000 (fully offline)
+npm run data:replay      # re-download bars with yfinance (pip install yfinance)
+```
+
+**Data.** `scripts/fetch_replay_data.py` pulls 60 days of 5-minute bars from Yahoo Finance for
+CL=F, BZ=F, NG=F, RB=F, HO=F and keeps the last 10 completed sessions (07:00 to 14:30 CT) in
+`data/<SYM>.json`. A product that fails to download is reported in `data/manifest.json` (`failed`)
+and skipped. Nothing is synthesised. Yahoo's `=F` tickers are continuous front-month series, so a
+roll can show a jump and levels can differ from a specific contract month quoted in the news.
+
+**Headlines and red herrings.** `data/headlines.json` is hand-editable (see its `_README`). Every
+entry has `"class": "real"` or `"class": "noise"`. Noise entries are red herrings written for
+training (unconfirmed social-media claims, recycled stories, price-target chatter, vague "deal is
+close" sourcing, geographically impossible facility claims, opinions with no policy action); they
+also carry `implies: "up" | "down"`. During a session the tape renders every headline from the same
+visible fields only (type, time, text), so a herring looks exactly like a real item: no class,
+source, link or note is shown.
+
+Provenance of real entries: EIA times and inventory figures were checked against eia.gov; items
+citing a publication were found in press coverage; items sourced "Desk owner's notes" (API figures,
+Fed, GDP/PCE, jobs, election and settle-level items) were supplied by the desk owner and not
+independently verified. EIA/API items with `"pause": true` auto-pause the replay. API prints at
+3:30 pm CT (after the pit close), so it shows at the next session's open as "since prior close".
+
+**Tape autopsy** (report card, after the session only): every headline that printed, in time order,
+labelled REAL or RED HERRING with its source and why it was a herring. An entry is **BAITED** when
+it opens or adds to a position within 15 minutes after a herring printed (`BAIT_WINDOW_MINUTES` in
+`site/js/config.js`), in the direction the herring implied, with the order placed at or after the
+print (a resting order placed earlier doesn't count; neither do exits). Baited trades are tagged
+in the trade log and CSV and their P&L is shown separately. "Herrings seen" and "Times baited" are
+on the report card, in the scoreboard (per session, by day, by product, cumulative) and in the CSV.
+The headlines file is public on the site, so the honour system applies: don't read it before playing.
+
+**Coach (Training path mode).** The mode switch in the top bar chooses between *Training path*
+(coach on) and *Free play* (the simulator as before, no gates, sessions labelled untrained).
+
+- **Morning briefing** (`data/coach.json`, hand-editable): prior close and what is priced in,
+  overnight headlines, the day's scheduled events, 2 to 3 scenarios with what each looks like on
+  the tape, and the lesson of the day. Trading unlocks when you scroll to the end. Briefings are
+  written as of that morning; a test rejects outcome wording and the day's own settle levels.
+  `driver_summary` is used only in the debrief.
+- **Trade ticket**: every order that opens or adds exposure needs four fields (what is priced,
+  signal, the price that proves you wrong, size vs plan). The wrong-price becomes the stop order
+  unless you untick it. Signal "None" shows a warning and a 5-second wait. Exits need no ticket.
+- **PASS** on any headline, with an optional one-tap reason. Passing is scored.
+- **Coach cards** (pause the replay, logged): first headline of the day; every scheduled print
+  (Surprise / In line, then Held / Faded three bars later); 1R against you; stop-out; 11:30 and
+  13:30 when a position is on. Cards cite your position and prices and stay under 40 words.
+- **Stop-out lockout**: 3 minutes of real time on re-entry; only a new ticket with a different
+  signal overrides it.
+- **Process score** (separate from P&L): starts at 100. Per entry: no signal −10, no stop order
+  −10, re-entry within 30 session minutes of a stop-out −15, entering on the bar a headline printed
+  without taking the ticket's 5-second pause −5. Per print: a position carried through a scheduled
+  print whose ticket signal was not "Scheduled print reaction" −5. Once per session: 3+ passes +5,
+  a loser exited at or before the planned stop +5, a winner that reached 2R +5. Clamped to 0..100.
+  Grades: A ≥ 90, B ≥ 80, C ≥ 70, D ≥ 60. P&L grade thresholds are in `COACH.pnlGrade`.
+- **Guided debrief**: five one-line answers saved to a journal in localStorage and to the CSV; the
+  day's driver is revealed after you answer question 1. Your rule opens the next briefing.
+- **Coach replay** (`site/js/coachbot.js`, `site/js/view.js`, spec in `BEST_TRADE_SPEC.md`): the
+  best realistic trade, stepped through on the same tape with narration. Two layers: the VIEW (a
+  weighted bias from real headlines as they print; scheduled prints scored against consensus; one
+  print cannot flip a weight-3 regime view unless price holds 3 bars) and the TRIGGER (signals
+  A range break, B failed extreme, C VWAP flip, taken only with the view or as an A plus C fade
+  of an exhausted move). 10 contracts, one trade a session; stop, stall rule, flat at 14:30. Results
+  are shown as dollars at 10 lots, dollars per barrel and R. A bias meter shows
+  the view and the events that set it. It is a consistent playbook, not a hindsight-optimal
+  trader: it loses on some days.
+- The full coaching spec is in `COACH_SPEC.md`.
+- **Trained** = briefing read, at least one ticket or pass, debrief saved. The scoreboard shows
+  status, process grade, P&L grade and totals by signal.
+
+**Execution model** (`site/js/config.js` holds every number):
+
+| | CL | BZ | NG | RB | HO |
+|---|---|---|---|---|---|
+| Tick | 0.01 | 0.01 | 0.001 | 0.0001 | 0.0001 |
+| Spread (ticks) | 2 | 2 | 3 | 2 | 2 |
+| Contract | 1,000 bbl | 1,000 bbl | 10,000 MMBtu | 42,000 gal | 42,000 gal |
+| $/tick | $10 | $10 | $10 | $4.20 | $4.20 |
+
+- Bid = last − ⌊spread/2⌋ ticks, ask = bid + spread. Market orders lift the ask / hit the bid,
+  then 1 tick of slippage against you. Fees are $4.50 per contract per side (per leg for spreads).
+- Limit orders fill only when a later bar trades **through** the price (touch isn't a fill), at the
+  limit or the open if the bar gapped through. Stops trigger on touch and fill at the stop (or open)
+  plus 1 tick of slippage. If one bar spans both the stop and the target of a bracket, the stop is
+  assumed to fill first.
+- Brackets: stop loss and take profit (in ticks from the entry) are OCO and reduce-only.
+- Margin is an estimate (% of notional per product, spread credit for BZ−CL); orders that would
+  push margin above equity are blocked.
+- Spread mode (BZ−CL): long = long Brent / short WTI in matched contracts, priced from both legs.
+  The spread's intrabar high/low isn't knowable from two OHLC series, so working spread orders are
+  tested against the open/close of the synthetic spread bar.
+- At 14:30 CT any open position is flattened at market and the report card opens.
+
+**No lookahead.** `Session` keeps the day's bars in a private field and only hands out bars up to
+the replay cursor. Indicators (VWAP, EMA 9/21), the chart's y-range, quotes and the order book see
+only revealed bars, and orders are only tested against bars revealed after they were placed. The
+test suite proves it by poisoning every future bar and checking that the state stays identical.
+
+Keys: Space play/pause · B buy market · S sell market · F flatten · → / ↓ step one bar
+(Shift+→ six bars). There is no rewind.
+
+---
+
 # Crack Spread Paper Trader
 
 A live-market **paper-trading game** for Brent and refined products. Each weekday you read a

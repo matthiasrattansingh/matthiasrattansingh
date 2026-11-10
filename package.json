@@ -13,8 +13,12 @@
     "dev:web": "vite --config web/vite.config.ts",
     "build": "vite build --config web/vite.config.ts",
     "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning src/server/index.ts",
-    "test": "node --test --test-reporter=spec --disable-warning=ExperimentalWarning \"test/**/*.test.ts\"",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p web/tsconfig.json"
+    "test": "node --test --test-reporter=spec --disable-warning=ExperimentalWarning \"test/**/*.test.ts\" \"test/replay/*.test.js\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p web/tsconfig.json",
+    "test:replay": "node --test --test-reporter=spec \"test/replay/*.test.js\"",
+    "build:replay": "node scripts/build-replay-site.mjs",
+    "serve:replay": "npm run build:replay && python3 -m http.server 8000 -d _site",
+    "data:replay": "python3 scripts/fetch_replay_data.py"
   },
   "dependencies": {
     "express": "^5.2.1",

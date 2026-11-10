@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>REPLAY DESK</title>
+  <meta name="description" content="Intraday energy futures market replay simulator. Paper money only.">
+  <meta name="replay-desk-build" content="__BUILD_ID__">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">REPLAY DESK</span>
+      <span class="badge-paper">PAPER MONEY ONLY</span>
+    </div>
+    <div class="pickers">
+      <label>Mode <select id="modeSel"><option value="train">Training path (coach on)</option><option value="free">Free play (untrained)</option></select></label>
+      <label>Day <select id="daySel"></select></label>
+      <label>Product <select id="instSel"></select></label>
+      <button id="loadBtn" class="btn">Load session</button>
+    </div>
+    <div class="clockbox"><span id="clockDay">—</span> <span id="clock" class="mono">--:--</span> <span class="muted">CT</span></div>
+  </header>
+
+  <section class="controls">
+    <button id="playBtn" class="btn btn-primary" title="Space">▶ Play</button>
+    <button id="stepBtn" class="btn" title="→ arrow">Step 1 bar ▸</button>
+    <div class="speeds" id="speeds" role="group" aria-label="Replay speed"></div>
+    <span id="speedInfo" class="muted small"></span>
+    <div class="progress-wrap">
+      <div class="progress" id="progress"><div class="progress-fill" id="progressFill"></div><div class="progress-ticks" id="progressTicks"></div></div>
+    </div>
+    <button id="endBtn" class="btn btn-ghost">End session</button>
+  </section>
+
+  <div id="banner" class="banner" hidden>
+    <div><strong id="bannerTitle">EIA</strong> <span id="bannerText"></span></div>
+    <button id="resumeBtn" class="btn btn-primary">Resume ▶</button>
+  </div>
+
+  <div id="coachCard" class="banner coach-card" hidden>
+    <div><strong>COACH</strong> <span id="coachText"></span></div>
+    <div id="coachBtns" class="coach-btns"></div>
+  </div>
+
+  <main class="layout">
+    <section class="col-main">
+      <div class="card" id="pathCard">
+        <div class="card-head"><h2>Training path <span class="muted small" id="pathSum"></span></h2></div>
+        <ol class="path" id="pathList"></ol>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-head">
+          <div><span id="instName" class="inst-name">—</span> <span id="ohlc" class="mono small muted"></span></div>
+          <div class="legend small">
+            <span class="lg lg-vwap">VWAP</span><span class="lg lg-e9">EMA 9</span><span class="lg lg-e21">EMA 21</span><span class="lg lg-bid">Bid</span><span class="lg lg-ask">Ask</span>
+          </div>
+        </div>
+        <canvas id="chart" aria-label="Price chart of revealed bars"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Trade log</h2><button id="csvBtn" class="btn btn-sm">Download CSV</button></div>
+        <div class="table-wrap"><table class="tbl" id="tradeTbl">
+          <thead><tr><th>Entry</th><th>Exit</th><th>Product</th><th>Side</th><th class="r">Size</th><th class="r">Entry px</th><th class="r">Exit px</th><th class="r">Gross</th><th class="r">Fees</th><th class="r">Net</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Scoreboard <span class="muted small">all sessions played on this browser</span></h2><button id="clearScoresBtn" class="btn btn-sm btn-ghost">Clear</button></div>
+        <div class="score-grid">
+          <div class="table-wrap"><h3>By day</h3><table class="tbl" id="scoreDay"><thead><tr><th>Day</th><th class="r">Sessions</th><th class="r">Trades</th><th class="r">Beat passive</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">Cum. P&amp;L</th></tr></thead><tbody></tbody></table></div>
+          <div class="table-wrap"><h3>By product</h3><table class="tbl" id="scoreProd"><thead><tr><th>Product</th><th class="r">Sessions</th><th class="r">Trades</th><th class="r">Beat passive</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">Cum. P&amp;L</th></tr></thead><tbody></tbody></table></div>
+        </div>
+        <h3>By session</h3>
+        <div class="table-wrap"><table class="tbl" id="scoreSess"><thead><tr><th>Played (UTC)</th><th>Day</th><th>Product</th><th>Status</th><th class="r">Trades</th><th class="r">Passes</th><th class="r">Herrings seen</th><th class="r">Times baited</th><th class="r">Process</th><th class="r">P&amp;L grade</th><th class="r">P&amp;L</th></tr></thead><tbody></tbody></table></div>
+        <h3>By signal <span class="muted">which of your signals makes money</span></h3>
+        <div class="table-wrap"><table class="tbl" id="scoreSig"><thead><tr><th>Signal</th><th class="r">Trades</th><th class="r">Win rate</th><th class="r">Avg / trade</th><th class="r">Net P&amp;L</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </section>
+
+    <aside class="col-side">
+      <div class="card quote-card">
+        <div class="quote">
+          <div class="q bid"><span class="small muted">BID</span><span id="bid" class="mono big">—</span></div>
+          <div class="q last"><span class="small muted">LAST</span><span id="last" class="mono">—</span></div>
+          <div class="q ask"><span class="small muted">ASK</span><span id="ask" class="mono big">—</span></div>
+        </div>
+        <div id="legQuotes" class="small mono muted"></div>
+      </div>
+
+      <div class="card ticket">
+        <div class="ticket-row">
+          <label>Size <input id="qty" type="number" min="1" step="1" value="1" class="mono"></label>
+          <label>Type <select id="ordType"><option value="MKT">Market</option><option value="LMT">Limit</option><option value="STP">Stop</option></select></label>
+          <label id="priceWrap" hidden>Price <input id="ordPrice" type="number" step="any" class="mono"></label>
+        </div>
+        <label class="chk"><input id="bracketChk" type="checkbox"> Bracket (attach stop loss / take profit)</label>
+        <div class="ticket-row" id="bracketRow" hidden>
+          <label>Stop loss (ticks) <input id="slTicks" type="number" min="1" step="1" value="20" class="mono"></label>
+          <label>Take profit (ticks) <input id="tpTicks" type="number" min="1" step="1" value="40" class="mono"></label>
+        </div>
+        <div id="bracketPreview" class="small mono muted" hidden></div>
+        <div class="ticket-btns">
+          <button id="buyBtn" class="btn btn-buy" title="B">BUY</button>
+          <button id="sellBtn" class="btn btn-sell" title="S">SELL</button>
+        </div>
+        <div id="lockInfo" class="small msg err" hidden></div>
+        <div id="marginInfo" class="small muted"></div>
+        <div id="ticketMsg" class="small msg" role="status"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Position</h2><button id="flattenBtn" class="btn btn-sm btn-warn" title="F">Flatten</button></div>
+        <dl class="pos" id="posPanel"></dl>
+        <h3>Working orders</h3>
+        <ul class="orders" id="orderList"></ul>
+      </div>
+
+      <div class="card tape-card">
+        <div class="card-head"><h2>Event tape</h2></div>
+        <ol class="tape" id="tape"></ol>
+      </div>
+
+      <div class="card small muted keys">
+        <strong>Keys</strong> Space play/pause · B buy mkt · S sell mkt (entries open the trade ticket in Training path) · F flatten · → / ↓ step 1 bar · Shift+→ step 6 bars. No rewind: like the real thing.
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="reportDlg" class="report">
+    <form method="dialog">
+      <h2>Session report card</h2>
+      <p id="reportSub" class="muted"></p>
+      <div class="report-grid" id="reportGrid"></div>
+      <div id="processBox" hidden>
+        <h3>Process <span class="muted">graded separately from P&amp;L</span></h3>
+        <p id="coachVerdict" class="coach-line"></p>
+        <table class="tbl" id="processTbl"><tbody></tbody></table>
+        <h3>By signal</h3>
+        <table class="tbl" id="sigTbl"><thead><tr><th>Signal</th><th class="r">Trades</th><th class="r">Wins</th><th class="r">Net</th></tr></thead><tbody></tbody></table>
+      </div>
+      <p id="riskLine" class="coach-line"></p>
+      <h3>Compared with</h3>
+      <table class="tbl" id="benchTbl"><tbody></tbody></table>
+      <h3>Tape autopsy</h3>
+      <p id="autopsySum" class="small muted"></p>
+      <div class="autopsy-wrap"><table class="tbl" id="autopsyTbl"><thead><tr><th>Time</th><th>Class</th><th>Headline</th></tr></thead><tbody></tbody></table></div>
+      <div class="report-btns">
+        <span id="trainedTag" class="tag"></span>
+        <button type="button" id="debriefBtn" class="btn btn-primary">Guided debrief</button>
+        <button type="button" id="coachReplayBtn" class="btn">Coach replay</button>
+        <button type="button" id="reportCsvBtn" class="btn">Download trade log CSV</button>
+        <button class="btn">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="briefDlg" class="report">
+    <h2>Morning briefing <span id="briefSub" class="muted small"></span></h2>
+    <div id="briefBody" class="brief-body" tabindex="0"></div>
+    <div class="report-btns"><span id="briefHint" class="small muted">Scroll to the end to unlock trading.</span><button type="button" id="briefOk" class="btn btn-primary" disabled>Start session</button></div>
+  </dialog>
+
+  <dialog id="ticketDlg" class="report ticket-dlg">
+    <h2>Trade ticket</h2>
+    <p id="tkSub" class="mono small"></p>
+    <label>1. What is the market pricing right now? <input id="tkPricing" type="text" maxlength="160" autocomplete="off"></label>
+    <label>2. My signal <select id="tkSignal"></select></label>
+    <p id="tkWarn" class="small msg err" hidden></p>
+    <label>3. What proves me wrong? (price) <input id="tkWrong" type="number" step="any" class="mono"></label>
+    <label class="chk"><input id="tkAttach" type="checkbox" checked> Attach it as my stop order</label>
+    <label>4. Size vs plan <select id="tkSize"></select></label>
+    <p id="tkPause" class="small coach-line" hidden></p>
+    <p id="tkLock" class="small msg err" hidden></p>
+    <p id="tkErr" class="small msg err" role="status"></p>
+    <div class="report-btns"><button type="button" id="tkCancel" class="btn">Cancel</button><button type="button" id="tkOk" class="btn btn-primary">Place order</button></div>
+  </dialog>
+
+  <dialog id="debriefDlg" class="report">
+    <h2>Guided debrief <span id="dbSub" class="muted small"></span></h2>
+    <p class="small muted">Five answers, one line each. They save to your journal and the CSV. Required for the session to count as trained.</p>
+    <div id="dbBody"></div>
+    <p id="dbErr" class="small msg err" role="status"></p>
+    <div class="report-btns"><button type="button" id="dbCancel" class="btn">Later</button><button type="button" id="dbSave" class="btn btn-primary">Save debrief</button></div>
+  </dialog>
+
+  <dialog id="coachDlg" class="report coach-replay">
+    <h2>Watch the coach trade <span class="tag tag-COACH">10 contracts, one trade</span> <span id="crSub" class="muted small"></span></h2>
+    <p class="small muted">Two layers: the VIEW (real headlines as they printed, weighted) decides which side counts; the TRIGGER (price signals A, B, C) decides when. Same fills and costs. Your own fills are marked YOU.</p>
+    <div id="crView" class="crview" aria-label="Coach view: bias meter and the events that set it"></div>
+    <canvas id="crChart" aria-label="Coach replay chart"></canvas>
+    <div class="cr-controls"><button type="button" id="crBack" class="btn btn-sm">◂ Back</button><button type="button" id="crStep" class="btn btn-sm">Step bar ▸</button><button type="button" id="crNext" class="btn btn-sm btn-primary">Next decision ▸▸</button><span id="crState" class="mono small"></span></div>
+    <ol id="crNotes" class="tape cr-notes"></ol>
+    <div class="report-btns"><button type="button" id="crClose" class="btn">Close</button></div>
+  </dialog>
+
+  <footer class="foot small muted">
+    Data: Yahoo Finance 5-minute bars (continuous front month) baked into <code>/data</code>. Headlines from hand-editable <code>data/headlines.json</code>.
+    Some tape headlines are deliberate red herrings written for training, not real news; which ones is revealed in the tape autopsy after the session. Simulation only. No orders go anywhere. <span id="buildId"></span>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
